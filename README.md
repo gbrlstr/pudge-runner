@@ -10,7 +10,7 @@ Um jogo endless runner inspirado no personagem Pudge do DOTA 2. Desvie dos obst�
 
 ### 🎯 Gameplay
 - **Sistema de pulo responsivo** - Controle preciso do personagem
-- **Obstáculos dinâmicos** - Ganchos e árvores com diferentes padrões
+- **Obstáculos dinâmicos** - Diversos objetos como obistaculos
 - **Sistema de níveis progressivos** - Dificuldade aumenta gradualmente
 - **Sistema de pontuação** - High score persistente com localStorage
 - **Detecção de colisão otimizada** - Hitboxes mais perdoáveis para melhor jogabilidade
@@ -54,32 +54,6 @@ pudge-runner/
 └── assets/            # (Futuro) Pasta para sprites locais
 ```
 
-## 🔧 Instalação e Execução
-
-1. **Clone o repositório:**
-   ```bash
-   git clone [URL_DO_REPOSITORIO]
-   cd pudge-runner
-   ```
-
-2. **Execute localmente:**
-   - Abra `index.html` diretamente no navegador, ou
-   - Use um servidor local simples:
-     ```bash
-     # Python 3
-     python -m http.server 8000
-     
-     # Node.js (http-server)
-     npx http-server
-     
-     # PHP
-     php -S localhost:8000
-     ```
-
-3. **Acesse o jogo:**
-   - Navegador: `file:///caminho/para/index.html`
-   - Servidor local: `http://localhost:8000`
-
 ## 🎯 Níveis de Dificuldade
 
 | Nível | Nome | Velocidade | Spawn Rate | Score Necessário |
@@ -93,7 +67,7 @@ pudge-runner/
 
 ## 🚀 Melhorias Implementadas
 
-### Versão 2.0 - Enhanced Edition
+### Versão 1.0 - Enhanced Edition
 - ✅ Arquitetura completamente reescrita em OOP
 - ✅ Interface moderna com tema DOTA 2
 - ✅ Sistema de partículas e efeitos visuais
@@ -105,22 +79,123 @@ pudge-runner/
 - ✅ Sistema robusto de carregamento de assets
 - ✅ Controles touch para mobile
 
-### Versão Original (1.0)
-- ✅ Gameplay básico funcional
-- ✅ Sprites do DOTA 2
-- ✅ Sistema de colisão
-- ✅ Controles de teclado
-
 ## 🔮 Próximas Melhorias
 
-- [ ] Sistema de som e música
-- [ ] Power-ups especiais
-- [ ] Múltiplos personagens jogáveis
-- [ ] Modo multiplayer local
-- [ ] Achievements/conquistas
-- [ ] Customização de personagem
-- [ ] Cenários variados
-- [ ] Exportação para PWA (Progressive Web App)
+### 🚀 **Performance e Otimização**
+
+- [ ] **Sistema de Pool de Objetos** - Reutilização de obstáculos e partículas para melhor performance
+- [ ] **Dirty Rectangles** - Re-renderização apenas de áreas modificadas
+- [ ] **Otimização de Canvas** - Técnicas avançadas de renderização
+- [ ] **Lazy Loading** - Carregamento sob demanda de assets
+
+### 🎮 **Gameplay Avançado**
+
+- [ ] **Sistema de Power-ups** - Invencibilidade, pulo duplo, câmera lenta
+- [ ] **Sistema de Combo/Multiplier** - Pontuação multiplicada por sequências perfeitas
+- [ ] **Modos de Jogo** - Survival, Time Attack, Challenge Mode
+- [ ] **Boss Battles** - Chefes especiais em intervalos específicos
+- [ ] **Sistema de Vidas** - Múltiplas chances com regeneração
+
+### 🏆 **Sistema de Progressão**
+
+- [ ] **Achievements/Conquistas** - 20+ conquistas desbloqueáveis
+- [ ] **Sistema de Ranking** - Leaderboards locais e online
+- [ ] **Desbloqueáveis** - Novos personagens, skins, efeitos
+- [ ] **Sistema de Moedas** - Economia interna do jogo
+- [ ] **Estatísticas Detalhadas** - Analytics de performance do jogador
+
+### 🎨 **Melhorias Visuais**
+
+- [ ] **Sistema de Partículas Avançado** - Efeitos visuais mais complexos
+- [ ] **Animações de Transição** - Tweening e easing functions
+- [ ] **Shaders e Filtros** - Efeitos visuais pós-processamento
+- [ ] **Parallax Multilayer** - Background com múltiplas camadas
+- [ ] **Weather System** - Chuva, neve, tempestades
+
+### 🔊 **Sistema de Áudio Completo**
+
+- [ ] **Música Dinâmica** - Trilha sonora adaptativa ao gameplay
+- [ ] **Efeitos Sonoros** - SFX para todas as ações do jogo
+- [ ] **Mixagem de Áudio** - Controle independente de música/efeitos
+- [ ] **Audio Ducking** - Redução automática de música durante SFX
+- [ ] **Feedback Háptico** - Vibração em dispositivos móveis
+
+### 🛠️ **Arquitetura e Código**
+
+- [ ] **State Machine** - Gerenciamento robusto de estados do jogo
+- [ ] **Component System** - Arquitetura baseada em componentes
+- [ ] **Event System** - Sistema de eventos desacoplado
+- [ ] **Save System** - Salvamento completo do progresso
+- [ ] **Config Manager** - Sistema de configurações personalizáveis
+
+### 📱 **Responsividade e Acessibilidade**
+
+- [ ] **Viewport Adaptativo** - Adaptação automática a qualquer resolução
+- [ ] **Controles Customizáveis** - Remapeamento de teclas
+- [ ] **Acessibilidade** - Suporte a leitores de tela e daltonismo
+- [ ] **PWA (Progressive Web App)** - Instalação como app nativo
+- [ ] **Offline Mode** - Funcionamento sem conexão
+
+### 🔗 **Recursos Sociais**
+
+- [ ] **Compartilhamento** - Share de scores nas redes sociais
+- [ ] **Screenshots** - Captura de momentos épicos
+- [ ] **Replay System** - Gravação e reprodução de partidas
+- [ ] **Multiplayer Local** - Modo cooperativo/competitivo
+- [ ] **Cloud Save** - Sincronização entre dispositivos
+
+### 🎭 **Personalização**
+
+- [ ] **Editor de Níveis** - Criação de fases personalizadas
+- [ ] **Mod Support** - Suporte básico a modificações
+- [ ] **Theme System** - Temas visuais alternativos
+- [ ] **Custom Sprites** - Upload de sprites personalizados
+- [ ] **Difficulty Scaling** - Ajuste manual de dificuldade
+
+### 📊 **Analytics e Debug**
+
+- [ ] **Game Analytics** - Telemetria detalhada de gameplay
+- [ ] **Performance Monitor** - FPS, memory usage em tempo real
+- [ ] **Debug Console** - Console de comandos para desenvolvimento
+- [ ] **A/B Testing** - Testes de diferentes mecânicas
+- [ ] **Crash Reporting** - Sistema de relatório de erros
+
+## 📋 **Roadmap de Desenvolvimento**
+
+### **Versão 1.1 - Audio & Power-ups** (2-3 semanas)
+
+- 🔊 Sistema básico de áudio
+- 🎮 3-5 power-ups fundamentais
+- 📱 Melhor responsividade mobile
+- 🎨 Partículas aprimoradas
+
+### **Versão 1.2 - Progressão & Social** (3-4 semanas)
+
+- 🏆 Sistema de achievements (15+ conquistas)
+- ⚙️ Configurações personalizáveis
+- 📊 Estatísticas básicas
+- 🔗 Compartilhamento social
+
+### **Versão 1.5 - Performance & UX** (4-5 semanas)
+
+- 🚀 Object pooling e otimizações
+- 🎭 State machine implementation
+- 📱 PWA conversion
+- 🛠️ Sistema de configuração avançado
+
+### **Versão 2.0 - Major Update** (6-8 semanas)
+
+- 🎮 Novos modos de jogo
+- 👥 Multiplayer local
+- 🎨 Sistema de temas
+- 🔧 Editor básico de níveis
+
+### **Versão 2.5 - Community Edition** (8-10 semanas)
+
+- 🌐 Features online
+- 🏆 Leaderboards globais
+- 🎬 Sistema de replay
+- 🛠️ Mod support básico
 
 ## 🛠️ Tecnologias Utilizadas
 
@@ -158,4 +233,6 @@ Baseado no universo de DOTA 2 da Valve Corporation. Este é um projeto fan-made 
 
 ---
 
-**Desenvolvido com ❤️ para a comunidade DOTA 2**
+---
+
+Desenvolvido com ❤️ para a comunidade DOTA 2
