@@ -1,0 +1,38 @@
+{
+  "name": "pudge-runner",
+  "version": "2.0.0",
+  "description": "Um jogo endless runner inspirado no personagem Pudge do DOTA 2",
+  "main": "index.html",
+  "keywords": [
+    "game",
+    "html5",
+    "canvas",
+    "dota2",
+    "pudge",
+    "endless-runner",
+    "javascript"
+  ],
+  "author": "Developed for DOTA 2 Community",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/username/pudge-runner.git"
+  },
+  "bugs": {
+    "url": "https://github.com/username/pudge-runner/issues"
+  },
+  "homepage": "https://github.com/username/pudge-runner#readme",
+  "scripts": {
+    "start": "npx http-server -p 8000 -c-1",
+    "dev": "npx http-server -p 8000 -c-1 -o",
+    "build": "echo 'No build process needed for static HTML5 game'",
+    "test": "echo 'No tests specified'",
+    "lint": "echo 'No linting configured'"
+  },
+  "devDependencies": {
+    "http-server": "^14.1.1"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}
