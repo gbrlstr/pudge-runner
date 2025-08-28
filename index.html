@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Pudge Runner - DOTA 2 Endless Runner</title>
+  <link rel="icon" type="image/x-icon" href="./assets/logo.png">
   <meta name="description" content="Um jogo endless runner baseado no Pudge do DOTA 2. Desvie dos obstáculos e alcance a maior pontuação!">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -11,7 +12,10 @@
   <link rel="stylesheet" href="./assets/style.css" />
 </head>
 <body>
+  <!-- Game Container -->
   <div class="game-container">
+
+    <!-- UI Panels -->
     <div class="ui-panel score-panel">
       <div class="stats-display">
         <div class="stat-item">
@@ -29,8 +33,10 @@
       </div>
     </div>
 
+    <!-- Game Canvas -->
     <canvas id="gameCanvas" width="800" height="400"></canvas>
 
+    <!-- Game Controls -->
     <div class="ui-panel controls-panel">
       <div class="controls-list">
         <span class="key">SPACE</span>
@@ -44,6 +50,7 @@
       </div>
     </div>
 
+    <!-- Overlays -->
     <div class="loading-screen" id="loadingScreen">
       <div class="loading-title">PUDGE RUNNER</div>
       <div class="loading-bar">
@@ -71,7 +78,7 @@
   </div>
 
   <div class="version-info">
-    Pudge Runner v2.0 - Enhanced Edition
+    Pudge Runner v1.0 - Enhanced Edition
   </div>
 
   <script src="./js/pudgerunner.js"></script>
