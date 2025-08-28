@@ -52,7 +52,7 @@ class PudgeRunner {
     this.sprites = {
       pudge: null,
       boss: null,
-      creep: null,
+      meepo: null,
       ghost: null,
       mad: null,
       spoon: null,
@@ -69,7 +69,7 @@ class PudgeRunner {
     this.spriteUrls = {
       pudge: "./assets/imgs/pudg.gif",
       boss: "./assets/imgs/boss.gif",
-      creep: "./assets/imgs/creep.gif",
+      meepo: "./assets/imgs/meepo.gif",
       ghost: "./assets/imgs/ghost.gif",
       mad: "./assets/imgs/mad.gif",
       spoon: "./assets/imgs/spoon.gif",
@@ -494,12 +494,12 @@ class PudgeRunner {
   }
 
   spawnObstacle() {
-    const types = ["boss", "creep", "ghost", "mad", "spoon"];
+    const types = ["boss", "meepo", "ghost", "mad", "spoon"];
     const type = types[Math.floor(Math.random() * types.length)];
 
     const configs = {
       boss: { width: 80, height: 80, color: "#ff4444" },
-      creep: { width: 60, height: 60, color: "#44ff44" },
+      meepo: { width: 70, height: 70, color: "#44ff44" },
       ghost: { width: 70, height: 90, color: "#4444ff" },
       mad: { width: 75, height: 75, color: "#ff44ff" },
       spoon: { width: 50, height: 80, color: "#ffff44" },
@@ -701,7 +701,7 @@ class PudgeRunner {
         this.ctx.translate(centerX, centerY);
 
         // inverter horizontalmente
-        const shouldFlip = ["boss", "ghost", "spoon"].includes(obstacle.type);
+        const shouldFlip = ["boss", "ghost", "spoon", "meepo"].includes(obstacle.type);
         if (shouldFlip) {
           this.ctx.scale(-1, 1);
         }
@@ -749,8 +749,8 @@ class PudgeRunner {
         );
         break;
 
-      case "creep":
-        // Desenhar um creep (círculo)
+      case "meepo":
+        // Desenhar um meepo (círculo)
         this.ctx.beginPath();
         this.ctx.arc(
           obstacle.x + obstacle.width / 2,
