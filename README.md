@@ -83,7 +83,7 @@ pudge-runner/
 
 ### 🚀 **Performance e Otimização**
 
-- [ ] **Sistema de Pool de Objetos** - Reutilização de obstáculos e partículas para melhor performance
+- [x] **Sistema de Pool de Objetos** - Reutilização de obstáculos e partículas para melhor performance
 - [ ] **Dirty Rectangles** - Re-renderização apenas de áreas modificadas
 - [ ] **Otimização de Canvas** - Técnicas avançadas de renderização
 - [ ] **Lazy Loading** - Carregamento sob demanda de assets
