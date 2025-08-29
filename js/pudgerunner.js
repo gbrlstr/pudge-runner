@@ -637,20 +637,23 @@ class PudgeRunner {
       const obstacle = this.obstacles[i];
       obstacle.x -= this.gameState.speed;
 
+      // Remove off-screen obstacles and award points
+      if (obstacle.x + obstacle.width < 0) {
+        this.obstacles.splice(i, 1);
+        this.gameState.score += 10;
+        continue;
+      }
+
       // Check collision
       if (this.isColliding(this.pudge, obstacle)) {
         this.createCollisionParticles(
           obstacle.x + obstacle.width / 2,
           obstacle.y + obstacle.height / 2
         );
+        console.log("Colisão detectada com o obstáculo:", obstacle.type);
+
         this.gameOver();
         return;
-      }
-
-      // Remove off-screen obstacles and award points
-      if (obstacle.x + obstacle.width < 0) {
-        this.obstacles.splice(i, 1);
-        this.gameState.score += 10;
       }
     }
   }
@@ -746,14 +749,33 @@ class PudgeRunner {
   }
 
   isColliding(rect1, rect2) {
-    // Ajustar padding baseado no tamanho do herói para uma hitbox mais precisa
-    // Com herói de 120x120, usamos um padding proporcional para que a hitbox seja mais próxima da imagem visual
-    const padding = 20; // Ajustado de 30 para 20 pixels (proporcional ao novo tamanho)
+    // Padding proporcional ao tamanho dos objetos
+    const pudgePadX = Math.max(10, rect1.width * 0.18);
+    const pudgePadY = Math.max(10, rect1.height * 0.18);
+    const obsPadX = Math.max(8, rect2.width * 0.15);
+    const obsPadY = Math.max(8, rect2.height * 0.15);
+
+    // Tolerância extra para evitar game over injusto
+    const tolerance = 6;
+
+    // Hitbox do pudge
+    const pudgeLeft   = rect1.x + pudgePadX + tolerance;
+    const pudgeRight  = rect1.x + rect1.width - pudgePadX - tolerance;
+    const pudgeTop    = rect1.y + pudgePadY + tolerance;
+    const pudgeBottom = rect1.y + rect1.height - pudgePadY - tolerance;
+
+    // Hitbox do obstáculo
+    const obsLeft   = rect2.x + obsPadX;
+    const obsRight  = rect2.x + rect2.width - obsPadX;
+    const obsTop    = rect2.y + obsPadY;
+    const obsBottom = rect2.y + rect2.height - obsPadY;
+
+    // Colisão só ocorre se houver sobreposição real
     return (
-      rect1.x + padding < rect2.x + rect2.width - padding &&
-      rect1.x + rect1.width - padding > rect2.x + padding &&
-      rect1.y + padding < rect2.y + rect2.height - padding &&
-      rect1.y + rect1.height - padding > rect2.y + padding
+      pudgeRight > obsLeft &&
+      pudgeLeft < obsRight &&
+      pudgeBottom > obsTop &&
+      pudgeTop < obsBottom
     );
   }
 
