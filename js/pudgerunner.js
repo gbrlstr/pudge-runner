@@ -90,6 +90,7 @@ class PudgeRunner {
       level: 1,
       speed: this.config.BASE_SPEED,
       spawnRate: this.config.OBSTACLE_SPAWN_RATE,
+      nextSpawnFrame: this.config.OBSTACLE_SPAWN_RATE,
     };
 
     this.pudge = {
@@ -627,36 +628,76 @@ class PudgeRunner {
   }
 
   updateObstacles() {
-    // Spawn obstacles
-    if (this.gameState.frame % this.gameState.spawnRate === 0) {
-      this.spawnObstacle();
-    }
-
-    // Update existing obstacles
-    for (let i = this.obstacles.length - 1; i >= 0; i--) {
-      const obstacle = this.obstacles[i];
-      obstacle.x -= this.gameState.speed;
-
-      // Remove off-screen obstacles and award points
-      if (obstacle.x + obstacle.width < 0) {
-        this.obstacles.splice(i, 1);
-        this.gameState.score += 10;
-        continue;
+    // Spawning por agendamento, não por módulo, para controlar grupos
+    if (this.gameState.frame >= this.gameState.nextSpawnFrame) {
+      const spawned = this.spawnObstacleGroup();
+      // Após spawnar um grupo, agende o próximo levando em conta a dificuldade
+        const base = this.gameState.spawnRate;
+        const bonusDelay = Math.max(0, (spawned-1) * 20); // pequeno respiro se vierem 2-3
+        this.gameState.nextSpawnFrame = this.gameState.frame + base + bonusDelay;
       }
 
-      // Check collision
-      if (this.isColliding(this.pudge, obstacle)) {
-        this.createCollisionParticles(
-          obstacle.x + obstacle.width / 2,
-          obstacle.y + obstacle.height / 2
-        );
-        console.log("Colisão detectada com o obstáculo:", obstacle.type);
+    // Atualização/colisão
+      for (let i = this.obstacles.length - 1; i >= 0; i--) {
+        const o = this.obstacles[i]; o.x -= this.gameState.speed;
+        if (o.x + o.width < 0) {
+          this.obstacles.splice(i,1);
+          this.gameState.score += 10;
+        }
 
-        this.gameOver();
-        return;
+        if (this.isColliding(this.pudge, o)) {
+          this.createCollisionParticles(o.x + o.width/2, o.y + o.height/2);
+          this.gameOver();
+          return;
+        }
       }
-    }
   }
+
+  // Decide quantos obstáculos no grupo, baseado no score (progressão) e retorna a quantidade
+    pickGroupCount() {
+      // Máximo 2 no começo; chance de 3 depois
+      if (this.gameState.score > 100 && Math.random() < 0.30) return 3;
+      if (this.gameState.score > 50 && Math.random() < 0.15) return 3;
+      return Math.random() < 0.60 ? 1 : 2; // maioria das vezes 1, senão 2
+    }
+
+    // Gap mínimo seguro com base na física do pulo e velocidade dos obstáculos
+    computeSafeGap(speed) {
+      const flightFrames = Math.max(18, Math.floor((Math.abs(this.config.JUMP_POWER) * 2) / this.config.GRAVITY));
+      // distância que o obstáculo percorre enquanto o jogador está no ar
+      const horiz = speed * flightFrames;
+      // margem extra + largura do personagem para aterrissar entre dois
+      const gap = Math.floor(horiz * 0.45) + this.pudge.width; // 45% do alcance do pulo
+      return Math.max(140, Math.min(320, gap)); // clamp para não ficar absurdo
+    }
+
+    // Cria 1-3 obstáculos posicionados com gaps seguros. Retorna quantos spawnou.
+    spawnObstacleGroup() {
+      const types = ["boss","meepo","ghost","mad","spoon"];
+      const cfgs = { boss:{w:80,h:80,c:'#ff4444'}, meepo:{w:70,h:70,c:'#44ff44'}, ghost:{w:70,h:90,c:'#4444ff'}, mad:{w:75,h:75,c:'#ff44ff'}, spoon:{w:50,h:80,c:'#ffff44'} };
+
+      const count = this.pickGroupCount();
+      const gapBase = this.computeSafeGap(this.gameState.speed);
+      let x = this.canvas.width + Math.floor(Math.random()*60); // leve variação inicial
+
+      let usedTypes = [];
+      for (let i=0;i<count;i++) {
+        // Evita repetir tipo no mesmo grupo
+        let type;
+        do {
+          type = types[Math.floor(Math.random()*types.length)];
+        } while (usedTypes.includes(type) && usedTypes.length < types.length);
+        usedTypes.push(type);
+        const c = cfgs[type];
+        const obs = { x, y: this.config.GROUND_Y - c.h, width: c.w, height: c.h, type, color: c.c, animOffset: Math.random()*Math.PI*2 };
+        this.obstacles.push(obs);
+        // Próximo obstáculo do grupo fica depois do gap seguro
+        const extra = Math.floor(Math.random()*70); // pequena variação
+        x += c.w + gapBase + extra;
+      }
+
+      return count;
+    }
 
   updateParticles() {
     for (let i = this.particles.length - 1; i >= 0; i--) {
@@ -783,7 +824,7 @@ class PudgeRunner {
     this.gameState.gameOver = true;
     this.saveBestScore();
     this.elements.finalScore.textContent = `Pontuação Final: ${this.gameState.score}`;
-    this.elements.gameOverOverlay.style.display = "flex";
+    // this.elements.gameOverOverlay.style.display = "flex";
   }
 
   render() {
