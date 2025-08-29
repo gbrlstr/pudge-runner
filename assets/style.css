@@ -34,6 +34,8 @@ body {
 
 .game-container {
   position: relative;
+  width: 100vw;
+  height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -41,11 +43,17 @@ body {
 }
 
 canvas {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   background: linear-gradient(180deg, #2a3441 0%, #1a202c 50%, #0f1419 100%);
   border: 3px solid var(--border);
   border-radius: 15px;
   box-shadow: 0 0 30px var(--glow), 0 15px 40px var(--shadow);
   transition: box-shadow 0.3s ease;
+  max-width: 100%;
+  max-height: 100%;
 }
 
 canvas:hover {
@@ -63,16 +71,19 @@ canvas:hover {
 }
 
 .score-panel {
-  top: -90px;
-  left: 0;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
   min-width: 200px;
+  z-index: 10;
 }
 
 .controls-panel {
-  bottom: -160px;
-  right: 0;
+  bottom: 20px;
+  right: 20px;
   font-size: 0.85rem;
   opacity: 0.9;
+  z-index: 10;
 }
 
 .stats-display {
@@ -120,7 +131,7 @@ canvas:hover {
 }
 
 .loading-screen {
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
   width: 100%;
@@ -170,7 +181,7 @@ canvas:hover {
 }
 
 .menu-overlay {
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
   width: 100%;

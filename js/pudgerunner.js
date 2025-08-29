@@ -5,6 +5,8 @@
 class PudgeRunner {
   constructor() {
     this.canvas = document.getElementById("gameCanvas");
+    this.canvas.width = 1500;
+    this.canvas.height = 500;
     this.ctx = this.canvas.getContext("2d");
     this.initializeElements();
     this.initializeConfig();
@@ -28,6 +30,7 @@ class PudgeRunner {
       bestScore: document.getElementById("bestScore"),
       currentLevel: document.getElementById("currentLevel"),
       finalScore: document.getElementById("finalScore"),
+      controlsPanel: document.getElementById("controlsPanel"),
     };
   }
 
@@ -112,7 +115,6 @@ class PudgeRunner {
 
   initializeAssets() {
     this.soundEnabled = true;
-    // Note: Audio would be added here in a full implementation
   }
 
   initializeBackground() {
@@ -305,17 +307,12 @@ class PudgeRunner {
     for (const key of spriteKeys) {
       try {
         if (this.spriteUrls[key].endsWith(".gif")) {
-          // Carregar GIF animado (para pudge e obstáculos)
-          if (key === "pudge") {
-            await this.loadAnimatedGif(this.spriteUrls[key]);
-          } else {
             // Para obstáculos, carregar como imagem normal mas preparar para animação futura
             const image = await this.loadImage(this.spriteUrls[key]);
             this.sprites[key] = image;
             
             // Adicionar ao pool de sprites
             this.addSpriteToPool(key, image);
-          }
         } else {
           // Carregar imagem normal
           const image = await this.loadImage(this.spriteUrls[key]);
@@ -440,7 +437,17 @@ class PudgeRunner {
   showMainMenu() {
     this.elements.loadingScreen.style.display = "none";
     this.elements.menuOverlay.style.display = "flex";
+    this.elements.controlsPanel.style.display = "flex";
     this.updateUI();
+  }
+
+  showMenuControls() {
+    const controlsPanel = this.elements.controlsPanel;
+    if (controlsPanel.style.display === "none") {
+      controlsPanel.style.display = "flex";
+    } else {
+      controlsPanel.style.display = "none";
+    }
   }
 
   bindEvents() {
@@ -492,8 +499,8 @@ class PudgeRunner {
         }
         break;
       case "KeyM":
-        if (!this.gameState.started) {
-          this.showMainMenu();
+        if (this.gameState.started) {
+          this.showMenuControls();
         }
         break;
     }
