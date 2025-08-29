@@ -457,7 +457,7 @@ class PudgeRunner {
     );
 
     document.addEventListener("keydown", (e) => this.handleKeyDown(e));
-    document.addEventListener("keyup", (e) => this.handleKeyUp(e));
+    // document.addEventListener("keyup", (e) => this.handleKeyUp(e));
 
     // Touch support for mobile
     this.canvas.addEventListener("touchstart", (e) => {
@@ -482,9 +482,7 @@ class PudgeRunner {
 
     switch (e.code) {
       case "Space":
-        if (!this.gameState.started) {
-          this.startGame();
-        } else if (!this.gameState.gameOver && !this.gameState.paused) {
+        if (!this.gameState.gameOver && !this.gameState.paused) {
           this.jump();
         }
         break;
@@ -695,8 +693,6 @@ class PudgeRunner {
 
   spawnObstacle() {
     const types = ["boss", "meepo", "ghost", "mad", "spoon"];
-    const type = types[Math.floor(Math.random() * types.length)];
-
     const configs = {
       boss: { width: 80, height: 80, color: "#ff4444" },
       meepo: { width: 70, height: 70, color: "#44ff44" },
@@ -705,18 +701,48 @@ class PudgeRunner {
       spoon: { width: 50, height: 80, color: "#ffff44" },
     };
 
-    const config = configs[type];
-    const obstacle = {
-      x: this.canvas.width,
-      y: this.config.GROUND_Y - config.height,
-      width: config.width,
-      height: config.height,
-      type: type,
-      color: config.color,
-      animOffset: Math.random() * Math.PI * 2,
-    };
+    // Decide se vai spawnar 1 ou 2 obstáculos
+    const spawnCount = Math.random() < 0.7 ? 1 : 2;
 
-    this.obstacles.push(obstacle);
+    // Espaço mínimo entre obstáculos para garantir pulo
+    const minGap = 125;
+    const maxGap = 225;
+
+    // Posição inicial do primeiro obstáculo
+    let baseX = this.canvas.width;
+
+    // Gerar tipos diferentes para cada obstáculo
+    let usedTypes = [];
+    for (let i = 0; i < spawnCount; i++) {
+      // Escolher tipo não repetido
+      let type;
+      do {
+        type = types[Math.floor(Math.random() * types.length)];
+      } while (usedTypes.includes(type) && usedTypes.length < types.length);
+      usedTypes.push(type);
+
+      const config = configs[type];
+      // Calcular posição X do obstáculo
+      let x = baseX;
+      if (i > 0) {
+        // Espaço entre obstáculos
+        const gap = Math.floor(Math.random() * (maxGap - minGap)) + minGap;
+        x += gap;
+      }
+
+      const obstacle = {
+        x: x,
+        y: this.config.GROUND_Y - config.height,
+        width: config.width,
+        height: config.height,
+        type: type,
+        color: config.color,
+        animOffset: Math.random() * Math.PI * 2,
+      };
+      this.obstacles.push(obstacle);
+      // Atualizar baseX para o próximo obstáculo
+      baseX = x + config.width;
+    }
   }
 
   isColliding(rect1, rect2) {
