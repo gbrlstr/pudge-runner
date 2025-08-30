@@ -333,3 +333,61 @@ canvas:hover {
   margin-top: 8px;
   letter-spacing: 1px;
 }
+
+.opensource-banner {
+    position: fixed;
+    top: 0;
+    right: 0;
+    z-index: 500;
+    width: 0;
+    height: 0;
+    border-top: 150px solid rgba(20, 24, 32, 0.95);
+    border-left: 150px solid transparent;
+    text-align: center;
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-end;
+}
+.opensource-text {
+    position: absolute;
+    top: -200px;
+    right: -25px;
+    width: 80px;
+    color: #fff;
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 900;
+    font-size: 1em;
+    letter-spacing: 2px;
+    text-shadow: 0 2px 8px #000;
+    user-select: none;
+    text-align: center;
+    line-height: 1.2;
+    pointer-events: none;
+    transform: rotate(48deg);
+}
+.github-link {
+  position: absolute;
+  top: 70px;
+  right: 22px;
+  text-decoration: none;
+  color: #fff;
+  transition: color 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.github-link:hover .github-icon {
+  color: #ffe082;
+  filter: drop-shadow(0 0 6px #ffe082);
+}
+.github-icon {
+    position: absolute;
+    top: -170px;
+    right: 25px;
+    color: #fff;
+    transition: color 0.2s;
+    width: 28px;
+    height: 28px;
+    filter: drop-shadow(0 2px 6px #000);
+    transform: rotate(45deg);
+}
