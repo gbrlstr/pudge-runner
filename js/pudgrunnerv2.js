@@ -22,13 +22,12 @@ class Game {
     this.spritePool = {};
     this.canvasPool = {};
     this.preRenderedSprites = {};
-  this.playerNickname = localStorage.getItem("pudgeRunnerPlayerName") || '';
+    this.playerNickname = localStorage.getItem("pudgeRunnerPlayerName") || '';
 
     this.player = new Player(this);
     this.input = new InputHandler(this);
     this.ui = new UI(this);
     this.initializePools();
-    this.preCreateCanvasPool();
     this.startLoadingSequence();
     if (!this.playerNickname || this.playerNickname.length < 3) {
       this.showNicknameOverlay();
@@ -65,7 +64,6 @@ class Game {
   initializeConfig() {
     this.config = {
       GROUND_Y: this.height - 50,
-      GRAVITY: 0.8,
       JUMP_POWER: -16,
       BASE_SPEED: 5,
       OBSTACLE_SPAWN_RATE: 120,
@@ -94,12 +92,6 @@ class Game {
       ghost: null,
       mad: null,
       spoon: null,
-    };
-    this.gifFrames = {
-      pudge: [],
-      currentFrame: 0,
-      frameDelay: 0,
-      frameRate: 12,
     };
   }
   initializeGameState() {
@@ -166,6 +158,7 @@ class Game {
       spoon: { instances: [], maxInstances: 3, currentIndex: 0 },
     };
     this.canvasPool = { available: [], active: [], maxSize: 10 };
+    this.preCreateCanvasPool();
   }
   preCreateCanvasPool() {
     for (let i = 0; i < this.canvasPool.maxSize; i++) {
@@ -268,6 +261,8 @@ class Game {
       try {
         const image = await this.loadImage(this.spriteUrls[key]);
         this.sprites[key] = image;
+        // Adicionar ao pool de sprites
+        this.player.addSpriteToPool(key, image);
       } catch (error) {
         console.warn(`Falha ao carregar sprite ${key}:`, error);
         this.sprites[key] = null;
@@ -280,7 +275,9 @@ class Game {
       );
       await this.delay(200);
     }
+    // Marcar ativos como carregados
     this.gameState.assetsLoaded = true;
+    // Pré-renderizar sprites
     this.preRenderCommonSprites();
   }
   loadImage(url) {
@@ -291,13 +288,15 @@ class Game {
       img.src = url;
     });
   }
+  // Pré-renderizar sprites mais comuns para melhor performance
   preRenderCommonSprites() {
+    // Pré-renderizar sprites de obstáculos nos tamanhos mais comuns
     const commonSizes = [
-      { width: 70, height: 70 },
-      { width: 80, height: 80 },
-      { width: 70, height: 90 },
-      { width: 75, height: 75 },
-      { width: 50, height: 80 },
+      { width: 70, height: 70 }, // meepo
+      { width: 80, height: 80 }, // boss
+      { width: 70, height: 90 }, // ghost
+      { width: 75, height: 75 }, // mad
+      { width: 50, height: 80 }, // spoon
     ];
     Object.keys(this.sprites).forEach((type) => {
       if (type !== "pudge" && this.sprites[type]) {
@@ -314,12 +313,16 @@ class Game {
   preRenderSprite(type, width, height) {
     const sprite = this.sprites[type];
     if (!sprite) return null;
+
     const canvasObj = this.getCanvasFromPool();
     if (!canvasObj) return sprite;
+
     canvasObj.canvas.width = width;
     canvasObj.canvas.height = height;
+
     canvasObj.ctx.clearRect(0, 0, width, height);
     canvasObj.ctx.drawImage(sprite, 0, 0, width, height);
+
     return canvasObj;
   }
   getCanvasFromPool() {
@@ -739,13 +742,12 @@ class Player {
     this.height = 130;
     this.x = 30;
     this.y = 190;
-    this.grounded = true;
-    this.animFrame = 0;
+    this.dy = 0;
     this.speedX = 0;
-    this.speedY = 0;
-    this.maxSpeed = 5;
-    this.gravity = 0.8;
+    this.maxSpeed = 10;
+    this.gravity = 1.3;
     this.jumpPower = -16;
+    this.animFrame = 0;
     this.onGround = false;
     this.groundY = this.game.config.GROUND_Y - 90;
     this.flipped = false;
@@ -775,23 +777,33 @@ class Player {
       this.jump();
     if (this.game.keys.indexOf(" ") > -1) this.jump();
 
+    // Atualiza posição do jogador
     this.x += this.speedX;
-    this.speedY += this.game.config.GRAVITY;
-    this.y += this.speedY;
+    
+    // Apply gravity
+    this.dy += this.gravity;
+    this.y += this.dy;
+
+    // Verifica colisão com o chão
     if (this.y + this.height >= this.game.config.GROUND_Y) {
       this.y = this.game.config.GROUND_Y - this.height;
-      this.speedY = 0;
+      this.dy = 0;
       this.onGround = true;
     }
+
     this.animFrame += 0.3;
+
+    // Limitar posição do jogador dentro da tela
     if (this.x < 0) this.x = 0;
+    if (this.y < 0) this.y = 0;
+
+    // Limitar posição do jogador dentro da tela
     if (this.x + this.width > this.game.width)
       this.x = this.game.width - this.width;
-    if (this.y < 0) this.y = 0;
   }
   jump() {
     if (this.onGround) {
-      this.speedY = this.game.config.JUMP_POWER;
+      this.dy = this.game.config.JUMP_POWER;
       this.onGround = false;
       this.game.createJumpParticles(
         this.x + this.width / 2,
@@ -803,17 +815,10 @@ class Player {
     this.drawPudge(context);
   }
   drawPudge(context) {
-    const gifFrames = this.game.gifFrames.pudge;
-    const currentFrameIndex = this.game.gifFrames.currentFrame;
-    let sprite;
-    if (gifFrames.length > 0 && gifFrames[currentFrameIndex]) {
-      sprite = gifFrames[currentFrameIndex];
-    } else {
-      sprite = this.getSpriteFromPool("pudge");
-    }
+    const sprite = this.getSpriteFromPool("pudge");
     if (sprite && sprite.complete && sprite.naturalWidth > 0) {
       context.save();
-      const bounceOffset = this.grounded ? Math.sin(this.animFrame) * 2 : 0;
+      const bounceOffset = this.onGround ? Math.sin(this.animFrame) * 2 : 0;
       const imageAspectRatio = sprite.naturalWidth / sprite.naturalHeight;
       let drawWidth = this.width;
       let drawHeight = this.width / imageAspectRatio;
@@ -844,9 +849,20 @@ class Player {
     pool.currentIndex = (pool.currentIndex + 1) % pool.instances.length;
     return sprite;
   }
+  addSpriteToPool(type, spriteImage) {
+    const pool = this.game.spritePool[type];
+    if (pool && pool.instances.length < pool.maxInstances) {
+      // Criar uma cópia da imagem para o pool
+      const img = new Image();
+      img.onload = () => {
+        pool.instances.push(img);
+      };
+      img.src = spriteImage.src;
+    }
+  }
   drawPudgeFallback(context) {
     context.save();
-    const bounceOffset = this.grounded ? Math.sin(this.animFrame) * 2 : 0;
+    const bounceOffset = this.onGround ? Math.sin(this.animFrame) * 2 : 0;
     const x = this.x;
     const y = this.y + bounceOffset;
     context.fillStyle = "#8B4513";
@@ -938,11 +954,11 @@ class Enemy {
   drawPudgeFallback(context) {
     context.save();
 
-    const bounceOffset = this.pudge.grounded
-      ? Math.sin(this.pudge.animFrame) * 2
+    const bounceOffset = this.game.player.onGround
+      ? Math.sin(this.game.player.animFrame) * 2
       : 0;
-    const x = this.pudge.x;
-    const y = this.pudge.y + bounceOffset;
+    const x = this.game.player.x;
+    const y = this.game.player.y + bounceOffset;
 
     // Body
     context.fillStyle = "#8B4513";
