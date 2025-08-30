@@ -65,10 +65,22 @@
       <button class="menu-button" id="startButton">INICIAR JOGO</button>
     </div>
 
+    <!-- Nickname Overlay -->
+    <div class="menu-overlay" id="nicknameOverlay" style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
+      <div class="menu-title">DIGITE SEU NICKNAME</div>
+      <div class="nickname-form">
+        <input type="text" id="nicknameInput" maxlength="16" placeholder="Seu nick..." class="nickname-input" autocomplete="off" />
+        <button class="menu-button" id="nicknameConfirmButton">CONFIRMAR</button>
+      </div>
+      <div class="nickname-hint">Seu nick aparecerá no ranking global!</div>
+    </div>
+
     <div class="menu-overlay" id="gameOverOverlay" style="display: none;">
       <div class="menu-title">GAME OVER</div>
       <div class="menu-subtitle" id="finalScore">Pontuação Final: 0</div>
       <button class="menu-button" id="restartButton">JOGAR NOVAMENTE</button>
+      <!-- Container para o Ranking Global -->
+      <div id="globalRankingContainer" style="display:none;"></div>
     </div>
 
     <div class="menu-overlay" id="pauseOverlay" style="display: none;">
@@ -81,6 +93,6 @@
     Pudge Runner v1.0 - Enhanced Edition
   </div>
 
-  <script src="./js/pudgrunnerv2.js"></script>
+  <script type="module" src="./js/pudgrunnerv2.js"></script>
 </body>
 </html>

@@ -4,6 +4,8 @@ const ctx = canvas.getContext("2d");
 canvas.width = 1500;
 canvas.height = 500;
 
+import { saveScore, getTopScores } from "./firebase-rank.js";
+
 class Game {
   constructor(width, height) {
     this.width = width;
@@ -20,12 +22,21 @@ class Game {
     this.spritePool = {};
     this.canvasPool = {};
     this.preRenderedSprites = {};
+  this.playerNickname = localStorage.getItem("pudgeRunnerPlayerName") || '';
+
     this.player = new Player(this);
     this.input = new InputHandler(this);
     this.ui = new UI(this);
     this.initializePools();
     this.preCreateCanvasPool();
     this.startLoadingSequence();
+    if (!this.playerNickname || this.playerNickname.length < 3) {
+      this.showNicknameOverlay();
+      this.setupNicknameInput();
+    } else {
+      document.getElementById('nicknameOverlay').style.display = 'none';
+      document.getElementById('menuOverlay').style.display = 'flex';
+    }
   }
   initializeElements() {
     this.elements = {
@@ -42,6 +53,13 @@ class Game {
       currentLevel: document.getElementById("currentLevel"),
       finalScore: document.getElementById("finalScore"),
       controlsPanel: document.getElementById("controlsPanel"),
+      nicknameOverlay: document.getElementById('nicknameOverlay'),
+      menuOverlay: document.getElementById('menuOverlay'),
+      gameOverOverlay: document.getElementById('gameOverOverlay'),
+      pauseOverlay: document.getElementById('pauseOverlay'),
+      nicknameInput: document.getElementById('nicknameInput'),
+      nicknameConfirmButton: document.getElementById('nicknameConfirmButton'),
+      globalRankingContainer: document.getElementById("globalRankingContainer")
     };
   }
   initializeConfig() {
@@ -49,7 +67,7 @@ class Game {
       GROUND_Y: this.height - 50,
       GRAVITY: 0.8,
       JUMP_POWER: -16,
-      BASE_SPEED: 2,
+      BASE_SPEED: 5,
       OBSTACLE_SPAWN_RATE: 120,
       PARTICLE_COUNT: 100,
       LEVELS: [
@@ -443,11 +461,98 @@ class Game {
       pudgeTop < obsBottom
     );
   }
-  gameOver() {
+  showNicknameOverlay() {
+    this.elements.nicknameOverlay.style.display = 'flex';
+    this.elements.menuOverlay.style.display = 'none';
+    this.elements.gameOverOverlay.style.display = 'none';
+    this.elements.pauseOverlay.style.display = 'none';
+  }
+  hideNicknameOverlay() {
+    this.elements.nicknameOverlay.style.display = 'none';
+  }
+  setupNicknameInput() {
+    const input = this.elements.nicknameInput;
+    const btn = this.elements.nicknameConfirmButton;
+    input.value = '';
+    btn.onclick = () => {
+      const nick = input.value.trim();
+      if (nick.length < 3) {
+        input.style.borderColor = '#e53935';
+        input.placeholder = 'Mínimo 3 letras';
+        input.value = '';
+        input.focus();
+        return;
+      }
+    this.playerNickname = nick;
+    localStorage.setItem("pudgeRunnerPlayerName", nick);
+    this.hideNicknameOverlay();
+    this.elements.menuOverlay.style.display = 'flex';
+    };
+    input.onkeydown = (e) => {
+      if (e.key === 'Enter') btn.click();
+    };
+  }
+  async gameOver() {
     this.gameState.gameOver = true;
     this.saveBestScore();
     this.elements.finalScore.textContent = `Pontuação Final: ${this.gameState.score}`;
+    
+    // Salva score global no Firebase
+      let playerName = this.playerNickname || localStorage.getItem("pudgeRunnerPlayerName");
+    if (!playerName) {
+      playerName = prompt("Digite seu nome para o ranking global:") || "Anônimo";
+      localStorage.setItem("pudgeRunnerPlayerName", playerName);
+    }
+    try {
+        await saveScore(this.playerNickname || playerName, this.gameState.score);
+    } catch (e) {
+      console.warn("Erro ao salvar score global:", e);
+    }
+    // Atualiza ranking global
     this.elements.gameOverOverlay.style.display = "flex";
+    this.showGlobalRanking();
+  }
+
+  async showGlobalRanking() {
+    if (!this.elements.finalScore) return;
+    try {
+      const scores = await getTopScores(10);
+      let html = `
+        <div class="global-ranking" style="
+          background: rgba(30,30,40,0.85);
+          border-radius: 18px;
+          padding: 28px 32px 18px 32px;
+          margin: 24px auto 0 auto;
+          max-width: 340px;
+          box-shadow: 0 0 32px 4px #ff5e7b44;
+          text-align: center;
+        ">
+          <h3 style="
+            color: #ff5e7b;
+            font-size: 2.1em;
+            font-family: 'Orbitron', 'Montserrat', Arial, sans-serif;
+            margin-bottom: 10px;
+            text-shadow: 0 0 12px #ff5e7b88;
+          ">Ranking Global</h3>
+          <ol style="
+            color: #fff;
+            font-size: 1.15em;
+            font-family: 'Montserrat', Arial, sans-serif;
+            margin: 0;
+            padding-left: 0;
+            list-style-position: inside;
+            text-align: left;
+          ">
+      `;
+      scores.forEach((s, i) => {
+  html += `<li style="margin-bottom: 7px;${i === 0 ? 'font-weight:bold;color:#ff5e7b;font-size:1.18em;' : ''}">${i + 1}. <span style="letter-spacing:1px;">${s.name}</span>: <span style="color:#ffe082;">${s.score}</span></li>`;
+      });
+      html += `</ol></div>`;
+      this.elements.globalRankingContainer.innerHTML += html;
+      this.elements.globalRankingContainer.style.display = "block";
+    } catch (e) {
+      this.elements.globalRankingContainer.innerHTML += '<br><span style="color:red">Erro ao carregar ranking global.</span>';
+    }
   }
   updateParticles() {
     for (let i = this.particles.length - 1; i >= 0; i--) {
@@ -634,16 +739,16 @@ class Player {
     this.height = 130;
     this.x = 30;
     this.y = 190;
-  this.grounded = true;
-  this.animFrame = 0;
-  this.speedX = 0;
-  this.speedY = 0;
-  this.maxSpeed = 5;
-  this.gravity = 0.8;
-  this.jumpPower = -16;
-  this.onGround = false;
-  this.groundY = this.game.config.GROUND_Y - 90;
-  this.flipped = false;
+    this.grounded = true;
+    this.animFrame = 0;
+    this.speedX = 0;
+    this.speedY = 0;
+    this.maxSpeed = 5;
+    this.gravity = 0.8;
+    this.jumpPower = -16;
+    this.onGround = false;
+    this.groundY = this.game.config.GROUND_Y - 90;
+    this.flipped = false;
   }
   update() {
     // Handle horizontal movement
