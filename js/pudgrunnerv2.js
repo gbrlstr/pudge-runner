@@ -176,6 +176,7 @@ class Game {
     this.clearPools();
     this.enemies = [];
     this.particles = [];
+    this.elements.globalRankingContainer.innerHTML = '';
     this.initializeGameState();
     this.loadBestScore();
     this.startGame();
@@ -517,6 +518,8 @@ class Game {
     }
     // Atualiza ranking global
     this.elements.gameOverOverlay.style.display = "flex";
+    this.elements.globalRankingContainer.style.display = "none";
+    this.elements.globalRankingContainer.innerHTML = '';
     this.showGlobalRanking();
   }
 
@@ -552,7 +555,7 @@ class Game {
           ">
       `;
       scores.forEach((s, i) => {
-  html += `<li style="margin-bottom: 7px;${i === 0 ? 'font-weight:bold;color:#ff5e7b;font-size:1.18em;' : ''}">${i + 1}. <span style="letter-spacing:1px;">${s.name}</span>: <span style="color:#ffe082;">${s.score}</span></li>`;
+  html += `<li style="margin-bottom: 7px;${i === 0 ? 'font-weight:bold;color:#ff5e7b;font-size:1.18em;' : ''}"><span style="letter-spacing:1px;">${s.name}</span>: <span style="color:#ffe082;">${s.score}</span></li>`;
       });
       html += `</ol></div>`;
       this.elements.globalRankingContainer.innerHTML += html;
