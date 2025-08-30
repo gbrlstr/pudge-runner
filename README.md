@@ -95,11 +95,12 @@ pudge-runner/
 - [ ] **Modos de Jogo** - Survival, Time Attack, Challenge Mode
 - [ ] **Boss Battles** - Chefes especiais em intervalos específicos
 - [ ] **Sistema de Vidas** - Múltiplas chances com regeneração
+- [ ] **Sistema de multiplayer** - Suporte para multi players
 
 ### 🏆 **Sistema de Progressão**
 
 - [ ] **Achievements/Conquistas** - 20+ conquistas desbloqueáveis
-- [ ] **Sistema de Ranking** - Leaderboards locais e online
+- [x] **Sistema de Ranking** - Leaderboards locais e online
 - [ ] **Desbloqueáveis** - Novos personagens, skins, efeitos
 - [ ] **Sistema de Moedas** - Economia interna do jogo
 - [ ] **Estatísticas Detalhadas** - Analytics de performance do jogador
