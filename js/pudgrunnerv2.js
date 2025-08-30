@@ -29,13 +29,6 @@ class Game {
     this.ui = new UI(this);
     this.initializePools();
     this.startLoadingSequence();
-    if (!this.playerNickname || this.playerNickname.length < 3) {
-      this.showNicknameOverlay();
-      this.setupNicknameInput();
-    } else {
-      document.getElementById('nicknameOverlay').style.display = 'none';
-      document.getElementById('menuOverlay').style.display = 'flex';
-    }
   }
   initializeElements() {
     this.elements = {
@@ -58,7 +51,8 @@ class Game {
       pauseOverlay: document.getElementById('pauseOverlay'),
       nicknameInput: document.getElementById('nicknameInput'),
       nicknameConfirmButton: document.getElementById('nicknameConfirmButton'),
-      globalRankingContainer: document.getElementById("globalRankingContainer")
+      globalRankingContainer: document.getElementById("globalRankingContainer"),
+      playerNameCenter: document.getElementById("playerNameCenter")
     };
   }
   initializeConfig() {
@@ -338,15 +332,25 @@ class Game {
     return new Promise((resolve) => setTimeout(resolve, ms));
   }
   showMainMenu() {
-    this.elements.loadingScreen.style.display = "none";
-    this.elements.menuOverlay.style.display = "flex";
-    this.elements.controlsPanel.style.display = "flex";
-    this.updateUI();
+    if (!this.playerNickname || this.playerNickname.length < 3) {
+      this.elements.loadingScreen.style.display = "none";
+      this.showNicknameOverlay();
+      this.setupNicknameInput();
+    } else {
+      this.elements.loadingScreen.style.display = "none";
+      this.elements.nicknameOverlay.style.display = "none";
+      this.elements.menuOverlay.style.display = "flex";
+      this.elements.controlsPanel.style.display = "flex";
+      this.updateUI();
+    }
   }
   updateUI() {
     this.elements.currentScore.textContent = this.gameState.score;
     this.elements.currentLevel.textContent = this.gameState.level;
     this.elements.bestScore.textContent = this.getBestScore();
+    if (this.elements.playerNameCenter) {
+      this.elements.playerNameCenter.textContent = this.playerNickname || localStorage.getItem("pudgeRunnerPlayerName") || "";
+    }
   }
   showMenuControls() {
     const controlsPanel = this.elements.controlsPanel;
@@ -465,8 +469,8 @@ class Game {
     );
   }
   showNicknameOverlay() {
-    this.elements.nicknameOverlay.style.display = 'flex';
     this.elements.menuOverlay.style.display = 'none';
+    this.elements.nicknameOverlay.style.display = 'flex';
     this.elements.gameOverOverlay.style.display = 'none';
     this.elements.pauseOverlay.style.display = 'none';
   }
@@ -735,6 +739,9 @@ class Game {
   }
 }
 
+/**
+ * Class representing the player
+ */
 class Player {
   constructor(game) {
     this.game = game;
@@ -745,7 +752,7 @@ class Player {
     this.dy = 0;
     this.speedX = 0;
     this.maxSpeed = 10;
-    this.gravity = 1.3;
+    this.gravity = 1.1;
     this.jumpPower = -16;
     this.animFrame = 0;
     this.onGround = false;
@@ -883,6 +890,9 @@ class Player {
   }
 }
 
+/**
+ * Class representing an enemy
+ */
 class Enemy {
   constructor(game) {
     this.game = game;
@@ -990,6 +1000,9 @@ class Enemy {
   }
 }
 
+/**
+ * Class representing an enemy angler
+ */
 class EnemyAngler extends Enemy {
   constructor(game) {
     super(game);
@@ -1001,6 +1014,9 @@ class EnemyAngler extends Enemy {
   }
 }
 
+/**
+ * Class representing the user interface
+ */
 class UI {
   constructor(game) {
     this.game = game;
@@ -1015,6 +1031,9 @@ class UI {
   }
 }
 
+/**
+ * Class representing the input handler
+ */
 class InputHandler {
   constructor(game) {
     this.game = game;
