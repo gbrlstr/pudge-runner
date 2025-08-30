@@ -104,13 +104,37 @@ class Game {
     this.initializeBackground();
   }
   initializeBackground() {
-    for (let i = 0; i < 10; i++) {
+  // Estrelas pequenas
+  for (let i = 0; i < 32; i++) {
       this.backgroundElements.push({
         x: Math.random() * this.width * 2,
-        y: Math.random() * (this.config.GROUND_Y - 100),
-        size: Math.random() * 3 + 1,
-        speed: Math.random() * 0.5 + 0.1,
-        opacity: Math.random() * 0.3 + 0.1,
+        y: Math.random() * (this.config.GROUND_Y - 120),
+        size: Math.random() * 1.2 + 0.3,
+        speed: Math.random() * 0.3 + 0.08,
+        opacity: Math.random() * 0.5 + 0.3,
+        type: 'star'
+      });
+    }
+  // Planetas
+  for (let i = 0; i < 7; i++) {
+      this.backgroundElements.push({
+        x: Math.random() * this.width * 2,
+        y: Math.random() * (this.config.GROUND_Y - 180) + 40,
+        size: Math.random() * 1.5 + 2.2,
+        speed: Math.random() * 0.18 + 0.08,
+        opacity: Math.random() * 0.3 + 0.2,
+        type: 'planet'
+      });
+    }
+  // Nebulosas
+  for (let i = 0; i < 6; i++) {
+      this.backgroundElements.push({
+        x: Math.random() * this.width * 2,
+        y: Math.random() * (this.config.GROUND_Y - 200) + 60,
+        size: Math.random() * 2.5 + 2.5,
+        speed: Math.random() * 0.12 + 0.05,
+        opacity: Math.random() * 0.25 + 0.15,
+        type: 'nebula'
       });
     }
   }
@@ -492,8 +516,42 @@ class Game {
     this.backgroundElements.forEach((element) => {
       context.save();
       context.globalAlpha = element.opacity;
-      context.fillStyle = "#ffffff";
-      context.fillRect(element.x, element.y, element.size, element.size);
+
+      // Estrela (pequena)
+      if (element.size < 2) {
+        context.beginPath();
+        context.arc(element.x, element.y, element.size, 0, Math.PI * 2);
+        context.fillStyle = `rgba(255,255,255,${element.opacity})`;
+        context.shadowColor = '#fff';
+        context.shadowBlur = 8 * element.opacity;
+        context.fill();
+      }
+      // Planeta (maior)
+      else if (element.size >= 2 && element.size < 4) {
+        context.beginPath();
+        context.arc(element.x, element.y, element.size * 1.5, 0, Math.PI * 2);
+        context.fillStyle = `hsl(${180 + element.x % 60}, 60%, 40%)`;
+        context.shadowColor = '#aaf';
+        context.shadowBlur = 12 * element.opacity;
+        context.fill();
+        // Anel do planeta
+        context.beginPath();
+        context.ellipse(element.x, element.y, element.size * 2, element.size * 0.5, Math.PI / 4, 0, Math.PI * 2);
+        context.strokeStyle = `rgba(200,200,255,${element.opacity * 0.5})`;
+        context.lineWidth = 1.2;
+        context.stroke();
+      }
+      // Nebulosa ou brilho especial
+      else {
+        const grad = context.createRadialGradient(element.x, element.y, 0, element.x, element.y, element.size * 2.5);
+        grad.addColorStop(0, `rgba(180,80,255,${element.opacity * 0.7})`);
+        grad.addColorStop(0.5, `rgba(80,0,120,${element.opacity * 0.3})`);
+        grad.addColorStop(1, `rgba(0,0,0,0)`);
+        context.beginPath();
+        context.arc(element.x, element.y, element.size * 2.5, 0, Math.PI * 2);
+        context.fillStyle = grad;
+        context.fill();
+      }
       context.restore();
     });
   }
