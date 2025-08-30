@@ -447,7 +447,7 @@ class Game {
     this.gameState.gameOver = true;
     this.saveBestScore();
     this.elements.finalScore.textContent = `Pontuação Final: ${this.gameState.score}`;
-    // this.elements.gameOverOverlay.style.display = "flex";
+    this.elements.gameOverOverlay.style.display = "flex";
   }
   updateParticles() {
     for (let i = this.particles.length - 1; i >= 0; i--) {
