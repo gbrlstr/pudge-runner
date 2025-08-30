@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"/>
   <title>Pudge Runner - DOTA 2 Endless Runner</title>
   <link rel="icon" type="image/x-icon" href="./assets/logo.png">
   <meta name="description" content="Um jogo endless runner baseado no Pudge do DOTA 2. Desvie dos obstáculos e alcance a maior pontuação!">
@@ -153,6 +153,24 @@
         positionSoundButton();
       });
     })();
+
+    // Ajuste responsivo do canvas para mobile
+    function resizeCanvas() {
+      const canvas = document.getElementById('gameCanvas');
+      if (!canvas) return;
+      let w = window.innerWidth;
+      let h = window.innerHeight;
+      // Mantém proporção 3:1, mas adapta para mobile
+      if (w < 900) {
+        canvas.width = Math.max(320, w * 0.98);
+        canvas.height = Math.max(180, h * 0.45);
+      } else {
+        canvas.width = 1500;
+        canvas.height = 500;
+      }
+    }
+    window.addEventListener('resize', resizeCanvas);
+    window.addEventListener('DOMContentLoaded', resizeCanvas);
   </script>
 </body>
 </html>

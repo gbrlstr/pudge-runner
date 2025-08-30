@@ -1,5 +1,19 @@
 // Canvas setup
 const canvas = document.getElementById("gameCanvas");
+// Responsivo: ajusta tamanho do canvas para mobile
+function setResponsiveCanvas() {
+  if (window.innerWidth < 900) {
+    canvas.width = Math.max(320, window.innerWidth * 0.98);
+    canvas.height = Math.max(180, window.innerHeight * 0.45);
+  } else {
+    canvas.width = 1500;
+    canvas.height = 500;
+  }
+}
+setResponsiveCanvas();
+window.addEventListener('resize', setResponsiveCanvas);
+window.addEventListener('DOMContentLoaded', setResponsiveCanvas);
+
 const ctx = canvas.getContext("2d");
 canvas.width = 1500;
 canvas.height = 500;
@@ -1143,7 +1157,17 @@ class InputHandler {
       }
     });
     window.addEventListener("touchstart", (e) => {
+      e.preventDefault();
       this.game.player.jump();
+    });
+    // Suporte a menu via toque (mobile)
+    window.addEventListener("touchend", (e) => {
+      if (this.game.gameState.started && !this.game.gameState.gameOver && e.touches.length === 0) {
+        // Exibe menu se tocar com dois dedos rapidamente
+        if (e.changedTouches.length === 2) {
+          this.game.showMenuControls();
+        }
+      }
     });
     window.addEventListener("visibilitychange", (e) => {
       if (
