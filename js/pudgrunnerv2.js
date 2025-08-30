@@ -953,7 +953,7 @@ class Enemy {
   constructor(game) {
     this.game = game;
     this.x = this.game.width;
-    this.speedX = -2;
+    this.speedX = -this.game.gameState.speed;
     this.passed = false;
     const types = ["boss", "ghost", "mad", "spoon", "meepo"];
     this.type = types[Math.floor(Math.random() * types.length)];
