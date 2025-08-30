@@ -362,6 +362,8 @@ class Game {
       }
       
       this.updateParticles();
+      this.updateBackground();
+      this.updateDifficulty();
       this.updateUI();
     }
   }
@@ -535,6 +537,34 @@ class Game {
         context.stroke();
       }
       context.restore();
+    }
+  }
+  updateBackground() {
+    // Efeito paralaxe: elementos mais altos e opacos movem mais devagar
+    this.backgroundElements.forEach((element) => {
+      // Parallax: quanto maior, mais devagar
+      const parallax = 0.5 + (1 - element.opacity) * 1.5 + (element.size / 5);
+      element.x -= element.speed * parallax;
+      if (element.x < -element.size) {
+        // Recicla elemento para o lado direito, com nova altura/opacidade/tamanho
+        element.x = this.width + Math.random() * 40;
+        element.y = Math.random() * (this.config.GROUND_Y - 100);
+        element.size = Math.random() * 3 + 1;
+        element.speed = Math.random() * 0.5 + 0.1;
+        element.opacity = Math.random() * 0.3 + 0.1;
+      }
+    });
+  }
+  updateDifficulty() {
+    const newLevel = Math.floor(this.gameState.score / 100) + 1;
+    if (
+      newLevel !== this.gameState.level &&
+      newLevel <= this.config.LEVELS.length
+    ) {
+      this.gameState.level = newLevel;
+      const levelConfig = this.config.LEVELS[newLevel - 1];
+      this.gameState.speed = levelConfig.speed;
+      this.gameState.spawnRate = levelConfig.spawnRate;
     }
   }
 }
