@@ -47,6 +47,16 @@
     <!-- Game Canvas -->
     <canvas id="gameCanvas"></canvas>
 
+    <!-- Ícone de Som -->
+    <button id="soundToggle" class="sound-toggle" title="Ativar/Desativar Som" style="position: absolute; top: 18px; right: 24px; z-index: 100; background: none; border: none; cursor: pointer;">
+      <svg id="soundIconOn" xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" viewBox="0 0 24 24" style="display:inline;">
+        <path d="M3 10v4h4l5 5V5L7 10H3zm13.5 2c0-1.77-1.02-3.29-2.5-4.03v8.06c1.48-.74 2.5-2.26 2.5-4.03z"/>
+      </svg>
+      <svg id="soundIconOff" xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" viewBox="0 0 24 24" style="display:none;">
+        <path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v8.06c1.48-.74 2.5-2.26 2.5-4.03zM19 12c0 2.53-1.19 4.78-3.07 6.22l1.43 1.43C19.07 18.07 21 15.31 21 12c0-3.31-1.93-6.07-4.64-7.65l-1.43 1.43C17.81 7.22 19 9.47 19 12zm-7-7v14l-5-5H3v-4h4l5-5z"/>
+      </svg>
+    </button>
+    
     <!-- Game Controls -->
     <div id="controlsPanel" class="ui-panel controls-panel">
       <div class="controls-list">
@@ -105,5 +115,46 @@
   </div>
 
   <script type="module" src="./js/pudgrunnerv2.js"></script>
+  <script>
+    // Controle do ícone de som
+    (function() {
+      const soundToggle = document.getElementById('soundToggle');
+      const soundIconOn = document.getElementById('soundIconOn');
+      const soundIconOff = document.getElementById('soundIconOff');
+      let soundEnabled = true;
+
+      function positionSoundButton() {
+        const canvas = document.getElementById('gameCanvas');
+        if (canvas && soundToggle) {
+          const rect = canvas.getBoundingClientRect();
+          soundToggle.style.position = 'absolute';
+          soundToggle.style.top = (rect.top + window.scrollY + 16) + 'px';
+          soundToggle.style.left = (rect.right + window.scrollX - 48) + 'px';
+          soundToggle.style.zIndex = 100;
+        }
+      }
+      window.addEventListener('resize', positionSoundButton);
+      window.addEventListener('DOMContentLoaded', positionSoundButton);
+
+      soundToggle.addEventListener('click', () => {
+        soundEnabled = !soundEnabled;
+        soundIconOn.style.display = soundEnabled ? 'inline' : 'none';
+        soundIconOff.style.display = soundEnabled ? 'none' : 'inline';
+        if (window.game) {
+          if (window.game.bgMusic) {
+            window.game.bgMusic.muted = !soundEnabled;
+          }
+          if (window.game.killSound) {
+            window.game.killSound.muted = !soundEnabled;
+          }
+        }
+      });
+      window.addEventListener('DOMContentLoaded', () => {
+        soundIconOn.style.display = 'inline';
+        soundIconOff.style.display = 'none';
+        positionSoundButton();
+      });
+    })();
+  </script>
 </body>
 </html>
