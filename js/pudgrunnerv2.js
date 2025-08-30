@@ -387,14 +387,15 @@ class Game {
     }
   }
   isColliding(rect1, rect2) {
-     // Padding proporcional ao tamanho dos objetos
-    const pudgePadX = Math.max(10, rect1.width * 0.18);
-    const pudgePadY = Math.max(10, rect1.height * 0.18);
+    // Padding proporcional ao tamanho dos objetos
+    // Player maior, hitbox mais justa
+    const pudgePadX = Math.max(18, rect1.width * 0.12);
+    const pudgePadY = Math.max(18, rect1.height * 0.12);
     const obsPadX = Math.max(8, rect2.width * 0.15);
     const obsPadY = Math.max(8, rect2.height * 0.15);
 
     // Tolerância extra para evitar game over injusto
-    const tolerance = 6;
+    const tolerance = 8;
 
     // Hitbox do pudge
     const pudgeLeft   = rect1.x + pudgePadX + tolerance;
@@ -541,8 +542,8 @@ class Game {
 class Player {
   constructor(game) {
     this.game = game;
-    this.width = 90;
-    this.height = 90;
+    this.width = 130;
+    this.height = 130;
     this.x = 30;
     this.y = 190;
     this.grounded = true;
@@ -670,13 +671,104 @@ class Enemy {
     this.x = this.game.width;
     this.speedX = -2;
     this.passed = false;
+    const types = ["boss", "ghost", "mad", "spoon", "meepo"];
+    this.type = types[Math.floor(Math.random() * types.length)];
   }
   update() {
     this.x += this.speedX * 2.0;
   }
   draw(context) {
-    context.fillStyle = "red";
-    context.fillRect(this.x, this.y, this.width, this.height);
+    // Usar sprite do pool para variação e performance
+    let sprite = this.game.player.getSpriteFromPool(this.type);
+
+    // Fallback para sprite original se pool não tiver
+    if (!sprite) {
+      sprite = this.game.sprites[this.type];
+    }
+
+    if (sprite && sprite.complete && sprite.naturalWidth > 0) {
+      // Animate enemy with slight rotation
+      context.save();
+      const centerX = this.x + this.width / 2;
+      const centerY = this.y + this.height / 2;
+
+      context.translate(centerX, centerY);
+
+      // inverter horizontalmente
+      const shouldFlip = ["boss", "ghost", "spoon", "meepo"].includes(this.type);
+      if (shouldFlip) {
+        context.scale(-1, 1);
+      }
+
+      // Adiciona animOffset se existir, senão 0
+      const animOffset = this.animOffset || 0;
+      context.rotate(
+        Math.sin(this.game.gameState.frame * 0.1 + animOffset) * 0.1
+      );
+      context.translate(-centerX, -centerY);
+
+      // Verificar se existe sprite pré-renderizado para melhor performance
+      const preRenderedKey = `${this.type}_${this.width}x${this.height}`;
+      const preRendered = this.game.preRenderedSprites && this.game.preRenderedSprites[preRenderedKey];
+
+      if (preRendered && preRendered.canvas) {
+        context.drawImage(
+          preRendered.canvas,
+          this.x,
+          this.y,
+          this.width,
+          this.height
+        );
+      } else {
+        context.drawImage(
+          sprite,
+          this.x,
+          this.y,
+          this.width,
+          this.height
+        );
+      }
+      context.restore();
+    } else {
+      this.drawPudgeFallback(context);
+    }
+  }
+  drawPudgeFallback(context) {
+    context.save();
+
+    const bounceOffset = this.pudge.grounded
+      ? Math.sin(this.pudge.animFrame) * 2
+      : 0;
+    const x = this.pudge.x;
+    const y = this.pudge.y + bounceOffset;
+
+    // Body
+    context.fillStyle = "#8B4513";
+    context.fillRect(x + 15, y + 20, 60, 50);
+
+    // Head
+    context.fillStyle = "#D2B48C";
+    context.fillRect(x + 20, y, 50, 40);
+
+    // Eyes
+    context.fillStyle = "#000000";
+    context.fillRect(x + 25, y + 8, 8, 8);
+    context.fillRect(x + 45, y + 8, 8, 8);
+
+    // Mouth
+    context.fillStyle = "#8B0000";
+    context.fillRect(x + 30, y + 20, 20, 6);
+
+    // Arms
+    context.fillStyle = "#D2B48C";
+    context.fillRect(x + 5, y + 25, 15, 30);
+    context.fillRect(x + 70, y + 25, 15, 30);
+
+    // Legs
+    context.fillRect(x + 25, y + 65, 15, 25);
+    context.fillRect(x + 50, y + 65, 15, 25);
+
+    context.restore();
   }
 }
 
@@ -685,7 +777,8 @@ class EnemyAngler extends Enemy {
     super(game);
     this.width = 90;
     this.height = 90;
-    this.y = this.game.height - this.height;
+    // Ajusta para alinhar o inimigo ao chão
+    this.y = this.game.config.GROUND_Y - this.height;
     this.x = this.game.width;
   }
 }
