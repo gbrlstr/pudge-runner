@@ -634,29 +634,33 @@ class Player {
     this.height = 130;
     this.x = 30;
     this.y = 190;
-    this.grounded = true;
-    this.animFrame = 0;
-    this.speedX = 0;
-    this.speedY = 0;
-    this.maxSpeed = 5;
-    this.gravity = 0.8;
-    this.jumpPower = -16;
-    this.onGround = false;
-    this.groundY = this.game.config.GROUND_Y - 90;
+  this.grounded = true;
+  this.animFrame = 0;
+  this.speedX = 0;
+  this.speedY = 0;
+  this.maxSpeed = 5;
+  this.gravity = 0.8;
+  this.jumpPower = -16;
+  this.onGround = false;
+  this.groundY = this.game.config.GROUND_Y - 90;
+  this.flipped = false;
   }
   update() {
-
     // Handle horizontal movement
     if (
       this.game.keys.indexOf("ArrowRight") > -1 ||
       this.game.keys.indexOf("d") > -1
-    )
+    ) {
       this.speedX = this.maxSpeed;
+      this.flipped = false;
+    }
     else if (
       this.game.keys.indexOf("ArrowLeft") > -1 ||
       this.game.keys.indexOf("a") > -1
-    )
+    ) {
       this.speedX = -this.maxSpeed;
+      this.flipped = true;
+    }
     else this.speedX = 0;
     // Handle vertical movement
     if (
@@ -665,7 +669,6 @@ class Player {
     )
       this.jump();
     if (this.game.keys.indexOf(" ") > -1) this.jump();
-
 
     this.x += this.speedX;
     this.speedY += this.game.config.GRAVITY;
@@ -715,6 +718,12 @@ class Player {
       }
       const drawX = this.x + (this.width - drawWidth) / 2;
       const drawY = this.y + (this.height - drawHeight) + bounceOffset;
+      // Inverte horizontalmente se flipped
+      if (this.flipped) {
+        context.translate(drawX + drawWidth / 2, drawY + drawHeight / 2);
+        context.scale(-1, 1);
+        context.translate(-drawX - drawWidth / 2, -drawY - drawHeight / 2);
+      }
       context.drawImage(sprite, drawX, drawY, drawWidth, drawHeight);
       context.restore();
     } else {
