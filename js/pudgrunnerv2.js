@@ -8,27 +8,31 @@ import { saveScore, getTopScores } from "./firebase-rank.js";
 
 class Game {
   constructor(width, height) {
-    this.width = width;
-    this.height = height;
-    this.keys = [];
-    this.enemies = [];
-    this.elements = {};
-    this.enemySpawnRate = 60;
-    this.particles = [];
-    this.backgroundElements = [];
-    this.initializeElements();
-    this.initializeConfig();
-    this.initializeGameState();
-    this.spritePool = {};
-    this.canvasPool = {};
-    this.preRenderedSprites = {};
-    this.playerNickname = localStorage.getItem("pudgeRunnerPlayerName") || '';
+      this.width = width;
+      this.height = height;
+      this.keys = [];
+      this.enemies = [];
+      this.elements = {};
+      this.enemySpawnRate = 60;
+      this.particles = [];
+      this.backgroundElements = [];
+      this.initializeElements();
+      this.initializeConfig();
+      this.initializeGameState();
+      this.spritePool = {};
+      this.canvasPool = {};
+      this.preRenderedSprites = {};
+      this.playerNickname = localStorage.getItem("pudgeRunnerPlayerName") || '';
 
-    this.player = new Player(this);
-    this.input = new InputHandler(this);
-    this.ui = new UI(this);
-    this.initializePools();
-    this.startLoadingSequence();
+      // --- Sound ---
+      this.bgMusic = null;
+      this.killSound = null;
+
+      this.player = new Player(this);
+      this.input = new InputHandler(this);
+      this.ui = new UI(this);
+      this.initializePools();
+      this.startLoadingSequence();
   }
   initializeElements() {
     this.elements = {
@@ -170,6 +174,7 @@ class Game {
     this.gameState.started = true;
     this.gameState.paused = false;
     this.gameState.gameOver = false;
+    this.bgMusic.play();
     this.hideAllOverlays();
   }
   restartGame() {
@@ -241,13 +246,55 @@ class Game {
   async startLoadingSequence() {
     this.updateLoadingProgress(0, "Inicializando...");
     await this.delay(500);
-    this.updateLoadingProgress(25, "Carregando sprites...");
+    this.updateLoadingProgress(25, "Carregando sons...");
+    await this.delay(200);
+    await this.loadAudioAssets();
+    this.updateLoadingProgress(50, "Carregando sprites...");
+    await this.delay(200);
     await this.loadAssets();
     this.updateLoadingProgress(75, "Preparando jogo...");
     await this.delay(800);
     this.updateLoadingProgress(100, "Concluído!");
     await this.delay(500);
     this.showMainMenu();
+    // Tentar tocar bgMusic após assets carregados e menu exibido
+    if (this.bgMusic) {
+      this.bgMusic.play().catch(() => {
+        document.body.addEventListener('click', () => {
+          this.bgMusic.play();
+        }, { once: true });
+      });
+    }
+  }
+  async loadAudioAssets() {
+    // Carregar música de fundo
+    this.bgMusic = new Audio('../assets/sounds/background.mp3');
+    // Loop customizado: define início e fim do trecho infinito
+    this.bgMusic.loop = false;
+    this.bgMusic.volume = 0.5;
+    this.bgMusic.loopStart = 12; // segundos (ajuste para o início do loop)
+    this.bgMusic.loopEnd = 25; // segundos (ajuste para o fim do loop)
+    this.bgMusic.addEventListener('timeupdate', () => {
+      if (this.bgMusic.currentTime >= this.bgMusic.loopEnd) {
+        this.bgMusic.currentTime = this.bgMusic.loopStart;
+        this.bgMusic.play();
+      }
+    });
+    await this.updateLoadingProgress(30, "Carregando música de fundo...");
+    await new Promise((resolve) => {
+      this.bgMusic.addEventListener('canplaythrough', resolve, { once: true });
+      this.bgMusic.addEventListener('error', resolve, { once: true });
+    });
+    
+    // Carregar efeito de kill
+    this.killSound = new Audio('../assets/sounds/kill.ogg');
+    this.killSound.volume = 0.7;
+    await this.updateLoadingProgress(35, "Carregando efeito de kill...");
+    await new Promise((resolve) => {
+      this.killSound.addEventListener('canplaythrough', resolve, { once: true });
+      this.killSound.addEventListener('error', resolve, { once: true });
+    });
+    await this.delay(200);
   }
   async loadAssets() {
     const spriteKeys = Object.keys(this.spriteUrls);
@@ -386,6 +433,11 @@ class Game {
           this.gameState.score += 10;
           enemy.passed = true;
           this.createScoreParticles(enemy.x + enemy.width / 2, enemy.y - this.player.height / 2);
+          // Tocar som de kill
+          if (this.killSound) {
+            this.killSound.currentTime = 0;
+            this.killSound.play();
+          }
         }
 
         // Remoção
@@ -502,6 +554,7 @@ class Game {
   }
   async gameOver() {
     this.gameState.gameOver = true;
+    this.bgMusic.pause();
     this.saveBestScore();
     this.elements.finalScore.textContent = `Pontuação Final: ${this.gameState.score}`;
     
