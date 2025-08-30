@@ -283,11 +283,10 @@ class Game {
   async loadAudioAssets() {
     // Carregar música de fundo
     this.bgMusic = new Audio('../assets/sounds/background.mp3');
-    // Loop customizado: define início e fim do trecho infinito
     this.bgMusic.loop = false;
     this.bgMusic.volume = 0.5;
-    this.bgMusic.loopStart = 12; // segundos (ajuste para o início do loop)
-    this.bgMusic.loopEnd = 25; // segundos (ajuste para o fim do loop)
+    this.bgMusic.loopStart = 12;
+    this.bgMusic.loopEnd = 25;
     this.bgMusic.addEventListener('timeupdate', () => {
       if (this.bgMusic.currentTime >= this.bgMusic.loopEnd) {
         this.bgMusic.currentTime = this.bgMusic.loopStart;
@@ -295,18 +294,36 @@ class Game {
       }
     });
     await this.updateLoadingProgress(30, "Carregando música de fundo...");
+
+    // Fallback: continua após 1.5s se não carregar
     await new Promise((resolve) => {
-      this.bgMusic.addEventListener('canplaythrough', resolve, { once: true });
-      this.bgMusic.addEventListener('error', resolve, { once: true });
+      let resolved = false;
+      const onReady = () => {
+        if (!resolved) {
+          resolved = true;
+          resolve();
+        }
+      };
+      this.bgMusic.addEventListener('canplaythrough', onReady, { once: true });
+      this.bgMusic.addEventListener('error', onReady, { once: true });
+      setTimeout(onReady, 1500); // Fallback para mobile
     });
-    
+
     // Carregar efeito de kill
     this.killSound = new Audio('../assets/sounds/kill.ogg');
     this.killSound.volume = 0.7;
     await this.updateLoadingProgress(35, "Carregando efeito de kill...");
     await new Promise((resolve) => {
-      this.killSound.addEventListener('canplaythrough', resolve, { once: true });
-      this.killSound.addEventListener('error', resolve, { once: true });
+      let resolved = false;
+      const onReady = () => {
+        if (!resolved) {
+          resolved = true;
+          resolve();
+        }
+      };
+      this.killSound.addEventListener('canplaythrough', onReady, { once: true });
+      this.killSound.addEventListener('error', onReady, { once: true });
+      setTimeout(onReady, 1000); // Fallback para mobile
     });
     await this.delay(200);
   }
