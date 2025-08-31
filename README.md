@@ -118,8 +118,8 @@ pudge-runner/
 ### 🔊 **Sistema de Áudio Completo**
 
 - [x] **Efeito de audio kill e background** - Efeito de musica basica
-- [ ] **Música Dinâmica** - Trilha sonora adaptativa ao gameplay
-- [ ] **Efeitos Sonoros** - SFX para todas as ações do jogo
+- [x] **Música Dinâmica** - Trilha sonora adaptativa ao gameplay
+- [x] **Efeitos Sonoros** - SFX para todas as ações do jogo
 - [ ] **Mixagem de Áudio** - Controle independente de música/efeitos
 - [ ] **Audio Ducking** - Redução automática de música durante SFX
 - [ ] **Feedback Háptico** - Vibração em dispositivos móveis
