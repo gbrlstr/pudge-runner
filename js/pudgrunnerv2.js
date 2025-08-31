@@ -112,6 +112,39 @@ class Game {
       mad: null,
       spoon: null,
     };
+
+    this.voiceLines = {
+      respawn: [
+        "../assets/sounds/pudge_respawn_01.mpeg",
+        "../assets/sounds/pudge_respawn_02.mpeg",
+        "../assets/sounds/pudge_respawn_03.mpeg",
+        "../assets/sounds/pudge_respawn_04.mpeg",
+        "../assets/sounds/pudge_respawn_05.mpeg",
+        "../assets/sounds/pudge_respawn_06.mpeg",
+        "../assets/sounds/pudge_respawn_07.mpeg"
+      ],
+      jump: [
+        "../assets/sounds/pudge_jump_01.mpeg",
+        "../assets/sounds/pudge_jump_02.mpeg",
+        "../assets/sounds/pudge_jump_03.mpeg",
+        "../assets/sounds/pudge_jump_04.mpeg"
+      ],
+      levelup: [
+        "../assets/sounds/pudge_levelup_01.mpeg",
+        "../assets/sounds/pudge_levelup_02.mpeg",
+        "../assets/sounds/pudge_levelup_03.mpeg",
+        "../assets/sounds/pudge_levelup_04.mpeg",
+        "../assets/sounds/pudge_levelup_05.mpeg"
+      ],
+      gameOver: [
+        "../assets/sounds/pudge_lose_01.mpeg",
+        "../assets/sounds/pudge_lose_02.mpeg",
+        "../assets/sounds/pudge_lose_03.mpeg",
+        "../assets/sounds/pudge_lose_04.mpeg",
+        "../assets/sounds/pudge_lose_05.mpeg",
+        "../assets/sounds/pudge_lose_06.mpeg"
+      ]
+    };
   }
   initializeGameState() {
     this.gameState = {
@@ -196,6 +229,7 @@ class Game {
     this.gameState.paused = false;
     this.gameState.gameOver = false;
     this.bgMusic.play();
+    this.playVoice("respawn");
     this.hideAllOverlays();
   }
   restartGame() {
@@ -476,6 +510,9 @@ class Game {
             this.killSound.currentTime = 0;
             this.killSound.play();
           }
+          if(this.gameState.score % 100 === 0) {
+            this.playVoice("levelup");
+          }
         }
 
         // Remoção
@@ -595,6 +632,7 @@ class Game {
     this.bgMusic.pause();
     this.saveBestScore();
     this.elements.finalScore.textContent = `Pontuação Final: ${this.gameState.score}`;
+    this.playVoice("gameOver");
     
     // Salva score global no Firebase
       let playerName = this.playerNickname || localStorage.getItem("pudgeRunnerPlayerName");
@@ -613,7 +651,13 @@ class Game {
     this.elements.globalRankingContainer.innerHTML = '';
     this.showGlobalRanking();
   }
-
+  playVoice(event) {
+    const lines = this.voiceLines[event];
+    if (!lines) return;
+    const pick = lines[Math.floor(Math.random() * lines.length)];
+    const audio = new Audio(pick);
+    audio.play();
+  }
   async showGlobalRanking() {
     if (!this.elements.finalScore) return;
     try {
