@@ -9,9 +9,40 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./assets/style.css" />
+  <script>
+    // Detecta mobile e carrega CSS mobile
+    function isMobile() {
+      return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    }
+    if (isMobile()) {
+      document.write('<link rel="stylesheet" href="./style.mobile.css" />');
+    } else {
+      document.write('<link rel="stylesheet" href="./assets/style.css" />');
+    }
+  </script>
+  <style>
+    /* Mensagem para virar o celular */
+    #rotateNotice {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; width: 100vw; height: 100vh;
+      background: rgba(0,0,0,0.95);
+      color: #fff;
+      z-index: 2000;
+      font-size: 1.3em;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      flex-direction: column;
+    }
+    #rotateNotice.visible { display: flex; }
+  </style>
 </head>
 <body>
+  <div id="rotateNotice">
+    <div>Por favor, vire seu celular para o modo paisagem (deitado) para jogar!</div>
+    <div style="font-size:2em; margin-top:1em;">🔄</div>
+  </div>
   <!-- Game Container -->
   <div class="game-container">
 
@@ -154,16 +185,29 @@
       });
     })();
 
-    // Ajuste responsivo do canvas para mobile
+    // Orientação: mostra aviso se não estiver landscape
+    function checkOrientation() {
+      const notice = document.getElementById('rotateNotice');
+      if (window.innerWidth < window.innerHeight) {
+        notice.classList.add('visible');
+      } else {
+        notice.classList.remove('visible');
+      }
+    }
+    window.addEventListener('resize', checkOrientation);
+    window.addEventListener('orientationchange', checkOrientation);
+    window.addEventListener('DOMContentLoaded', checkOrientation);
+
+    // Canvas responsivo landscape para mobile
     function resizeCanvas() {
       const canvas = document.getElementById('gameCanvas');
       if (!canvas) return;
       let w = window.innerWidth;
       let h = window.innerHeight;
-      // Mantém proporção 3:1, mas adapta para mobile
-      if (w < 900) {
-        canvas.width = Math.max(320, w * 0.98);
-        canvas.height = Math.max(180, h * 0.45);
+      if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+        // Landscape: canvas quadrado, rotacionado
+        canvas.width = Math.max(320, Math.min(w, h));
+        canvas.height = Math.max(180, Math.min(w, h));
       } else {
         canvas.width = 1500;
         canvas.height = 500;

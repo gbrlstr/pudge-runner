@@ -1,10 +1,16 @@
 // Canvas setup
 const canvas = document.getElementById("gameCanvas");
-// Responsivo: ajusta tamanho do canvas para mobile
+// Detecta mobile
+function isMobile() {
+  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+}
+// Responsivo: ajusta tamanho do canvas para mobile landscape
 function setResponsiveCanvas() {
-  if (window.innerWidth < 900) {
-    canvas.width = Math.max(320, window.innerWidth * 0.98);
-    canvas.height = Math.max(180, window.innerHeight * 0.45);
+  if (isMobile()) {
+    // Landscape: canvas quadrado, rotacionado
+    let size = Math.max(320, Math.min(window.innerWidth, window.innerHeight));
+    canvas.width = size;
+    canvas.height = size;
   } else {
     canvas.width = 1500;
     canvas.height = 500;
@@ -12,6 +18,7 @@ function setResponsiveCanvas() {
 }
 setResponsiveCanvas();
 window.addEventListener('resize', setResponsiveCanvas);
+window.addEventListener('orientationchange', setResponsiveCanvas);
 window.addEventListener('DOMContentLoaded', setResponsiveCanvas);
 
 const ctx = canvas.getContext("2d");
@@ -1175,11 +1182,16 @@ class InputHandler {
     });
     window.addEventListener("touchstart", (e) => {
       e.preventDefault();
-      this.game.player.jump();
+      // No mobile landscape, só 1 toque para pular
+      if (isMobile()) {
+        this.game.player.jump();
+      } else {
+        this.game.player.jump();
+      }
     });
     // Suporte a menu via toque (mobile)
     window.addEventListener("touchend", (e) => {
-      if (this.game.gameState.started && !this.game.gameState.gameOver && e.touches.length === 0) {
+      if (isMobile() && this.game.gameState.started && !this.game.gameState.gameOver && e.touches.length === 0) {
         // Exibe menu se tocar com dois dedos rapidamente
         if (e.changedTouches.length === 2) {
           this.game.showMenuControls();
