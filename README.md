@@ -108,6 +108,7 @@ pudge-runner/
 ### 🎨 **Melhorias Visuais**
 
 - [x] **Suporte mobile** - Suporte a mobile
+- [ ] **Melhorar o modo mobile** - Fazer melhorias para o modo mobile
 - [ ] **Sistema de Partículas Avançado** - Efeitos visuais mais complexos
 - [ ] **Animações de Transição** - Tweening e easing functions
 - [ ] **Shaders e Filtros** - Efeitos visuais pós-processamento
