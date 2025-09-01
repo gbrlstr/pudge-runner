@@ -965,7 +965,7 @@ class Game {
   }
 }
 
-/**
+ /**
  * Class representing the player
  */
 class Player {
@@ -1404,9 +1404,29 @@ class Particle {
 
 const game = new Game(canvas.width, canvas.height);
 let lastTime = 0;
+let fps = 0;
+let frames = 0;
+let fpsLastUpdate = 0;
+
+function drawPerformanceMonitor(ctx) {
+  ctx.save();
+  ctx.font = "bold 16px Orbitron, Arial";
+  ctx.fillStyle = "#ffe082";
+  ctx.globalAlpha = 0.85;
+  ctx.fillText(`FPS: ${fps}`, 18, 28);
+  ctx.restore();
+}
+
 function animate(timeStamp) {
   const deltaTime = timeStamp - lastTime;
   lastTime = timeStamp;
+  // FPS calculation
+  frames++;
+  if (timeStamp - fpsLastUpdate > 500) {
+    fps = Math.round((frames * 1000) / (timeStamp - fpsLastUpdate));
+    fpsLastUpdate = timeStamp;
+    frames = 0;
+  }
   // Dirty Rectangles: se houver regiões sujas, renderize apenas elas
   if (dirtyRects.length > 0) {
     renderDirtyRects(ctx);
@@ -1414,6 +1434,7 @@ function animate(timeStamp) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     game.update(deltaTime);
     game.draw(ctx);
+    drawPerformanceMonitor(ctx); // Adiciona o monitor de FPS
   }
   requestAnimationFrame(animate);
 }

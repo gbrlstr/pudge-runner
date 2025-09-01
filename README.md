@@ -114,6 +114,7 @@ pudge-runner/
 ### 🎨 **Melhorias Visuais**
 
 - [x] **Suporte mobile** - Suporte a mobile
+- [x] **Mostrar FPS** - Exibir FPS
 - [ ] **Melhorar o modo mobile** - Fazer melhorias para o modo mobile
 - [ ] **Sistema de Partículas Avançado** - Efeitos visuais mais complexos
 - [ ] **Animações de Transição** - Tweening e easing functions
@@ -165,7 +166,7 @@ pudge-runner/
 ### 📊 **Analytics e Debug**
 
 - [ ] **Game Analytics** - Telemetria detalhada de gameplay
-- [ ] **Performance Monitor** - FPS, memory usage em tempo real
+- [x] **Performance Monitor** - FPS, memory usage em tempo real
 - [ ] **Debug Console** - Console de comandos para desenvolvimento
 - [ ] **A/B Testing** - Testes de diferentes mecânicas
 - [ ] **Crash Reporting** - Sistema de relatório de erros
