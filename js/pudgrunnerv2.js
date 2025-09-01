@@ -789,7 +789,9 @@ class Game {
     const input = this.elements.nicknameInput;
     const btn = this.elements.nicknameConfirmButton;
     input.value = '';
-    btn.onclick = () => {
+    
+    // Função para confirmar nickname
+    const confirmNickname = () => {
       const nick = input.value.trim();
       if (nick.length < 3) {
         input.style.borderColor = '#e53935';
@@ -798,13 +800,26 @@ class Game {
         input.focus();
         return;
       }
-    this.playerNickname = nick;
-    localStorage.setItem("pudgeRunnerPlayerName", nick);
-    this.hideNicknameOverlay();
-    this.elements.menuOverlay.style.display = 'flex';
+      this.playerNickname = nick;
+      localStorage.setItem("pudgeRunnerPlayerName", nick);
+      this.hideNicknameOverlay();
+      this.elements.menuOverlay.style.display = 'flex';
     };
+    
+    // Event listeners para click e touch
+    btn.onclick = confirmNickname;
+    btn.addEventListener('touchend', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      confirmNickname();
+    });
+    
+    // Enter no input
     input.onkeydown = (e) => {
-      if (e.key === 'Enter') btn.click();
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        confirmNickname();
+      }
     };
   }
   async gameOver() {
@@ -1622,26 +1637,43 @@ class InputHandler {
       }
     });
     window.addEventListener("touchstart", (e) => {
+      const target = e.target;
+      if (target.closest('button') || target.closest('input') || target.closest('.menu-overlay')) {
+        return;
+      }
+      
       e.preventDefault();
       
       if (isMobile()) {
         // Single touch to jump - improved for mobile
         if (e.touches.length === 1) {
-          this.game.player.jump();
+          // Só pular se o jogo estiver ativo
+          if (this.game.gameState.started && !this.game.gameState.gameOver && !this.game.gameState.paused) {
+            this.game.player.jump();
+          }
         }
         // Two finger touch for pause/menu (only during game)
         else if (e.touches.length === 2 && this.game.gameState.started && !this.game.gameState.gameOver) {
           this.game.togglePause();
         }
       } else {
-        this.game.player.jump();
+        // Desktop - só pular se jogo ativo
+        if (this.game.gameState.started && !this.game.gameState.gameOver && !this.game.gameState.paused) {
+          this.game.player.jump();
+        }
       }
     }, { passive: false });
     
-    // Better mobile gesture support
+    // Better mobile gesture support - sem auto restart
     window.addEventListener("touchend", (e) => {
+      // Evitar interferir com botões de UI
+      const target = e.target;
+      if (target.closest('button') || target.closest('input') || target.closest('.menu-overlay')) {
+        return; 
+      }
+      
       e.preventDefault();
-      this.game.restartGame();
+      
     }, { passive: false });
     
     // Prevent default touch behaviors that might interfere
@@ -1658,11 +1690,28 @@ class InputHandler {
       }
     });
 
-    // Start and Restart button event listeners
-    this.game.elements.startButton.addEventListener("click", () => {
+    // Start and Restart button event listeners - melhorados para mobile
+    this.game.elements.startButton.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
       this.game.startGame();
     });
-    this.game.elements.restartButton.addEventListener("click", () => {
+    
+    this.game.elements.startButton.addEventListener("touchend", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      this.game.startGame();
+    });
+    
+    this.game.elements.restartButton.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      this.game.restartGame();
+    });
+    
+    this.game.elements.restartButton.addEventListener("touchend", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
       this.game.restartGame();
     });
   }
