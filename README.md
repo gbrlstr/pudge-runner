@@ -90,6 +90,7 @@ pudge-runner/
 
 ### 🎮 **Gameplay Avançado**
 
+- [x] **Animação player e mobs** - Adicionar animação dos player e mobs
 - [ ] **Sistema de Power-ups** - Invencibilidade, pulo duplo, câmera lenta
 - [ ] **Sistema de Combo/Multiplier** - Pontuação multiplicada por sequências perfeitas
 - [ ] **Modos de Jogo** - Survival, Time Attack, Challenge Mode
