@@ -353,20 +353,26 @@ class Game {
     this.elements.pauseOverlay.style.display = "none";
   }
   async startLoadingSequence() {
-    this.updateLoadingProgress(0, "Inicializando...");
-    await this.delay(500);
-    await this.loadAudioAssets();
-    this.updateLoadingProgress(25, "Carregando sons...");
-    await this.delay(200);
-    await this.loadPlayerFrames();
-    await this.loadMobFrames();
-    this.updateLoadingProgress(35, "Carregando sprites...");
-    await this.delay(200);
-    await this.loadAssets();
-    this.updateLoadingProgress(75, "Preparando jogo...");
-    await this.delay(200);
+    // Defina as etapas do loading
+    const steps = [
+      { fn: async () => await this.delay(500), text: "Inicializando..." },
+      { fn: async () => await this.loadAudioAssets(), text: "Carregando sons..." },
+      { fn: async () => await this.delay(200), text: "Preparando sons..." },
+      { fn: async () => await this.loadPlayerFrames(), text: "Carregando animações do jogador..." },
+      { fn: async () => await this.loadMobFrames(), text: "Carregando animações dos mobs..." },
+      { fn: async () => await this.delay(200), text: "Preparando sprites..." },
+      { fn: async () => await this.loadAssets(), text: "Carregando sprites..." },
+      { fn: async () => await this.delay(200), text: "Preparando jogo..." },
+      { fn: async () => {}, text: "Finalizando..." },
+      { fn: async () => await this.delay(500), text: "Finalizando..." }
+    ];
+    const totalSteps = steps.length;
+    for (let i = 0; i < totalSteps; i++) {
+      const percent = Math.round((i / totalSteps) * 100);
+      this.updateLoadingProgress(percent, steps[i].text);
+      await steps[i].fn();
+    }
     this.updateLoadingProgress(100, "Concluído!");
-    await this.delay(500);
     this.showMainMenu();
     // Tentar tocar bgMusic após assets carregados e menu exibido
     if (this.bgMusic) {
@@ -390,8 +396,6 @@ class Game {
         this.bgMusic.play();
       }
     });
-    await this.updateLoadingProgress(30, "Carregando música de fundo...");
-
     // Fallback: continua após 1.5s se não carregar
     await new Promise((resolve) => {
       let resolved = false;
@@ -409,7 +413,6 @@ class Game {
     // Carregar efeito de kill
     this.killSound = new Audio('../assets/sounds/kill.ogg');
     this.killSound.volume = 0.7;
-    await this.updateLoadingProgress(35, "Carregando efeito de kill...");
     await new Promise((resolve) => {
       let resolved = false;
       const onReady = () => {
@@ -426,7 +429,6 @@ class Game {
   }
   async loadAssets() {
     const spriteKeys = Object.keys(this.spriteUrls);
-    let loaded = 0;
     for (const key of spriteKeys) {
       try {
         // Lazy loading de sprites
@@ -437,13 +439,6 @@ class Game {
         console.warn(`Falha ao carregar sprite ${key}:`, error);
         this.sprites[key] = null;
       }
-      loaded++;
-      const progress = 25 + (loaded / spriteKeys.length) * 50;
-      this.updateLoadingProgress(
-        progress,
-        `Carregando sprites... ${loaded}/${spriteKeys.length}`
-      );
-      await this.delay(200);
     }
     this.gameState.assetsLoaded = true;
     this.preRenderCommonSprites();
