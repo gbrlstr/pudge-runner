@@ -3,8 +3,9 @@
 Um jogo endless runner inspirado no personagem Pudge do DOTA 2. Desvie dos obstáculos e alcance a maior pontuação possível!
 
 ![Pudge Runner](https://img.shields.io/badge/Game-Pudge%20Runner-red)
-![Version](https://img.shields.io/badge/Version-2.0-blue)
+![Version](https://img.shields.io/badge/Version-1.2-blue)
 ![HTML5](https://img.shields.io/badge/HTML5-Canvas-orange)
+![Mobile](https://img.shields.io/badge/Mobile-Optimized-green)
 
 ## 🚀 Características
 
@@ -19,8 +20,19 @@ Um jogo endless runner inspirado no personagem Pudge do DOTA 2. Desvie dos obst�
 - **Design moderno** - Interface estilizada com tema DOTA 2
 - **Efeitos de partículas** - Partículas de pulo e colisão
 - **Animações fluidas** - Movimento suave do personagem e obstáculos
-- **Background dinâmico** - Efeitos de paralaxe e gradientes animados
-- **UI responsiva** - Adaptável a diferentes tamanhos de tela
+- **Background dinâmico** - Sistema de parallax multicamadas com profundidade
+- **UI responsiva** - Adaptável a diferentes tamanhos de tela e orientações
+- **Ranking global responsivo** - Interface de leaderboard com emojis e breakpoints
+- **Feedback visual** - Animações de hover, click e transições suaves
+
+### 📱 Mobile & Responsive
+- **CSS Mobile dedicado** - Arquivo CSS específico para dispositivos móveis
+- **Canvas responsivo** - Dimensões dinâmicas sem rotação forçada
+- **Escalamento inteligente** - Player e enemies redimensionados automaticamente
+- **Controles touch otimizados** - Single touch (pulo) e gestos multi-touch
+- **Botão de som responsivo** - Controle de áudio totalmente funcional no mobile
+- **Orientação flexível** - Suporte completo a portrait e landscape
+- **Performance otimizada** - Redução de elementos e partículas para melhor FPS
 
 ### 🛠️ Recursos Técnicos
 - **Arquitetura orientada a objetos** - Código modular e maintível
@@ -31,27 +43,60 @@ Um jogo endless runner inspirado no personagem Pudge do DOTA 2. Desvie dos obst�
 
 ## 🎮 Como Jogar
 
-### Controles
+### Controles Desktop
 - **ESPAÇO** - Pular
 - **P** - Pausar/Despausar
 - **R** - Reiniciar (quando game over)
 - **M** - Voltar ao menu
 
+### Controles Mobile
+- **Toque simples** - Pular
+- **Dois dedos** - Pausar/Menu (durante o jogo)
+- **Botão de som** - Ativar/Desativar áudio
+- **Rotação automática** - Suporte a portrait e landscape
+
 ### Objetivo
 - Desvie dos obstáculos saltando no momento certo
 - Sobreviva o máximo de tempo possível
 - Alcance scores mais altos para desbloquear níveis mais difíceis
-- Cada obstáculo desviado vale 10 pontos
+- Cada obstáculo desviado vale 10 pontos (multiplicado por combo)
 - A velocidade e frequência dos obstáculos aumenta a cada 100 pontos
 
 ## 📁 Estrutura do Projeto
 
-```
+```text
 pudge-runner/
-├── index.html          # Arquivo principal do jogo
-├── README.md          # Este arquivo
-├── .gitignore         # Arquivos ignorados pelo Git
-└── assets/            # (Futuro) Pasta para sprites locais
+├── index.html                  # Arquivo principal do jogo
+├── style.mobile.css           # CSS responsivo para dispositivos móveis
+├── README.md                  # Documentação principal
+├── MOBILE_IMPROVEMENTS.md     # Documentação das melhorias mobile
+├── MOBILE_FIXES.md           # Documentação das correções mobile
+├── SOUND_BUTTON_FIXES.md     # Documentação das correções do botão de som
+├── .gitignore                # Arquivos ignorados pelo Git
+├── assets/                   # Assets do jogo
+│   ├── style.css            # CSS para desktop
+│   ├── logo.png             # Ícone do jogo
+│   ├── imgs/                # Sprites e imagens
+│   │   ├── pudg.gif        # Sprite do player
+│   │   ├── ground.png      # Textura do chão
+│   │   ├── background/     # Imagens de parallax
+│   │   ├── boss/           # Frames de animação do boss
+│   │   ├── meepo/          # Frames de animação do meepo
+│   │   ├── ghost/          # Frames de animação do ghost
+│   │   ├── mad/            # Frames de animação do mad
+│   │   ├── spoon/          # Frames de animação do spoon
+│   │   └── pudge/          # Frames de animação do pudge
+│   └── sounds/              # Arquivos de áudio
+│       ├── background.mp3   # Música de fundo
+│       ├── kill.ogg        # Efeito de kill
+│       ├── pudge_jump_*.mpeg
+│       ├── pudge_levelup_*.mpeg
+│       ├── pudge_lose_*.mpeg
+│       └── pudge_respawn_*.mpeg
+└── js/                      # Scripts do jogo
+    ├── pudgrunnerv2.js     # Lógica principal do jogo
+    ├── firebase-config.js  # Configuração do Firebase
+    └── firebase-rank.js    # Sistema de ranking global
 ```
 
 ## 🎯 Níveis de Dificuldade
@@ -86,6 +131,34 @@ pudge-runner/
 - ✅ Performance Monitor - FPS em tempo real
 - ✅ Sistema de Combo/Multiplier - Pontuação multiplicada por combos
 - ✅ Estatísticas Detalhadas - Jumps, dodges, collisions, play time
+
+### Versão 1.2 - Mobile Optimization & Fixes
+- ✅ **Responsividade Mobile Completa** - Layout totalmente otimizado para dispositivos móveis
+- ✅ **CSS Mobile Dedicado** - Arquivo CSS específico para mobile (`style.mobile.css`)
+- ✅ **Canvas Responsivo** - Dimensões dinâmicas para landscape/portrait sem rotação
+- ✅ **Escalamento Inteligente** - Player e enemies redimensionados automaticamente (0.65x-0.8x)
+- ✅ **Parallax Otimizado** - Sistema de background com múltiplas camadas funcionando no mobile
+- ✅ **Ranking Global Responsivo** - Interface de ranking adaptativa com emojis e breakpoints
+- ✅ **Controles Touch Aprimorados** - Single touch (pulo) e two-finger touch (pause)
+- ✅ **Performance Mobile** - Redução de partículas, elementos e otimizações específicas
+- ✅ **Ícone de Som Responsivo** - Botão de som totalmente funcional e posicionado no mobile
+- ✅ **Sistema de Mute Robusto** - Controle de áudio com retry system e feedback visual
+- ✅ **Suporte Multi-Orientação** - Funciona em portrait e landscape com ajustes automáticos
+
+#### 🔧 Correções Específicas Mobile
+- ✅ **Parallax Background**: Corrigido carregamento de múltiplas camadas no mobile
+- ✅ **Ranking Display**: Sistema de responsividade com containers adaptativos
+- ✅ **Canvas Sizing**: Proporções otimizadas (96vw×48vh landscape, 92vw×42vh portrait)
+- ✅ **Sound Button**: Posicionamento automático com ResizeObserver e event listeners
+- ✅ **Touch Events**: Prevenção de gestos nativos e otimização de performance
+- ✅ **Global Game Access**: `window.game` para controle de áudio externo
+
+#### 📱 Compatibilidade Mobile
+- ✅ **iPhone SE** (375px): Escala 0.65x otimizada
+- ✅ **iPhone 6/7/8 Plus** (414px): Escala 0.7x balanceada  
+- ✅ **Android Small** (até 480px): Escala 0.75x adaptativa
+- ✅ **Tablets**: Otimizações específicas para landscape (85vw × 55vh)
+- ✅ **Chrome Mobile, Safari iOS, Firefox Mobile, Samsung Internet**
 
 ## 🔮 Próximas Melhorias
 
@@ -211,19 +284,36 @@ pudge-runner/
 
 ## 🛠️ Tecnologias Utilizadas
 
-- **HTML5 Canvas** - Renderização do jogo
-- **JavaScript ES6+** - Lógica do jogo
-- **CSS3** - Interface e estilos
+- **HTML5 Canvas** - Renderização do jogo com otimizações mobile
+- **JavaScript ES6+** - Lógica do jogo com arquitetura OOP
+- **CSS3** - Interface responsiva com breakpoints mobile
 - **Google Fonts** - Tipografia (Orbitron)
-- **LocalStorage** - Persistência de dados
+- **LocalStorage** - Persistência de dados local
+- **Firebase** - Sistema de ranking global
+- **ResizeObserver API** - Detecção de mudanças de layout
+- **Touch Events API** - Controles touch otimizados
+- **Canvas 2D Context** - Renderização com dirty rectangles
 
 ## 📱 Compatibilidade
 
+### Desktop
 - ✅ Chrome/Chromium 80+
 - ✅ Firefox 75+
 - ✅ Safari 13+
 - ✅ Edge 80+
-- ✅ Dispositivos móveis (iOS/Android)
+
+### Mobile
+- ✅ Chrome Mobile (Android)
+- ✅ Safari iOS (iPhone/iPad)
+- ✅ Firefox Mobile
+- ✅ Samsung Internet
+- ✅ Opera Mobile
+
+### Dispositivos Testados
+- ✅ iPhone SE, 6, 7, 8, Plus series
+- ✅ Android devices (375px - 480px+)
+- ✅ Tablets (portrait e landscape)
+- ✅ Desktop (1920x1080+)
 
 ## 🤝 Contribuição
 
