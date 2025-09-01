@@ -74,6 +74,8 @@ class Game {
       this.bgMusic = null;
       this.killSound = null;
 
+      this.groundImage = null;
+
       this.player = new Player(this);
       this.input = new InputHandler(this);
       this.ui = new UI(this);
@@ -440,6 +442,7 @@ class Game {
         this.sprites[key] = null;
       }
     }
+    this.groundImage = await lazyLoadImage("../assets/imgs/ground.png");
     this.gameState.assetsLoaded = true;
     this.preRenderCommonSprites();
   }
@@ -877,20 +880,27 @@ class Game {
       context.restore();
     });
   }
-  drawGround(context) {
-    const groundHeight = this.height - this.config.GROUND_Y;
-    context.fillStyle = "#1a1a1a";
-    context.fillRect(0, this.config.GROUND_Y, this.width, groundHeight);
-    context.fillStyle = "#333333";
-    context.fillRect(0, this.config.GROUND_Y, this.width, 4);
-    context.strokeStyle = "#404040";
-    context.lineWidth = 1;
-    for (let x = 0; x < this.width; x += 40) {
-      context.beginPath();
-      context.moveTo(x, this.config.GROUND_Y + 4);
-      context.lineTo(x, this.height);
-      context.stroke();
-    }
+  async drawGround(context) {
+      const groundHeight = this.height - this.config.GROUND_Y;
+      // image ground
+      if (this.groundImage) {
+      context.save();
+       context.drawImage(this.groundImage, 0, this.config.GROUND_Y, this.width, groundHeight);
+       context.restore();
+      }
+
+      // borda
+      // context.fillStyle = "#333333";
+      // context.fillRect(0, this.config.GROUND_Y, this.width, 4);
+      // context.strokeStyle = "#404040";
+      // context.lineWidth = 1;
+
+      // for (let x = 0; x < this.width; x += 40) {
+      //   context.beginPath();
+      //   context.moveTo(x, this.config.GROUND_Y + 4);
+      //   context.lineTo(x, this.height);
+      //   context.stroke();
+      // }
   }
   drawParticles(context) {
     this.particles.forEach((particle) => particle.draw(context));
