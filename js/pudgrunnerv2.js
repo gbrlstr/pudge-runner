@@ -54,6 +54,18 @@ class Game {
       this.ui = new UI(this);
       this.initializePools();
       this.startLoadingSequence();
+      this.playerFrames = [];
+      this.mobFrames = {
+        boss: [],
+        meepo: [],
+        ghost: [],
+        mad: [],
+        spoon: []
+      };
+      this.playerFrameIndex = 0;
+      this.playerFrameDelay = 0;
+      this.mobFrameIndex = {};
+      this.mobFrameDelay = {};
   }
   initializeElements() {
     this.elements = {
@@ -97,12 +109,12 @@ class Game {
       ],
     };
     this.spriteUrls = {
-      pudge: "./assets/imgs/pudg.gif",
-      boss: "./assets/imgs/boss.gif",
-      meepo: "./assets/imgs/meepo.gif",
-      ghost: "./assets/imgs/ghost.gif",
-      mad: "./assets/imgs/mad.gif",
-      spoon: "./assets/imgs/spoon.gif",
+      pudge: "../assets/imgs/pudg.gif",
+      boss: "../assets/imgs/boss.gif",
+      meepo: "../assets/imgs/meepo.gif",
+      ghost: "../assets/imgs/ghost.gif",
+      mad: "../assets/imgs/mad.gif",
+      spoon: "../assets/imgs/spoon.gif",
     };
     this.sprites = {
       pudge: null,
@@ -301,14 +313,16 @@ class Game {
   async startLoadingSequence() {
     this.updateLoadingProgress(0, "Inicializando...");
     await this.delay(500);
+    await this.loadAudioAssets();
     this.updateLoadingProgress(25, "Carregando sons...");
     await this.delay(200);
-    await this.loadAudioAssets();
-    this.updateLoadingProgress(50, "Carregando sprites...");
+    await this.loadPlayerFrames();
+    await this.loadMobFrames();
+    this.updateLoadingProgress(35, "Carregando sprites...");
     await this.delay(200);
     await this.loadAssets();
     this.updateLoadingProgress(75, "Preparando jogo...");
-    await this.delay(800);
+    await this.delay(200);
     this.updateLoadingProgress(100, "Concluído!");
     await this.delay(500);
     this.showMainMenu();
@@ -875,6 +889,52 @@ class Game {
       this.gameState.spawnRate = levelConfig.spawnRate;
     }
   }
+  async loadPlayerFrames() {
+    // pudge animation
+    const frameCount = 7;
+    for (let i = 0; i <= frameCount; i++) {
+      try {
+        const img = await this.loadImage(`../assets/imgs/pudge/pudge_frame_${i}.gif`);
+        this.playerFrames.push(img);
+      } catch (e) {
+        break;
+      }
+    }
+    // fallback
+    if (this.playerFrames.length === 0 && this.sprites.pudge) {
+      this.playerFrames.push(this.sprites.pudge);
+    }
+  }
+  async loadMobFrames() {
+    const mobList = ["boss", "meepo", "ghost", "mad", "spoon"];
+    // Defina o número de frames para cada mob
+    const mobFrameCounts = {
+      boss: 8,
+      meepo: 5,
+      ghost: 7,
+      mad: 3,
+      spoon: 43
+    };
+    for (const mob of mobList) {
+      this.mobFrames[mob] = [];
+      const frameCount = mobFrameCounts[mob] !== undefined ? mobFrameCounts[mob] : 7;
+      for (let i = 0; i <= frameCount; i++) {
+        try {
+          const img = await this.loadImage(`../assets/imgs/${mob}/${mob}_frame_${i}.png`);
+          this.mobFrames[mob].push(img);
+        } catch (e) {
+          // Para de tentar se não encontrar o frame
+          break;
+        }
+      }
+      // fallback
+      if (this.mobFrames[mob].length === 0 && this.sprites[mob]) {
+        this.mobFrames[mob].push(this.sprites[mob]);
+      }
+      this.mobFrameIndex[mob] = 0;
+      this.mobFrameDelay[mob] = 0;
+    }
+  }
 }
 
 /**
@@ -896,6 +956,9 @@ class Player {
     this.onGround = false;
     this.groundY = this.game.config.GROUND_Y - 90;
     this.flipped = false;
+    this.frameRate = 10; // frames por segundo
+    this.frameDelay = 0;
+    this.currentFrame = 0;
   }
   update() {
     // Handle horizontal movement
@@ -945,6 +1008,15 @@ class Player {
     // Limitar posição do jogador dentro da tela
     if (this.x + this.width > this.game.width)
       this.x = this.game.width - this.width;
+
+    // Atualiza animação do player
+    if (this.game.playerFrames.length > 1) {
+      this.frameDelay++;
+      if (this.frameDelay >= Math.floor(60 / this.frameRate)) {
+        this.frameDelay = 0;
+        this.currentFrame = (this.currentFrame + 1) % this.game.playerFrames.length;
+      }
+    }
   }
   jump() {
     if (this.onGround) {
@@ -957,10 +1029,11 @@ class Player {
     }
   }
   draw(context) {
-    this.drawPudge(context);
+    this.drawAnimatedPlayer(context);
   }
-  drawPudge(context) {
-    const sprite = this.getSpriteFromPool("pudge");
+  drawAnimatedPlayer(context) {
+    const frames = this.game.playerFrames;
+    let sprite = frames.length > 0 ? frames[this.currentFrame] : this.getSpriteFromPool("pudge");
     if (sprite && sprite.complete && sprite.naturalWidth > 0) {
       context.save();
       const bounceOffset = this.onGround ? Math.sin(this.animFrame) * 2 : 0;
@@ -973,7 +1046,6 @@ class Player {
       }
       const drawX = this.x + (this.width - drawWidth) / 2;
       const drawY = this.y + (this.height - drawHeight) + bounceOffset;
-      // Inverte horizontalmente se flipped
       if (this.flipped) {
         context.translate(drawX + drawWidth / 2, drawY + drawHeight / 2);
         context.scale(-1, 1);
@@ -1039,19 +1111,29 @@ class Enemy {
     this.passed = false;
     const types = ["boss", "ghost", "mad", "spoon", "meepo"];
     this.type = types[Math.floor(Math.random() * types.length)];
+    this.frameRate = 10;
+    this.frameDelay = 0;
+    this.currentFrame = 0;
   }
   update() {
-    this.x += this.speedX * 2.0;
+    this.x += this.speedX;
+    // Atualiza animação do mob
+    const frames = this.game.mobFrames[this.type];
+    if (frames && frames.length > 1) {
+      this.frameDelay++;
+      if (this.frameDelay >= Math.floor(60 / this.frameRate)) {
+        this.frameDelay = 0;
+        this.currentFrame = (this.currentFrame + 1) % frames.length;
+      }
+    }
   }
   draw(context) {
-    // Usar sprite do pool para variação e performance
-    let sprite = this.game.player.getSpriteFromPool(this.type);
-
-    // Fallback para sprite original se pool não tiver
+    // Usar frames animados se disponíveis
+    const frames = this.game.mobFrames[this.type];
+    let sprite = frames && frames.length > 0 ? frames[this.currentFrame] : this.game.player.getSpriteFromPool(this.type);
     if (!sprite) {
       sprite = this.game.sprites[this.type];
     }
-
     if (sprite && sprite.complete && sprite.naturalWidth > 0) {
       // Animate enemy with slight rotation
       context.save();
@@ -1066,11 +1148,13 @@ class Enemy {
         context.scale(-1, 1);
       }
 
-      // Adiciona animOffset se existir, senão 0
-      const animOffset = this.animOffset || 0;
-      context.rotate(
-        Math.sin(this.game.gameState.frame * 0.1 + animOffset) * 0.1
-      );
+      // Animação de movimento no mob
+      // const animOffset = this.animOffset || 0;
+      // context.rotate(
+      //   Math.sin(this.game.gameState.frame * 0.1 + animOffset) * 0.1
+      // );
+
+      // Animação de movimento no mob
       context.translate(-centerX, -centerY);
 
       // Verificar se existe sprite pré-renderizado para melhor performance
