@@ -100,31 +100,28 @@ pudge-runner/
 ### 🎮 **Gameplay Avançado**
 
 - [x] **Animação player e mobs** - Adicionar animação dos player e mobs
-- [ ] **Sistema de Power-ups** - Invencibilidade, pulo duplo, câmera lenta
 - [x] **Sistema de Combo/Multiplier** - Pontuação multiplicada por sequências perfeitas
+- [ ] **Sistema de Vidas** - Múltiplas chances com regeneração
+- [ ] **Sistema de Power-ups** - Invencibilidade, pulo duplo, câmera lenta
 - [ ] **Modos de Jogo** - Survival, Time Attack, Challenge Mode
 - [ ] **Boss Battles** - Chefes especiais em intervalos específicos
-- [ ] **Sistema de Vidas** - Múltiplas chances com regeneração
 - [ ] **Sistema de multiplayer** - Suporte para multi players
 
 ### 🏆 **Sistema de Progressão**
 
-- [ ] **Achievements/Conquistas** - 20+ conquistas desbloqueáveis
 - [x] **Sistema de Ranking** - Leaderboards locais e online
-- [ ] **Desbloqueáveis** - Novos personagens, skins, efeitos
-- [ ] **Sistema de Moedas** - Economia interna do jogo
 - [x] **Estatísticas Detalhadas** - Analytics de performance do jogador
+- [ ] **Achievements/Conquistas** - 20+ conquistas desbloqueáveis
+- [ ] **Sistema de Moedas** - Economia interna do jogo
 
 ### 🎨 **Melhorias Visuais**
 
 - [x] **Suporte mobile** - Suporte a mobile
 - [x] **Mostrar FPS** - Exibir FPS
+- [x] **Parallax Multilayer** - Background com múltiplas camadas
+- [x] **Sistema de Partículas Avançado** - Efeitos visuais mais complexos
+- [x] **Shaders e Filtros** - Efeitos visuais pós-processamento
 - [ ] **Melhorar o modo mobile** - Fazer melhorias para o modo mobile
-- [ ] **Sistema de Partículas Avançado** - Efeitos visuais mais complexos
-- [ ] **Animações de Transição** - Tweening e easing functions
-- [ ] **Shaders e Filtros** - Efeitos visuais pós-processamento
-- [ ] **Parallax Multilayer** - Background com múltiplas camadas
-- [ ] **Weather System** - Chuva, neve, tempestades
 
 ### 🔊 **Sistema de Áudio Completo**
 
@@ -169,8 +166,8 @@ pudge-runner/
 
 ### 📊 **Analytics e Debug**
 
-- [ ] **Game Analytics** - Telemetria detalhada de gameplay
 - [x] **Performance Monitor** - FPS, memory usage em tempo real
+- [ ] **Game Analytics** - Telemetria detalhada de gameplay
 - [ ] **Debug Console** - Console de comandos para desenvolvimento
 - [ ] **A/B Testing** - Testes de diferentes mecânicas
 - [ ] **Crash Reporting** - Sistema de relatório de erros
