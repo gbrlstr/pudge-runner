@@ -83,8 +83,10 @@ canvas:hover {
 }
 
 .controls-panel {
+  width: 250px;
   bottom: 20px;
   right: 20px;
+  left: 0px;
   font-size: 0.85rem;
   opacity: 0.9;
   z-index: 10;
@@ -436,4 +438,20 @@ canvas:hover {
     height: 28px;
     filter: drop-shadow(0 2px 6px #000);
     transform: rotate(45deg);
+}
+
+.stats-detalhadas {
+  margin-top: 10px;
+  margin-bottom: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+  justify-content: center;
+  font-family: 'Orbitron', Arial, sans-serif;
+  font-size: 0.95em;
+  color: #ffe082;
+  background: rgba(30,30,40,0.7);
+  border-radius: 12px;
+  padding: 8px 38px;
+  box-shadow: 0 0 8px #ff5e7b44;
 }
