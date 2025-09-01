@@ -73,6 +73,34 @@
           <div class="stat-value" id="currentLevel">1</div>
         </div>
       </div>
+      <!-- Estatísticas Detalhadas e Combo/Multiplier -->
+      <div class="stats-detalhadas" id="statsDetails" style="
+        margin-top: 10px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 18px;
+        justify-content: center;
+        font-family: 'Orbitron', Arial, sans-serif;
+        font-size: 0.95em;
+        color: #ffe082;
+        background: rgba(30,30,40,0.7);
+        border-radius: 12px;
+        padding: 8px 18px;
+        box-shadow: 0 0 8px #ff5e7b44;
+      ">
+        <div>
+          <span style="color:#ff5e7b;">Combo:</span> <b id="comboValue">0</b>
+          <span style="margin-left:10px;color:#ffb300;">Multiplier:</span> <b id="multiplierValue">x1</b>
+        </div>
+        <div>
+          <span style="color:#ff5e7b;">Jumps:</span> <b id="jumpsValue">0</b>
+          <span style="margin-left:10px;color:#ff5e7b;">Dodges:</span> <b id="dodgesValue">0</b>
+          <span style="margin-left:10px;color:#ff5e7b;">Collisions:</span> <b id="collisionsValue">0</b>
+        </div>
+        <div>
+          <span style="color:#ff5e7b;">Play Time:</span> <b id="playTimeValue">0.0s</b>
+        </div>
+      </div>
     </div>
 
     <!-- Game Canvas -->

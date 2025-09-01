@@ -114,7 +114,14 @@ class Game {
       nicknameInput: document.getElementById('nicknameInput'),
       nicknameConfirmButton: document.getElementById('nicknameConfirmButton'),
       globalRankingContainer: document.getElementById("globalRankingContainer"),
-      playerNameCenter: document.getElementById("playerNameCenter")
+      playerNameCenter: document.getElementById("playerNameCenter"),
+      statsDetails: document.getElementById("statsDetails"),
+      comboValue: document.getElementById("comboValue"),
+      multiplierValue: document.getElementById("multiplierValue"),
+      jumpsValue: document.getElementById("jumpsValue"),
+      dodgesValue: document.getElementById("dodgesValue"),
+      collisionsValue: document.getElementById("collisionsValue"),
+      playTimeValue: document.getElementById("playTimeValue")
     };
   }
   initializeConfig() {
@@ -195,6 +202,16 @@ class Game {
       speed: this.config.BASE_SPEED,
       spawnRate: this.config.OBSTACLE_SPAWN_RATE,
       nextSpawnFrame: this.config.OBSTACLE_SPAWN_RATE,
+      combo: 0, // Combo/Multiplier
+      multiplier: 1, // Combo/Multiplier
+      stats: { // Estatísticas Detalhadas
+        jumps: 0,
+        perfectDodges: 0,
+        collisions: 0,
+        playTime: 0,
+        enemiesSpawned: 0,
+        enemiesDodged: 0,
+      }
     };
     this.enemies = [];
     this.particles = [];
@@ -508,6 +525,15 @@ class Game {
     if (this.elements.playerNameCenter) {
       this.elements.playerNameCenter.textContent = this.playerNickname || localStorage.getItem("pudgeRunnerPlayerName") || "";
     }
+    // Atualiza estatísticas detalhadas e combo/multiplier na UI
+    if (this.elements.statsDetails) {
+      this.elements.comboValue.textContent = this.gameState.combo;
+      this.elements.multiplierValue.textContent = 'x' + this.gameState.multiplier;
+      this.elements.jumpsValue.textContent = this.gameState.stats.jumps;
+      this.elements.dodgesValue.textContent = this.gameState.stats.enemiesDodged;
+      this.elements.collisionsValue.textContent = this.gameState.stats.collisions;
+      this.elements.playTimeValue.textContent = this.gameState.stats.playTime.toFixed(1) + 's';
+    }
   }
   showMenuControls() {
     const controlsPanel = this.elements.controlsPanel;
@@ -521,26 +547,31 @@ class Game {
     this.elements.loadingProgress.style.width = percentage + "%";
     this.elements.loadingText.textContent = text;
   }
-  update() {
-
+  update(deltaTime) {
     if (this.gameState.paused || this.gameState.gameOver) return;
 
     if (this.gameState.started && !this.gameState.gameOver) {
-
       this.gameState.frame++;
-      
+      this.gameState.stats.playTime += (deltaTime || 16.6) / 1000; // segundos
+
       // Update player
       this.player.update();
 
       // Update enemies
       for (let i = this.enemies.length - 1; i >= 0; i--) {
         const enemy = this.enemies[i];
-        enemy.x -= this.gameState.speed;
+        // Corrigir movimento dos inimigos para usar speedX
+        enemy.x += enemy.speedX;
 
-        // Pontuação
+        // Pontuação e Combo/Multiplier
         if (enemy.x < this.player.x && !enemy.passed) {
-          this.gameState.score += 10;
+          this.gameState.combo++;
+          if (this.gameState.combo >= 5) {
+            this.gameState.multiplier = Math.min(5, 1 + Math.floor(this.gameState.combo / 5));
+          }
+          this.gameState.score += 10 * this.gameState.multiplier;
           enemy.passed = true;
+          this.gameState.stats.enemiesDodged++;
           this.createScoreParticles(enemy.x + enemy.width / 2, enemy.y - this.player.height / 2);
           // Tocar som de kill
           if (this.killSound) {
@@ -560,6 +591,9 @@ class Game {
 
         // Colisão
         if (this.isColliding(this.player, enemy)) {
+          this.gameState.stats.collisions++;
+          this.gameState.combo = 0;
+          this.gameState.multiplier = 1;
           const px = (this.player.x + this.player.width / 2 + enemy.x + enemy.width / 2) / 2;
           const py = (this.player.y + this.player.height / 2 + enemy.y + enemy.height / 2) / 2;
           this.createCollisionParticles(px, py);
@@ -572,6 +606,7 @@ class Game {
 
       if (this.gameState.frame % this.enemySpawnRate === 0) {
         this.addEnemy();
+        this.gameState.stats.enemiesSpawned++;
         this.enemySpawnRate = 180 + Math.floor(Math.random() * 70);
       }
       
@@ -1054,6 +1089,8 @@ class Player {
         this.x + this.width / 2,
         this.y + this.height
       );
+      // Estatísticas Detalhadas
+      this.game.gameState.stats.jumps++;
     }
   }
   draw(context) {
@@ -1418,24 +1455,25 @@ function drawPerformanceMonitor(ctx) {
 }
 
 function animate(timeStamp) {
-  const deltaTime = timeStamp - lastTime;
-  lastTime = timeStamp;
-  // FPS calculation
-  frames++;
-  if (timeStamp - fpsLastUpdate > 500) {
-    fps = Math.round((frames * 1000) / (timeStamp - fpsLastUpdate));
-    fpsLastUpdate = timeStamp;
-    frames = 0;
+    const deltaTime = timeStamp - lastTime;
+    lastTime = timeStamp;
+    // FPS calculation
+    frames++;
+    if (timeStamp - fpsLastUpdate > 500) {
+      fps = Math.round((frames * 1000) / (timeStamp - fpsLastUpdate));
+      fpsLastUpdate = timeStamp;
+      frames = 0;
+    }
+    // Dirty Rectangles: se houver regiões sujas, renderize apenas elas
+    if (dirtyRects.length > 0) {
+      renderDirtyRects(ctx);
+    } else {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      game.update(deltaTime);
+      game.draw(ctx);
+      drawPerformanceMonitor(ctx); // Adiciona o monitor de FPS
+    }
+    requestAnimationFrame(animate);
   }
-  // Dirty Rectangles: se houver regiões sujas, renderize apenas elas
-  if (dirtyRects.length > 0) {
-    renderDirtyRects(ctx);
-  } else {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    game.update(deltaTime);
-    game.draw(ctx);
-    drawPerformanceMonitor(ctx); // Adiciona o monitor de FPS
-  }
-  requestAnimationFrame(animate);
-}
-animate(0);
+  
+  animate(0);

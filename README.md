@@ -83,6 +83,9 @@ pudge-runner/
 - ✅ Dirty Rectangles - Re-renderização apenas de áreas modificadas
 - ✅ Otimização de Canvas - Técnicas avançadas de renderização
 - ✅ Lazy Loading - Carregamento sob demanda de assets
+- ✅ Performance Monitor - FPS em tempo real
+- ✅ Sistema de Combo/Multiplier - Pontuação multiplicada por combos
+- ✅ Estatísticas Detalhadas - Jumps, dodges, collisions, play time
 
 ## 🔮 Próximas Melhorias
 
@@ -92,12 +95,13 @@ pudge-runner/
 - [x] **Dirty Rectangles** - Re-renderização apenas de áreas modificadas
 - [x] **Otimização de Canvas** - Técnicas avançadas de renderização
 - [x] **Lazy Loading** - Carregamento sob demanda de assets
+- [x] **Performance Monitor** - FPS, memory usage em tempo real
 
 ### 🎮 **Gameplay Avançado**
 
 - [x] **Animação player e mobs** - Adicionar animação dos player e mobs
 - [ ] **Sistema de Power-ups** - Invencibilidade, pulo duplo, câmera lenta
-- [ ] **Sistema de Combo/Multiplier** - Pontuação multiplicada por sequências perfeitas
+- [x] **Sistema de Combo/Multiplier** - Pontuação multiplicada por sequências perfeitas
 - [ ] **Modos de Jogo** - Survival, Time Attack, Challenge Mode
 - [ ] **Boss Battles** - Chefes especiais em intervalos específicos
 - [ ] **Sistema de Vidas** - Múltiplas chances com regeneração
@@ -109,7 +113,7 @@ pudge-runner/
 - [x] **Sistema de Ranking** - Leaderboards locais e online
 - [ ] **Desbloqueáveis** - Novos personagens, skins, efeitos
 - [ ] **Sistema de Moedas** - Economia interna do jogo
-- [ ] **Estatísticas Detalhadas** - Analytics de performance do jogador
+- [x] **Estatísticas Detalhadas** - Analytics de performance do jogador
 
 ### 🎨 **Melhorias Visuais**
 
