@@ -62,6 +62,8 @@ class Game {
       this.enemySpawnRate = 60;
       this.particles = [];
       this.backgroundElements = [];
+      // Parallax layers
+      this.parallaxLayers = [];
       this.initializeElements();
       this.initializeConfig();
       this.initializeGameState();
@@ -220,6 +222,26 @@ class Game {
     this.backgroundElements = [];
     this.loadBestScore();
     this.initializeBackground();
+    this.initializeParallaxLayers();
+  }
+  initializeParallaxLayers() {
+    // Parallax layers config: image src, speed
+    const layerConfigs = [
+      { src: "../assets/imgs/background/plx-2.png", speed: 0.2 },
+      { src: "../assets/imgs/background/plx-3.png", speed: 0.4 },
+      { src: "../assets/imgs/background/plx-4.png", speed: 0.7 },
+      { src: "../assets/imgs/background/plx-5.png", speed: 1.1 }
+    ];
+    this.parallaxLayers = layerConfigs.map(cfg => ({
+      img: null,
+      src: cfg.src,
+      speed: cfg.speed,
+      x: 0
+    }));
+    // Carregar imagens
+    this.parallaxLayers.forEach(layer => {
+      lazyLoadImage(layer.src).then(img => { layer.img = img; });
+    });
   }
   initializeBackground() {
   // Estrelas pequenas
@@ -620,8 +642,8 @@ class Game {
       renderDirtyRects(context);
     } else {
       context.clearRect(0, 0, this.width, this.height);
-      this.drawBackground(context);
       this.drawBackgroundElements(context);
+      this.drawBackground(context);
       this.player.draw(context);
       this.ui.draw(context);
       this.enemies.forEach((enemy) => enemy.draw(context));
@@ -826,6 +848,26 @@ class Game {
     }
   }
   drawBackground(context) {
+    // Parallax layers
+    this.parallaxLayers.forEach(layer => {
+      if (layer.img && layer.img.complete && layer.img.naturalWidth > 0) {
+        let imgW = layer.img.width;
+        let imgH = layer.img.height;
+        let y = 0;
+        if (imgH < this.height) {
+          y = this.height - imgH;
+        }
+        // Desenha a imagem em loop até cobrir toda a largura do canvas
+        let x1 = layer.x % imgW;
+        for (let x = -x1; x < this.width; x += imgW) {
+          context.drawImage(layer.img, x, y, imgW, imgH);
+        }
+      }
+    });
+
+  }
+  drawBackgroundElements(context) {
+    // Background image (fallback)
     const gradient = context.createLinearGradient(0, 0, 0, this.height);
     const time = this.gameState.frame * 0.01;
     gradient.addColorStop(0, `hsl(${220 + Math.sin(time) * 10}, 30%, 15%)`);
@@ -836,8 +878,7 @@ class Game {
     );
     context.fillStyle = gradient;
     context.fillRect(0, 0, this.width, this.height);
-  }
-  drawBackgroundElements(context) {
+
     this.backgroundElements.forEach((element) => {
       context.save();
       context.globalAlpha = element.opacity;
@@ -884,9 +925,9 @@ class Game {
       const groundHeight = this.height - this.config.GROUND_Y;
       // image ground
       if (this.groundImage) {
-      context.save();
-       context.drawImage(this.groundImage, 0, this.config.GROUND_Y, this.width, groundHeight);
-       context.restore();
+        context.save();
+        context.drawImage(this.groundImage, 0, this.config.GROUND_Y, this.width, groundHeight);
+        context.restore();
       }
 
       // borda
@@ -930,7 +971,17 @@ class Game {
     }
   }
   updateBackground() {
-    // Efeito paralaxe: elementos mais altos e opacos movem mais devagar
+    // Parallax das imagens
+    this.parallaxLayers.forEach(layer => {
+      if (layer.img) {
+        layer.x += layer.speed * this.gameState.speed;
+        // Loop horizontal
+        if (layer.x > layer.img.width) {
+          layer.x -= layer.img.width;
+        }
+      }
+    });
+    // Parallax dos elementos gerados
     this.backgroundElements.forEach((element) => {
       // Parallax: quanto maior, mais devagar
       const parallax = 0.5 + (1 - element.opacity) * 1.5 + (element.size / 5);
