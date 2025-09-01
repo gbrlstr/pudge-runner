@@ -21,9 +21,34 @@ window.addEventListener('resize', setResponsiveCanvas);
 window.addEventListener('orientationchange', setResponsiveCanvas);
 window.addEventListener('DOMContentLoaded', setResponsiveCanvas);
 
-const ctx = canvas.getContext("2d");
-canvas.width = 1500;
-canvas.height = 500;
+// Otimização de Canvas
+const ctx = canvas.getContext("2d", { alpha: false });
+ctx.imageSmoothingEnabled = false;
+
+// Dirty Rectangles
+let dirtyRects = [];
+function markDirty(x, y, w, h) {
+  dirtyRects.push({x, y, w, h});
+}
+function renderDirtyRects(ctx) {
+  dirtyRects.forEach(rect => {
+    ctx.clearRect(rect.x, rect.y, rect.w, rect.h);
+    game.draw(ctx);
+    game.player.draw(ctx);
+    game.enemies.forEach(enemy => enemy.draw(ctx));
+  });
+  dirtyRects = [];
+}
+
+// Lazy Loading de Assets
+function lazyLoadImage(src) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = reject;
+    img.src = src;
+  });
+}
 
 import { saveScore, getTopScores } from "./firebase-rank.js";
 
@@ -387,9 +412,9 @@ class Game {
     let loaded = 0;
     for (const key of spriteKeys) {
       try {
-        const image = await this.loadImage(this.spriteUrls[key]);
+        // Lazy loading de sprites
+        const image = await lazyLoadImage(this.spriteUrls[key]);
         this.sprites[key] = image;
-        // Adicionar ao pool de sprites
         this.player.addSpriteToPool(key, image);
       } catch (error) {
         console.warn(`Falha ao carregar sprite ${key}:`, error);
@@ -403,9 +428,7 @@ class Game {
       );
       await this.delay(200);
     }
-    // Marcar ativos como carregados
     this.gameState.assetsLoaded = true;
-    // Pré-renderizar sprites
     this.preRenderCommonSprites();
   }
   loadImage(url) {
@@ -559,15 +582,20 @@ class Game {
     }
   }
   draw(context) {
-    context.clearRect(0, 0, this.width, this.height);
-    this.drawBackground(context);
-    this.drawBackgroundElements(context);
-    this.player.draw(context);
-    this.ui.draw(context);
-    this.enemies.forEach((enemy) => enemy.draw(context));
-    this.drawGround(context);
-    this.drawParticles(context);
-    this.drawScreenEffects(context);
+    // Dirty Rectangles: se houver regiões sujas, renderize apenas elas
+    if (dirtyRects.length > 0) {
+      renderDirtyRects(context);
+    } else {
+      context.clearRect(0, 0, this.width, this.height);
+      this.drawBackground(context);
+      this.drawBackgroundElements(context);
+      this.player.draw(context);
+      this.ui.draw(context);
+      this.enemies.forEach((enemy) => enemy.draw(context));
+      this.drawGround(context);
+      this.drawParticles(context);
+      this.drawScreenEffects(context);
+    }
   }
   addEnemy() {
     const minDistance = this.player.width * 2.5;
@@ -1379,9 +1407,14 @@ let lastTime = 0;
 function animate(timeStamp) {
   const deltaTime = timeStamp - lastTime;
   lastTime = timeStamp;
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  game.update(deltaTime);
-  game.draw(ctx);
+  // Dirty Rectangles: se houver regiões sujas, renderize apenas elas
+  if (dirtyRects.length > 0) {
+    renderDirtyRects(ctx);
+  } else {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    game.update(deltaTime);
+    game.draw(ctx);
+  }
   requestAnimationFrame(animate);
 }
 animate(0);

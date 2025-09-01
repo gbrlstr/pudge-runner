@@ -79,14 +79,19 @@ pudge-runner/
 - ✅ Sistema robusto de carregamento de assets
 - ✅ Controles touch para mobile
 
+### Versão 1.1 - Performance & Assets
+- ✅ Dirty Rectangles - Re-renderização apenas de áreas modificadas
+- ✅ Otimização de Canvas - Técnicas avançadas de renderização
+- ✅ Lazy Loading - Carregamento sob demanda de assets
+
 ## 🔮 Próximas Melhorias
 
 ### 🚀 **Performance e Otimização**
 
 - [x] **Sistema de Pool de Objetos** - Reutilização de obstáculos e partículas para melhor performance
-- [ ] **Dirty Rectangles** - Re-renderização apenas de áreas modificadas
-- [ ] **Otimização de Canvas** - Técnicas avançadas de renderização
-- [ ] **Lazy Loading** - Carregamento sob demanda de assets
+- [x] **Dirty Rectangles** - Re-renderização apenas de áreas modificadas
+- [x] **Otimização de Canvas** - Técnicas avançadas de renderização
+- [x] **Lazy Loading** - Carregamento sob demanda de assets
 
 ### 🎮 **Gameplay Avançado**
 
