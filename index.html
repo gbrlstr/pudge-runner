@@ -21,28 +21,15 @@
     }
   </script>
   <style>
-    /* Mensagem para virar o celular */
-    #rotateNotice {
-      display: none;
-      position: fixed;
-      top: 0; left: 0; width: 100vw; height: 100vh;
-      background: rgba(0,0,0,0.95);
-      color: #fff;
-      z-index: 2000;
-      font-size: 1.3em;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      flex-direction: column;
+    /* Performance optimizations for mobile */
+    canvas {
+      image-rendering: -webkit-optimize-contrast;
+      image-rendering: crisp-edges;
+      image-rendering: pixelated;
     }
-    #rotateNotice.visible { display: flex; }
   </style>
 </head>
 <body>
-  <div id="rotateNotice">
-    <div>Por favor, vire seu celular para o modo paisagem (deitado) para jogar!</div>
-    <div style="font-size:2em; margin-top:1em;">🔄</div>
-  </div>
   <!-- Game Container -->
   <div class="game-container">
 
@@ -92,13 +79,14 @@
 
     <!-- Game Canvas -->
     <canvas id="gameCanvas"></canvas>
-    <!-- Ícone de Som -->
-    <button id="soundToggle" class="sound-toggle" title="Ativar/Desativar Som" style="position: absolute; top: 18px; right: 24px; z-index: 100; background: none; border: none; cursor: pointer;">
-      <svg id="soundIconOn" xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" viewBox="0 0 24 24" style="display:inline;">
-        <path d="M3 10v4h4l5 5V5L7 10H3zm13.5 2c0-1.77-1.02-3.29-2.5-4.03v8.06c1.48-.74 2.5-2.26 2.5-4.03z"/>
-      </svg>
-      <svg id="soundIconOff" xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" viewBox="0 0 24 24" style="display:none;">
+    
+    <!-- Ícone de Som - Mobile Responsive -->
+    <button id="soundToggle" class="sound-toggle" title="Ativar/Desativar Som" aria-label="Toggle Sound">
+      <svg id="soundIconOn" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24" style="display:inline;">
         <path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v8.06c1.48-.74 2.5-2.26 2.5-4.03zM19 12c0 2.53-1.19 4.78-3.07 6.22l1.43 1.43C19.07 18.07 21 15.31 21 12c0-3.31-1.93-6.07-4.64-7.65l-1.43 1.43C17.81 7.22 19 9.47 19 12zm-7-7v14l-5-5H3v-4h4l5-5z"/>
+      </svg>
+      <svg id="soundIconOff" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24" style="display:none;">
+        <path d="M3 10v4h4l5 5V5L7 10H3zm13.5 2c0-1.77-1.02-3.29-2.5-4.03v8.06c1.48-.74 2.5-2.26 2.5-4.03z"/>
       </svg>
     </button>
     <!-- Game Controls -->
@@ -160,76 +148,135 @@
 
   <script type="module" src="./js/pudgrunnerv2.js"></script>
   <script>
-    // Controle do ícone de som
+    // Controle do ícone de som - Melhorado
     (function() {
       const soundToggle = document.getElementById('soundToggle');
       const soundIconOn = document.getElementById('soundIconOn');
       const soundIconOff = document.getElementById('soundIconOff');
       let soundEnabled = true;
 
+      // Melhor posicionamento do botão de som
       function positionSoundButton() {
         const canvas = document.getElementById('gameCanvas');
         if (canvas && soundToggle) {
           const rect = canvas.getBoundingClientRect();
-          soundToggle.style.position = 'absolute';
-          soundToggle.style.top = (rect.top + window.scrollY + 16) + 'px';
-          soundToggle.style.left = (rect.right + window.scrollX - 48) + 'px';
-          soundToggle.style.zIndex = 100;
+          const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+          
+          // Posição responsiva baseada no tamanho da tela
+          const offset = isMobile ? 8 : 12;
+          const buttonSize = isMobile ? 40 : 44;
+          
+          soundToggle.style.top = (rect.top + window.scrollY + offset) + 'px';
+          soundToggle.style.left = (rect.right + window.scrollX - buttonSize - offset) + 'px';
         }
       }
-      window.addEventListener('resize', positionSoundButton);
-      window.addEventListener('DOMContentLoaded', positionSoundButton);
 
-      soundToggle.addEventListener('click', () => {
+      // Controle de som melhorado
+      function toggleSound() {
         soundEnabled = !soundEnabled;
+        
+        // Atualizar ícones
         soundIconOn.style.display = soundEnabled ? 'inline' : 'none';
         soundIconOff.style.display = soundEnabled ? 'none' : 'inline';
-        if (window.game) {
-          if (window.game.bgMusic) {
-            window.game.bgMusic.muted = !soundEnabled;
+        
+        // Aguardar o game ser carregado
+        const applyMute = () => {
+          if (window.game) {
+            if (window.game.bgMusic) {
+              window.game.bgMusic.muted = !soundEnabled;
+              console.log('Background music muted:', !soundEnabled);
+            }
+            if (window.game.killSound) {
+              window.game.killSound.muted = !soundEnabled;
+              console.log('Kill sound muted:', !soundEnabled);
+            }
+          } else {
+            // Tentar novamente em 100ms se o game ainda não foi carregado
+            setTimeout(applyMute, 100);
           }
-          if (window.game.killSound) {
-            window.game.killSound.muted = !soundEnabled;
-          }
-        }
+        };
+        
+        applyMute();
+        
+        // Feedback visual
+        soundToggle.style.transform = 'scale(0.9)';
+        setTimeout(() => {
+          soundToggle.style.transform = 'scale(1)';
+        }, 150);
+      }
+
+      // Event listeners
+      soundToggle.addEventListener('click', toggleSound);
+      soundToggle.addEventListener('touchend', (e) => {
+        e.preventDefault();
+        toggleSound();
+      });
+
+      // Posicionamento automático
+      window.addEventListener('resize', positionSoundButton);
+      window.addEventListener('orientationchange', () => {
+        setTimeout(positionSoundButton, 100); // Delay para orientação
       });
       window.addEventListener('DOMContentLoaded', () => {
         soundIconOn.style.display = 'inline';
         soundIconOff.style.display = 'none';
-        positionSoundButton();
+        setTimeout(positionSoundButton, 100);
       });
+      
+      // Reposicionar quando o canvas for redimensionado
+      const observer = new ResizeObserver(positionSoundButton);
+      const canvas = document.getElementById('gameCanvas');
+      if (canvas) observer.observe(canvas);
     })();
 
-    // Orientação: mostra aviso se não estiver landscape
-    function checkOrientation() {
-      const notice = document.getElementById('rotateNotice');
-      if (window.innerWidth < window.innerHeight) {
-        notice.classList.add('visible');
-      } else {
-        notice.classList.remove('visible');
-      }
-    }
+    // Event listeners for better responsiveness
     window.addEventListener('resize', checkOrientation);
     window.addEventListener('orientationchange', checkOrientation);
     window.addEventListener('DOMContentLoaded', checkOrientation);
+    
+    window.addEventListener('resize', resizeCanvas);
+    window.addEventListener('DOMContentLoaded', resizeCanvas);
 
-    // Canvas responsivo landscape para mobile
+    // Mobile improvements - encourage landscape but don't force rotation
+    function checkOrientation() {
+      const canvas = document.getElementById('gameCanvas');
+      if (canvas) {
+        // Redimensionar canvas
+        resizeCanvas();
+      }
+    }
+    
+    // Canvas responsivo para mobile melhorado
     function resizeCanvas() {
       const canvas = document.getElementById('gameCanvas');
       if (!canvas) return;
-      let w = window.innerWidth;
-      let h = window.innerHeight;
+      
       if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
-        // Landscape: canvas quadrado, rotacionado
-        canvas.width = Math.max(320, Math.min(w, h));
-        canvas.height = Math.max(180, Math.min(w, h));
+        // Mobile: sem rotação, responsivo direto
+        const vw = window.innerWidth;
+        const vh = window.innerHeight;
+        
+        // Melhores proporções para mobile
+        if (vw > vh) {
+          // Landscape - preferido
+          canvas.width = Math.max(480, Math.min(vw * 0.96, 900));
+          canvas.height = Math.max(270, Math.min(vh * 0.65, 450));
+        } else {
+          // Portrait - ajustado
+          canvas.width = Math.max(360, Math.min(vw * 0.92, 650));
+          canvas.height = Math.max(200, Math.min(vh * 0.48, 350));
+        }
+        
+        // Garantir proporção mínima de aspecto
+        const aspectRatio = canvas.width / canvas.height;
+        if (aspectRatio < 1.5) {
+          canvas.height = canvas.width / 1.8;
+        }
       } else {
         canvas.width = 1500;
         canvas.height = 500;
       }
     }
-    window.addEventListener('resize', resizeCanvas);
-    window.addEventListener('DOMContentLoaded', resizeCanvas);
   </script>
 </body>
 </html>

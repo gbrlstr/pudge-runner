@@ -1,16 +1,43 @@
 // Canvas setup
 const canvas = document.getElementById("gameCanvas");
+
 // Detecta mobile
 function isMobile() {
   return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 }
+
+// Mobile scale factor for responsive design
+function getMobileScaleFactor() {
+  if (!isMobile()) return 1;
+  
+  const screenWidth = window.innerWidth;
+  const screenHeight = window.innerHeight;
+  
+  // Base scale on smaller dimension for consistent experience
+  const minDimension = Math.min(screenWidth, screenHeight);
+  
+  if (minDimension <= 375) return 0.65; // iPhone SE and smaller
+  if (minDimension <= 414) return 0.7;  // iPhone 6/7/8 Plus
+  if (minDimension <= 480) return 0.75; // Small tablets
+  return 0.8; // Larger mobile devices
+}
+
 // Responsivo: ajusta tamanho do canvas para mobile landscape
 function setResponsiveCanvas() {
   if (isMobile()) {
-    // Landscape: canvas quadrado, rotacionado
-    let size = Math.max(320, Math.min(window.innerWidth, window.innerHeight));
-    canvas.width = size;
-    canvas.height = size;
+    // Mobile: canvas responsivo sem rotação
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+    
+    // Landscape preferred
+    if (vw > vh) {
+      canvas.width = Math.max(480, Math.min(vw * 0.95, 800));
+      canvas.height = Math.max(240, Math.min(vh * 0.6, 400));
+    } else {
+      // Portrait fallback
+      canvas.width = Math.max(360, Math.min(vw * 0.9, 600));
+      canvas.height = Math.max(200, Math.min(vh * 0.45, 300));
+    }
   } else {
     canvas.width = 1500;
     canvas.height = 500;
@@ -129,19 +156,25 @@ class Game {
     };
   }
   initializeConfig() {
+    // Mobile responsive config adjustments
+    const mobileScale = getMobileScaleFactor();
+    const groundOffset = isMobile() ? 40 * mobileScale : 50;
+    const jumpPower = isMobile() ? -14 * mobileScale : -16;
+    const baseSpeed = isMobile() ? 4 * mobileScale : 5;
+    
     this.config = {
-      GROUND_Y: this.height - 50,
-      JUMP_POWER: -16,
-      BASE_SPEED: 5,
-      OBSTACLE_SPAWN_RATE: 120,
-      PARTICLE_COUNT: 100,
+      GROUND_Y: this.height - groundOffset,
+      JUMP_POWER: jumpPower,
+      BASE_SPEED: baseSpeed,
+      OBSTACLE_SPAWN_RATE: isMobile() ? 140 : 120, // Slower spawn on mobile
+      PARTICLE_COUNT: isMobile() ? 50 : 100, // Fewer particles on mobile
       LEVELS: [
-        { speed: 5, spawnRate: 120, name: "Iniciante" },
-        { speed: 6, spawnRate: 110, name: "Fácil" },
-        { speed: 7, spawnRate: 100, name: "Normal" },
-        { speed: 8, spawnRate: 90, name: "Difícil" },
-        { speed: 9, spawnRate: 80, name: "Expert" },
-        { speed: 10, spawnRate: 70, name: "Insano" },
+        { speed: baseSpeed, spawnRate: 140, name: "Iniciante" },
+        { speed: baseSpeed * 1.2, spawnRate: 130, name: "Fácil" },
+        { speed: baseSpeed * 1.4, spawnRate: 120, name: "Normal" },
+        { speed: baseSpeed * 1.6, spawnRate: 110, name: "Difícil" },
+        { speed: baseSpeed * 1.8, spawnRate: 100, name: "Expert" },
+        { speed: baseSpeed * 2, spawnRate: 90, name: "Insano" },
       ],
     };
     this.spriteUrls = {
@@ -225,53 +258,99 @@ class Game {
     this.initializeParallaxLayers();
   }
   initializeParallaxLayers() {
-    // Parallax layers config: image src, speed
-    const layerConfigs = [
+    // Mobile responsive parallax optimization
+    const isMobileDevice = isMobile();
+    
+    // Better mobile parallax - keep more layers but adjust speeds
+    const layerConfigs = isMobileDevice ? [
+      { src: "../assets/imgs/background/plx-2.png", speed: 0.15 },
+      { src: "../assets/imgs/background/plx-3.png", speed: 0.35 },
+      { src: "../assets/imgs/background/plx-4.png", speed: 0.6 },
+      { src: "../assets/imgs/background/plx-5.png", speed: 0.9 },
+    ] : [
       { src: "../assets/imgs/background/plx-2.png", speed: 0.2 },
       { src: "../assets/imgs/background/plx-3.png", speed: 0.4 },
       { src: "../assets/imgs/background/plx-4.png", speed: 0.7 },
       { src: "../assets/imgs/background/plx-5.png", speed: 1.1 }
     ];
+    
     this.parallaxLayers = layerConfigs.map(cfg => ({
       img: null,
       src: cfg.src,
       speed: cfg.speed,
-      x: 0
+      x: 0,
+      loaded: false
     }));
-    // Carregar imagens
-    this.parallaxLayers.forEach(layer => {
-      lazyLoadImage(layer.src).then(img => { layer.img = img; });
+    
+    // Carregar imagens com melhor controle de erro
+    this.parallaxLayers.forEach((layer, index) => {
+      lazyLoadImage(layer.src).then(img => { 
+        layer.img = img;
+        layer.loaded = true;
+        
+        // Otimizar apenas imagens muito grandes no mobile
+        if (isMobileDevice && img.width > 1200) {
+          // Criar uma versão redimensionada para mobile
+          const canvas = document.createElement('canvas');
+          const ctx = canvas.getContext('2d');
+          const scaleFactor = 0.8; // Menos agressivo
+          canvas.width = img.width * scaleFactor;
+          canvas.height = img.height * scaleFactor;
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+          
+          // Substituir a imagem original pela versão otimizada
+          const optimizedImg = new Image();
+          optimizedImg.onload = () => { 
+            layer.img = optimizedImg;
+            layer.loaded = true;
+          };
+          optimizedImg.src = canvas.toDataURL('image/jpeg', 0.85); // Melhor qualidade
+        }
+      }).catch(error => {
+        console.warn(`Erro ao carregar parallax layer ${index}:`, error);
+        // Manter a layer mas marcar como não carregada
+        layer.loaded = false;
+      });
     });
   }
   initializeBackground() {
+  // Mobile responsive background adjustments
+  const mobileScale = getMobileScaleFactor();
+  const isMobileDevice = isMobile();
+  
+  // Reduce background elements on mobile for better performance
+  const starCount = isMobileDevice ? 16 : 32;
+  const planetCount = isMobileDevice ? 4 : 7;
+  const nebulaCount = isMobileDevice ? 3 : 6;
+  
   // Estrelas pequenas
-  for (let i = 0; i < 32; i++) {
+  for (let i = 0; i < starCount; i++) {
       this.backgroundElements.push({
         x: Math.random() * this.width * 2,
-        y: Math.random() * (this.config.GROUND_Y - 120),
-        size: Math.random() * 1.2 + 0.3,
+        y: Math.random() * (this.config.GROUND_Y - (isMobileDevice ? 80 : 120)),
+        size: (Math.random() * 1.2 + 0.3) * mobileScale,
         speed: Math.random() * 0.3 + 0.08,
         opacity: Math.random() * 0.5 + 0.3,
         type: 'star'
       });
     }
   // Planetas
-  for (let i = 0; i < 7; i++) {
+  for (let i = 0; i < planetCount; i++) {
       this.backgroundElements.push({
         x: Math.random() * this.width * 2,
-        y: Math.random() * (this.config.GROUND_Y - 180) + 40,
-        size: Math.random() * 1.5 + 2.2,
+        y: Math.random() * (this.config.GROUND_Y - (isMobileDevice ? 120 : 180)) + (isMobileDevice ? 30 : 40),
+        size: (Math.random() * 1.5 + 2.2) * mobileScale,
         speed: Math.random() * 0.18 + 0.08,
         opacity: Math.random() * 0.3 + 0.2,
         type: 'planet'
       });
     }
   // Nebulosas
-  for (let i = 0; i < 6; i++) {
+  for (let i = 0; i < nebulaCount; i++) {
       this.backgroundElements.push({
         x: Math.random() * this.width * 2,
-        y: Math.random() * (this.config.GROUND_Y - 200) + 60,
-        size: Math.random() * 2.5 + 2.5,
+        y: Math.random() * (this.config.GROUND_Y - (isMobileDevice ? 140 : 200)) + (isMobileDevice ? 40 : 60),
+        size: (Math.random() * 2.5 + 2.5) * mobileScale,
         speed: Math.random() * 0.12 + 0.05,
         opacity: Math.random() * 0.25 + 0.15,
         type: 'nebula'
@@ -478,13 +557,17 @@ class Game {
   }
   // Pré-renderizar sprites mais comuns para melhor performance
   preRenderCommonSprites() {
+    // Mobile responsive sprite sizes
+    const mobileScale = getMobileScaleFactor();
+    const baseScale = isMobile() ? 0.8 : 1;
+    
     // Pré-renderizar sprites de obstáculos nos tamanhos mais comuns
     const commonSizes = [
-      { width: 70, height: 70 }, // meepo
-      { width: 80, height: 80 }, // boss
-      { width: 70, height: 90 }, // ghost
-      { width: 75, height: 75 }, // mad
-      { width: 50, height: 80 }, // spoon
+      { width: Math.floor(70 * baseScale * mobileScale), height: Math.floor(70 * baseScale * mobileScale) }, // meepo
+      { width: Math.floor(80 * baseScale * mobileScale), height: Math.floor(80 * baseScale * mobileScale) }, // boss
+      { width: Math.floor(70 * baseScale * mobileScale), height: Math.floor(90 * baseScale * mobileScale) }, // ghost
+      { width: Math.floor(75 * baseScale * mobileScale), height: Math.floor(75 * baseScale * mobileScale) }, // mad
+      { width: Math.floor(50 * baseScale * mobileScale), height: Math.floor(80 * baseScale * mobileScale) }, // spoon
     ];
     Object.keys(this.sprites).forEach((type) => {
       if (type !== "pudge" && this.sprites[type]) {
@@ -759,41 +842,117 @@ class Game {
     if (!this.elements.finalScore) return;
     try {
       const scores = await getTopScores(10);
-      let html = `
-        <div class="global-ranking" style="
-          background: rgba(30,30,40,0.85);
-          border-radius: 18px;
-          padding: 28px 32px 18px 32px;
-          margin: 24px auto 0 auto;
-          max-width: 340px;
-          box-shadow: 0 0 32px 4px #ff5e7b44;
-          text-align: center;
-        ">
-          <h3 style="
-            color: #ff5e7b;
-            font-size: 2.1em;
-            font-family: 'Orbitron', 'Montserrat', Arial, sans-serif;
-            margin-bottom: 10px;
-            text-shadow: 0 0 12px #ff5e7b88;
-          ">Ranking Global</h3>
-          <ol style="
-            color: #fff;
-            font-size: 1.15em;
-            font-family: 'Montserrat', Arial, sans-serif;
-            margin: 0;
-            padding-left: 0;
-            list-style-position: inside;
-            text-align: left;
-          ">
+      const isMobileDevice = isMobile();
+      const mobileScale = getMobileScaleFactor();
+      
+      // Mobile-responsive styling mais aprimorado
+      const containerStyle = isMobileDevice ? `
+        background: rgba(15, 20, 25, 0.95);
+        border-radius: 12px;
+        padding: ${Math.max(12, 16 * mobileScale)}px ${Math.max(16, 20 * mobileScale)}px;
+        margin: ${Math.max(12, 16 * mobileScale)}px auto 0 auto;
+        max-width: ${Math.min(320, 280 * mobileScale)}px;
+        width: 85vw;
+        box-shadow: 0 0 ${Math.max(15, 20 * mobileScale)}px 2px #ff5e7b44;
+        text-align: center;
+        border: 1px solid #ff5e7b33;
+        backdrop-filter: blur(8px);
+      ` : `
+        background: rgba(15, 20, 25, 0.92);
+        border-radius: 18px;
+        padding: 24px 28px 16px 28px;
+        margin: 20px auto 0 auto;
+        max-width: 360px;
+        box-shadow: 0 0 28px 3px #ff5e7b44;
+        text-align: center;
+        border: 1px solid #ff5e7b33;
+        backdrop-filter: blur(10px);
       `;
+      
+      const titleStyle = isMobileDevice ? `
+        color: #ff5e7b;
+        font-size: ${Math.max(1.1, 1.3 * mobileScale)}em;
+        font-family: 'Orbitron', 'Montserrat', Arial, sans-serif;
+        margin-bottom: ${Math.max(6, 8 * mobileScale)}px;
+        text-shadow: 0 0 8px #ff5e7b88;
+        font-weight: 700;
+      ` : `
+        color: #ff5e7b;
+        font-size: 1.9em;
+        font-family: 'Orbitron', 'Montserrat', Arial, sans-serif;
+        margin-bottom: 12px;
+        text-shadow: 0 0 12px #ff5e7b88;
+        font-weight: 700;
+      `;
+      
+      const listStyle = isMobileDevice ? `
+        color: #fff;
+        font-size: ${Math.max(0.8, 0.85 * mobileScale)}em;
+        font-family: 'Montserrat', Arial, sans-serif;
+        margin: 0;
+        padding-left: 0;
+        list-style-position: inside;
+        text-align: left;
+        line-height: 1.4;
+        font-weight: 500;
+      ` : `
+        color: #fff;
+        font-size: 1.05em;
+        font-family: 'Montserrat', Arial, sans-serif;
+        margin: 0;
+        padding-left: 0;
+        list-style-position: inside;
+        text-align: left;
+        line-height: 1.5;
+        font-weight: 500;
+      `;
+      
+      let html = `
+        <div class="global-ranking" style="${containerStyle}">
+          <h3 style="${titleStyle}">🏆 Ranking Global</h3>
+          <ol style="${listStyle}">
+      `;
+      
       scores.forEach((s, i) => {
-  html += `<li style="margin-bottom: 7px;${i === 0 ? 'font-weight:bold;color:#ff5e7b;font-size:1.18em;' : ''}"><span style="letter-spacing:1px;">${s.name}</span>: <span style="color:#ffe082;">${s.score}</span></li>`;
+        const marginBottom = isMobileDevice ? `${Math.max(3, 4 * mobileScale)}px` : '6px';
+        const isFirst = i === 0;
+        const isTop3 = i < 3;
+        
+        // Estilo especial para top 3
+        let itemStyle = `margin-bottom: ${marginBottom};`;
+        if (isFirst) {
+          itemStyle += `font-weight: bold; color: #ffd700; font-size: ${isMobileDevice ? Math.max(1.05, 1.15 * mobileScale) : 1.2}em; text-shadow: 0 0 6px #ffd70088;`;
+        } else if (isTop3) {
+          itemStyle += `font-weight: 600; color: #ff5e7b; font-size: ${isMobileDevice ? Math.max(1.02, 1.08 * mobileScale) : 1.1}em;`;
+        }
+        
+        const trophy = isFirst ? '🥇 ' : (i === 1 ? '🥈 ' : (i === 2 ? '🥉 ' : ''));
+        
+        html += `<li style="${itemStyle}">
+          ${trophy}<span style="letter-spacing: 0.5px;">${s.name}</span>: 
+          <span style="color: #ffe082; font-weight: 600;">${s.score}</span>
+        </li>`;
       });
+      
       html += `</ol></div>`;
       this.elements.globalRankingContainer.innerHTML += html;
       this.elements.globalRankingContainer.style.display = "block";
     } catch (e) {
-      this.elements.globalRankingContainer.innerHTML += '<br><span style="color:red">Erro ao carregar ranking global.</span>';
+      console.error('Erro ao carregar ranking:', e);
+      this.elements.globalRankingContainer.innerHTML += `
+        <div style="
+          background: rgba(30, 30, 40, 0.9);
+          border-radius: 8px;
+          padding: 12px;
+          margin: 12px auto;
+          text-align: center;
+          color: #ff6b6b;
+          border: 1px solid #ff6b6b44;
+        ">
+          ⚠️ Erro ao carregar ranking global
+        </div>
+      `;
+      this.elements.globalRankingContainer.style.display = "block";
     }
   }
   updateParticles() {
@@ -848,28 +1007,44 @@ class Game {
     }
   }
   drawBackground(context) {
-    // Parallax layers
-    this.parallaxLayers.forEach(layer => {
-      if (layer.img && layer.img.complete && layer.img.naturalWidth > 0) {
+    // Parallax layers - optimized for mobile
+    const isMobileDevice = isMobile();
+    
+    this.parallaxLayers.forEach((layer, index) => {
+      if (layer.img && layer.loaded && layer.img.complete && layer.img.naturalWidth > 0) {
         let imgW = layer.img.width;
         let imgH = layer.img.height;
+        
+        // Scale images for mobile if needed
+        if (isMobileDevice) {
+          const mobileScale = getMobileScaleFactor();
+          imgW *= Math.max(mobileScale, 0.7); // Mínimo 0.7 para manter visibilidade
+          imgH *= Math.max(mobileScale, 0.7);
+        }
+        
         let y = 0;
         if (imgH < this.height) {
           y = this.height - imgH;
         }
+        
         // Desenha a imagem em loop até cobrir toda a largura do canvas
         let x1 = layer.x % imgW;
-        for (let x = -x1; x < this.width; x += imgW) {
+        if (x1 > 0) x1 -= imgW; // Garantir cobertura completa
+        
+        for (let x = x1; x < this.width + imgW; x += imgW) {
           context.drawImage(layer.img, x, y, imgW, imgH);
         }
       }
     });
-
   }
   drawBackgroundElements(context) {
-    // Background image (fallback)
+    // Background image (fallback) - optimized for mobile
+    const isMobileDevice = isMobile();
+    const mobileScale = getMobileScaleFactor();
+    
+    // Reduce gradient complexity on mobile for performance
     const gradient = context.createLinearGradient(0, 0, 0, this.height);
-    const time = this.gameState.frame * 0.01;
+    const time = this.gameState.frame * (isMobileDevice ? 0.005 : 0.01); // Slower animation on mobile
     gradient.addColorStop(0, `hsl(${220 + Math.sin(time) * 10}, 30%, 15%)`);
     gradient.addColorStop(0.5, `hsl(${210 + Math.cos(time) * 10}, 25%, 10%)`);
     gradient.addColorStop(
@@ -879,12 +1054,17 @@ class Game {
     context.fillStyle = gradient;
     context.fillRect(0, 0, this.width, this.height);
 
-    this.backgroundElements.forEach((element) => {
+    // Skip every other background element on very small screens for performance
+    const skipElements = isMobileDevice && window.innerWidth < 400;
+    
+    this.backgroundElements.forEach((element, index) => {
+      if (skipElements && index % 2 === 0) return; // Skip every other element on small screens
+      
       context.save();
-      context.globalAlpha = element.opacity;
+      context.globalAlpha = element.opacity * (isMobileDevice ? 0.8 : 1); // Slightly more transparent on mobile
 
-      // Estrela (pequena)
-      if (element.size < 2) {
+      // Estrela (pequena) - scaled for mobile
+      if (element.size < 2 * mobileScale) {
         context.beginPath();
         context.arc(element.x, element.y, element.size, 0, Math.PI * 2);
         context.fillStyle = `rgba(255,255,255,${element.opacity})`;
@@ -973,14 +1153,15 @@ class Game {
   updateBackground() {
     // Parallax das imagens
     this.parallaxLayers.forEach(layer => {
-      if (layer.img) {
-        layer.x += layer.speed * this.gameState.speed;
-        // Loop horizontal
-        if (layer.x > layer.img.width) {
-          layer.x -= layer.img.width;
+      if (layer.img && layer.loaded) {
+        layer.x -= layer.speed * this.gameState.speed * 0.5; // Reduzir velocidade geral do parallax
+        // Loop horizontal melhorado
+        if (layer.x <= -layer.img.width) {
+          layer.x = 0;
         }
       }
     });
+    
     // Parallax dos elementos gerados
     this.backgroundElements.forEach((element) => {
       // Parallax: quanto maior, mais devagar
@@ -1062,18 +1243,23 @@ class Game {
 class Player {
   constructor(game) {
     this.game = game;
-    this.width = 130;
-    this.height = 130;
-    this.x = 30;
-    this.y = 190;
+    
+    // Mobile responsive sizing
+    const mobileScale = getMobileScaleFactor();
+    const baseSize = isMobile() ? 100 : 130;
+    
+    this.width = baseSize * mobileScale;
+    this.height = baseSize * mobileScale;
+    this.x = 30 * mobileScale;
+    this.y = 190 * mobileScale;
     this.dy = 0;
     this.speedX = 0;
-    this.maxSpeed = 10;
-    this.gravity = 1.1;
-    this.jumpPower = -16;
+    this.maxSpeed = isMobile() ? 8 * mobileScale : 10;
+    this.gravity = isMobile() ? 0.9 : 1.1;
+    this.jumpPower = isMobile() ? -14 * mobileScale : -16;
     this.animFrame = 0;
     this.onGround = false;
-    this.groundY = this.game.config.GROUND_Y - 90;
+    this.groundY = this.game.config.GROUND_Y - (isMobile() ? 70 * mobileScale : 90);
     this.flipped = false;
     this.frameRate = 10; // frames por segundo
     this.frameDelay = 0;
@@ -1349,8 +1535,14 @@ class Enemy {
 class EnemyAngler extends Enemy {
   constructor(game) {
     super(game);
-    this.width = 90;
-    this.height = 90;
+    
+    // Mobile responsive sizing for enemies
+    const mobileScale = getMobileScaleFactor();
+    const baseSize = isMobile() ? 70 : 90;
+    
+    this.width = baseSize * mobileScale;
+    this.height = baseSize * mobileScale;
+    
     // Ajusta para alinhar o inimigo ao chão
     this.y = this.game.config.GROUND_Y - this.height;
     this.x = this.game.width;
@@ -1431,22 +1623,31 @@ class InputHandler {
     });
     window.addEventListener("touchstart", (e) => {
       e.preventDefault();
-      // No mobile landscape, só 1 toque para pular
+      
       if (isMobile()) {
-        this.game.player.jump();
+        // Single touch to jump - improved for mobile
+        if (e.touches.length === 1) {
+          this.game.player.jump();
+        }
+        // Two finger touch for pause/menu (only during game)
+        else if (e.touches.length === 2 && this.game.gameState.started && !this.game.gameState.gameOver) {
+          this.game.togglePause();
+        }
       } else {
         this.game.player.jump();
       }
-    });
-    // Suporte a menu via toque (mobile)
+    }, { passive: false });
+    
+    // Better mobile gesture support
     window.addEventListener("touchend", (e) => {
-      if (isMobile() && this.game.gameState.started && !this.game.gameState.gameOver && e.touches.length === 0) {
-        // Exibe menu se tocar com dois dedos rapidamente
-        if (e.changedTouches.length === 2) {
-          this.game.showMenuControls();
-        }
-      }
-    });
+      e.preventDefault();
+      this.game.restartGame();
+    }, { passive: false });
+    
+    // Prevent default touch behaviors that might interfere
+    window.addEventListener("touchmove", (e) => {
+      e.preventDefault();
+    }, { passive: false });
     window.addEventListener("visibilitychange", (e) => {
       if (
         document.hidden &&
@@ -1496,6 +1697,10 @@ class Particle {
 }
 
 const game = new Game(canvas.width, canvas.height);
+
+// Tornar game globalmente acessível para o controle de som
+window.game = game;
+
 let lastTime = 0;
 let fps = 0;
 let frames = 0;
