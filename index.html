@@ -16,6 +16,10 @@
     }
     if (isMobile()) {
       document.write('<link rel="stylesheet" href="./style.mobile.css" />');
+      // Alerta de não suporte para mobile
+      document.addEventListener('DOMContentLoaded', function() {
+        alert('⚠️ AVISO: Este jogo ainda não tem suporte completo para dispositivos móveis.\n\n🔧 Estamos trabalhando para melhorar a experiência mobile.\n\n💻 Para a melhor experiência, recomendamos usar um computador desktop.');
+      });
     } else {
       document.write('<link rel="stylesheet" href="./assets/style.css" />');
     }

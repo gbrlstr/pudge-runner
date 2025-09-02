@@ -1163,7 +1163,8 @@ class Game {
         if (x1 > 0) x1 -= imgW; // Garantir cobertura completa
         
         for (let x = x1; x < this.width + imgW; x += imgW) {
-          context.drawImage(layer.img, x, y, imgW, imgH);
+          const posY = !isMobileDevice ? y - 90 : y;
+          context.drawImage(layer.img, x, posY, imgW, imgH);
         }
       }
     });
