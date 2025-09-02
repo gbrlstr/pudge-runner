@@ -3,9 +3,24 @@
 Um jogo endless runner inspirado no personagem Pudge do DOTA 2. Desvie dos obstáculos e alcance a maior pontuação possível!
 
 ![Pudge Runner](https://img.shields.io/badge/Game-Pudge%20Runner-red)
-![Version](https://img.shields.io/badge/Version-1.2-blue)
+![Version](https://img.shields.io/badge/Version-2.0-blue)
 ![HTML5](https://img.shields.io/badge/HTML5-Canvas-orange)
 ![Mobile](https://img.shields.io/badge/Mobile-Optimized-green)
+
+## 📱 **NOVA EXPERIÊNCIA MÓVEL COM PAINÉIS RECOLHÍVEIS**
+
+### **🚀 Sistema de Painéis Inteligentes**
+- 📱 **Botão Mobile Toggle**: Novo ícone (📱) no canto superior esquerdo para mostrar/ocultar painéis
+- 🎯 **Gameplay Maximizado**: Painéis ficam ocultos por padrão no mobile para maximizar área de jogo
+- ⌨️ **Tecla 'M'**: Alterna painéis (desktop e mobile)
+- 💾 **Preferências Salvas**: Estado dos painéis é lembrado entre sessões
+- 🔊 **Botão de Som**: Otimizado no canto superior direito
+
+### **🎮 Controles Touch Aprimorados**
+- 🔒 **Detecção Inteligente**: Previne ações acidentais ao tocar elementos de UI
+- 👆 **Toque Simples**: Pular durante o jogo
+- 👆👆 **Dois Dedos**: Pausar jogo
+- 🎯 **Precisão Melhorada**: Touch events otimizados para todos os dispositivos
 
 ## 🚀 Características
 
@@ -44,16 +59,25 @@ Um jogo endless runner inspirado no personagem Pudge do DOTA 2. Desvie dos obst�
 ## 🎮 Como Jogar
 
 ### Controles Desktop
+
 - **ESPAÇO** - Pular
 - **P** - Pausar/Despausar
 - **R** - Reiniciar (quando game over)
-- **M** - Voltar ao menu
+- **M** - Alternar painéis (mobile toggle)
 
 ### Controles Mobile
+
 - **Toque simples** - Pular
-- **Dois dedos** - Pausar/Menu (durante o jogo)
-- **Botão de som** - Ativar/Desativar áudio
-- **Rotação automática** - Suporte a portrait e landscape
+- **Dois dedos** - Pausar/Despausar
+- **Botão 📱** - Mostrar/ocultar painéis de interface
+- **Botão 🔊** - Ativar/desativar som
+
+### 📱 **Como Usar o Sistema de Painéis Móveis**
+
+1. **No Mobile**: Painéis ficam ocultos automaticamente para maximizar gameplay
+2. **Para mostrar painéis**: Toque no botão 📱 (canto superior esquerdo) ou pressione 'M'
+3. **Para ocultar painéis**: Toque novamente no botão 📱 ou pressione 'M'
+4. **Preferência salva**: O estado escolhido é lembrado para próximas sessões
 
 ### Objetivo
 - Desvie dos obstáculos saltando no momento certo

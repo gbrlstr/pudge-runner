@@ -1,55 +1,127 @@
 // Canvas setup
 const canvas = document.getElementById("gameCanvas");
+// Otimização de Canvas
+const ctx = canvas.getContext("2d", { alpha: false });
 
 // Detecta mobile
 function isMobile() {
   return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 }
 
-// Mobile scale factor for responsive design
+// Enhanced Mobile scale factor for better visual consistency
 function getMobileScaleFactor() {
   if (!isMobile()) return 1;
   
   const screenWidth = window.innerWidth;
   const screenHeight = window.innerHeight;
-  
-  // Base scale on smaller dimension for consistent experience
   const minDimension = Math.min(screenWidth, screenHeight);
+  const aspectRatio = Math.max(screenWidth, screenHeight) / minDimension;
   
+  // Better scaling based on device characteristics
+  if (minDimension <= 360) return 0.6;  // Very small devices
   if (minDimension <= 375) return 0.65; // iPhone SE and smaller
-  if (minDimension <= 414) return 0.7;  // iPhone 6/7/8 Plus
-  if (minDimension <= 480) return 0.75; // Small tablets
+  if (minDimension <= 414) return 0.7;  // Standard phones
+  if (minDimension <= 480) return 0.75; // Large phones/small tablets
+  if (aspectRatio > 2.0) return 0.7;    // Very tall screens
   return 0.8; // Larger mobile devices
 }
 
-// Responsivo: ajusta tamanho do canvas para mobile landscape
+// Enhanced responsive canvas with better proportions
 function setResponsiveCanvas() {
   if (isMobile()) {
-    // Mobile: canvas responsivo sem rotação
     const vw = window.innerWidth;
     const vh = window.innerHeight;
+    const scaleFactor = getMobileScaleFactor();
     
-    // Landscape preferred
-    if (vw > vh) {
-      canvas.width = Math.max(480, Math.min(vw * 0.95, 800));
-      canvas.height = Math.max(240, Math.min(vh * 0.6, 400));
+    console.log("📱 Mobile canvas resize:", { vw, vh });
+    
+    // Calculate optimal dimensions prioritizing gameplay visibility
+    const isLandscape = vw > vh;
+    
+    if (isLandscape) {
+      // Landscape mode - maximize canvas size for better gameplay
+      let maxWidth, maxHeight;
+      
+      // Special handling for very small screens (iPhone SE)
+      if (vh <= 375) {
+        maxWidth = Math.min(vw * 0.95, vh * 2.2);
+        maxHeight = Math.min(vh * 0.85, vw / 1.5);
+      } else {
+        maxWidth = Math.min(vw * 0.98, vh * 2.5);
+        maxHeight = Math.min(vh * 0.90, vw / 1.4);
+      }
+      
+      canvas.width = Math.max(500, Math.min(maxWidth, 1200));
+      canvas.height = Math.max(280, Math.min(maxHeight, 600));
     } else {
-      // Portrait fallback
-      canvas.width = Math.max(360, Math.min(vw * 0.9, 600));
-      canvas.height = Math.max(200, Math.min(vh * 0.45, 300));
+      // Portrait mode - mobile-friendly proportions but much larger
+      const maxWidth = Math.min(vw * 0.98, vh * 1.2);
+      const maxHeight = Math.min(vh * 0.65, vw / 0.9);
+      
+      canvas.width = Math.max(600, Math.min(maxWidth, 900));
+      canvas.height = Math.max(400, Math.min(maxHeight, 600));
     }
+    
+    // Ensure good aspect ratio for gameplay (not too wide, not too narrow)
+    if (canvas.width / canvas.height < 1.3) {
+      canvas.height = canvas.width / 1.4;
+    }
+    if (canvas.width / canvas.height > 2.1) {
+      canvas.width = canvas.height * 2.0;
+    }
+    
+    console.log("📐 Canvas dimensions:", { 
+      width: canvas.width, 
+      height: canvas.height, 
+      aspectRatio: canvas.width / canvas.height 
+    });
+    
+    // Don't override CSS dimensions - let CSS handle the visual size
+    // canvas.style.width and height will be handled by CSS
+    
+    // Apply performance optimizations for mobile
+    ctx.imageSmoothingEnabled = false;
+    ctx.imageSmoothingQuality = 'low';
   } else {
+    // Desktop/web configuration
     canvas.width = 1500;
     canvas.height = 500;
+    // For desktop, we can set CSS dimensions
+    canvas.style.width = canvas.width + 'px';
+    canvas.style.height = canvas.height + 'px';
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+  }
+  
+  // Update game dimensions if game exists
+  if (window.game) {
+    window.game.updateDimensions(canvas.width, canvas.height);
   }
 }
+
+// Initial setup
 setResponsiveCanvas();
-window.addEventListener('resize', setResponsiveCanvas);
-window.addEventListener('orientationchange', setResponsiveCanvas);
+
+// Responsive event listeners
+function handleResize() {
+  setResponsiveCanvas();
+}
+
+function handleOrientationChange() {
+  // Delay to ensure viewport has updated
+  setTimeout(() => {
+    setResponsiveCanvas();
+  }, 100);
+}
+
+window.addEventListener('resize', handleResize);
+window.addEventListener('orientationchange', handleOrientationChange);
 window.addEventListener('DOMContentLoaded', setResponsiveCanvas);
 
-// Otimização de Canvas
-const ctx = canvas.getContext("2d", { alpha: false });
+// Make function available globally for HTML callback
+window.setResponsiveCanvas = setResponsiveCanvas;
+
+
 ctx.imageSmoothingEnabled = false;
 
 // Dirty Rectangles
@@ -217,7 +289,7 @@ class Game {
         "../assets/sounds/pudge_levelup_04.mpeg",
         "../assets/sounds/pudge_levelup_05.mpeg"
       ],
-      gameOver: [
+      lose: [
         "../assets/sounds/pudge_lose_01.mpeg",
         "../assets/sounds/pudge_lose_02.mpeg",
         "../assets/sounds/pudge_lose_03.mpeg",
@@ -227,6 +299,33 @@ class Game {
       ]
     };
   }
+
+  // Add method to update dimensions when canvas is resized
+  updateDimensions(width, height) {
+    this.width = width;
+    this.height = height;
+    this.initializeConfig(); // Reinitialize config with new dimensions
+    
+    // Update player position if it exists
+    if (this.player) {
+      this.player.groundY = this.config.GROUND_Y;
+      // Ensure player stays on ground
+      if (this.player.y > this.config.GROUND_Y) {
+        this.player.y = this.config.GROUND_Y;
+      }
+    }
+    
+    // Update parallax layers for new dimensions
+    if (this.parallaxLayers && this.parallaxLayers.length > 0) {
+      this.parallaxLayers.forEach(layer => {
+        if (layer) {
+          layer.width = width;
+          layer.height = height;
+        }
+      });
+    }
+  }
+  
   initializeGameState() {
     this.gameState = {
       started: false,
@@ -241,6 +340,7 @@ class Game {
       nextSpawnFrame: this.config.OBSTACLE_SPAWN_RATE,
       combo: 0, // Combo/Multiplier
       multiplier: 1, // Combo/Multiplier
+      startTime: 0, // Track when game actually started
       stats: { // Estatísticas Detalhadas
         jumps: 0,
         perfectDodges: 0,
@@ -382,9 +482,12 @@ class Game {
     }
   }
   startGame() {
+    console.log("🎮 Starting game...");
     this.gameState.started = true;
     this.gameState.paused = false;
     this.gameState.gameOver = false;
+    this.gameState.startTime = Date.now(); // Record when game actually started
+    console.log("🎮 Game started at:", this.gameState.startTime, "Document hidden:", document.hidden);
     this.bgMusic.play();
     this.playVoice("respawn");
     this.hideAllOverlays();
@@ -399,6 +502,7 @@ class Game {
     this.startGame();
   }
   pauseGame() {
+    console.log("⏸️ Pausing game - called from:", new Error().stack);
     this.gameState.paused = true;
     this.elements.pauseOverlay.style.display = "flex";
   }
@@ -451,9 +555,11 @@ class Game {
     this.canvasPool.available.push(canvasObj);
   }
   hideAllOverlays() {
+    console.log("🙈 Hiding all overlays...");
     this.elements.menuOverlay.style.display = "none";
     this.elements.gameOverOverlay.style.display = "none";
     this.elements.pauseOverlay.style.display = "none";
+    console.log("🙈 All overlays hidden. PauseOverlay display:", this.elements.pauseOverlay.style.display);
   }
   async startLoadingSequence() {
     // Defina as etapas do loading
@@ -546,6 +652,14 @@ class Game {
     this.groundImage = await lazyLoadImage("../assets/imgs/ground.png");
     this.gameState.assetsLoaded = true;
     this.preRenderCommonSprites();
+    
+    // Force canvas resize after assets are loaded
+    setTimeout(() => {
+      if (window.setResponsiveCanvas) {
+        console.log("🔄 Forcing canvas resize after assets load");
+        window.setResponsiveCanvas();
+      }
+    }, 100);
   }
   loadImage(url) {
     return new Promise((resolve, reject) => {
@@ -840,9 +954,11 @@ class Game {
     } catch (e) {
       console.warn("Erro ao salvar score global:", e);
     }
-    // Atualiza ranking global
+    
+    // Show game over overlay first
     this.elements.gameOverOverlay.style.display = "flex";
-    this.elements.globalRankingContainer.style.display = "none";
+    
+    // Clear and show ranking within the game over overlay
     this.elements.globalRankingContainer.innerHTML = '';
     this.showGlobalRanking();
   }
@@ -1638,7 +1754,17 @@ class InputHandler {
     });
     window.addEventListener("touchstart", (e) => {
       const target = e.target;
-      if (target.closest('button') || target.closest('input') || target.closest('.menu-overlay')) {
+      
+      // Enhanced UI element detection to prevent accidental game actions
+      if (target.closest('button') || 
+          target.closest('input') || 
+          target.closest('.menu-overlay') ||
+          target.closest('.sound-toggle') ||
+          target.closest('.mobile-panel-toggle') ||
+          target.closest('.score-panel') ||
+          target.closest('.stats-details') ||
+          target.closest('.controls-panel') ||
+          target.closest('#globalRankingContainer')) {
         return;
       }
       
@@ -1666,9 +1792,17 @@ class InputHandler {
     
     // Better mobile gesture support - sem auto restart
     window.addEventListener("touchend", (e) => {
-      // Evitar interferir com botões de UI
+      // Enhanced UI element detection to prevent accidental game actions
       const target = e.target;
-      if (target.closest('button') || target.closest('input') || target.closest('.menu-overlay')) {
+      if (target.closest('button') || 
+          target.closest('input') || 
+          target.closest('.menu-overlay') ||
+          target.closest('.sound-toggle') ||
+          target.closest('.mobile-panel-toggle') ||
+          target.closest('.score-panel') ||
+          target.closest('.stats-details') ||
+          target.closest('.controls-panel') ||
+          target.closest('#globalRankingContainer')) {
         return; 
       }
       
@@ -1680,13 +1814,33 @@ class InputHandler {
     window.addEventListener("touchmove", (e) => {
       e.preventDefault();
     }, { passive: false });
+    // Enhanced visibilitychange for mobile - more selective pausing
     window.addEventListener("visibilitychange", (e) => {
+      // Debug logging
+      console.log("🔄 Visibility change:", {
+        hidden: document.hidden,
+        started: this.game.gameState.started,
+        gameOver: this.game.gameState.gameOver,
+        paused: this.game.gameState.paused,
+        assetsLoaded: this.game.gameState.assetsLoaded,
+        startTime: this.game.gameState.startTime,
+        timeSinceStart: this.game.gameState.startTime > 0 ? Date.now() - this.game.gameState.startTime : 0
+      });
+      
+      // Only pause if all conditions are met - very strict to avoid unwanted pausing
       if (
         document.hidden &&
         this.game.gameState.started &&
-        !this.game.gameState.gameOver
+        !this.game.gameState.gameOver &&
+        !this.game.gameState.paused &&
+        this.game.gameState.assetsLoaded && // Assets must be loaded
+        this.game.gameState.startTime > 0 && // Game must have actually started
+        Date.now() - this.game.gameState.startTime > 2000 // Only after 2 seconds of actual gameplay
       ) {
+        console.log("⏸️ Auto-pausing game due to visibility change");
         this.game.pauseGame();
+      } else {
+        console.log("🚫 Visibility change ignored - conditions not met for auto-pause");
       }
     });
 
@@ -1745,10 +1899,22 @@ class Particle {
   }
 }
 
-const game = new Game(canvas.width, canvas.height);
+// Game initialization function
+function initializeGame() {
+  // Ensure canvas has correct dimensions before creating game
+  setResponsiveCanvas();
+  
+  // Create game instance with proper dimensions
+  const game = new Game(canvas.width, canvas.height);
+  
+  // Make game globally accessible for sound control and other features
+  window.game = game;
+  
+  return game;
+}
 
-// Tornar game globalmente acessível para o controle de som
-window.game = game;
+// Initialize the game
+const game = initializeGame();
 
 let lastTime = 0;
 let fps = 0;
