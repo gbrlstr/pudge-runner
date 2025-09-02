@@ -7,20 +7,6 @@ Um jogo endless runner inspirado no personagem Pudge do DOTA 2. Desvie dos obst�
 ![HTML5](https://img.shields.io/badge/HTML5-Canvas-orange)
 ![Mobile](https://img.shields.io/badge/Mobile-Optimized-green)
 
-## 📱 **NOVA EXPERIÊNCIA MÓVEL COM PAINÉIS RECOLHÍVEIS**
-
-### **🚀 Sistema de Painéis Inteligentes**
-- 📱 **Botão Mobile Toggle**: Novo ícone (📱) no canto superior esquerdo para mostrar/ocultar painéis
-- 🎯 **Gameplay Maximizado**: Painéis ficam ocultos por padrão no mobile para maximizar área de jogo
-- ⌨️ **Tecla 'M'**: Alterna painéis (desktop e mobile)
-- 💾 **Preferências Salvas**: Estado dos painéis é lembrado entre sessões
-- 🔊 **Botão de Som**: Otimizado no canto superior direito
-
-### **🎮 Controles Touch Aprimorados**
-- 🔒 **Detecção Inteligente**: Previne ações acidentais ao tocar elementos de UI
-- 👆 **Toque Simples**: Pular durante o jogo
-- 👆👆 **Dois Dedos**: Pausar jogo
-- 🎯 **Precisão Melhorada**: Touch events otimizados para todos os dispositivos
 
 ## 🚀 Características
 
@@ -156,7 +142,7 @@ pudge-runner/
 - ✅ Sistema de Combo/Multiplier - Pontuação multiplicada por combos
 - ✅ Estatísticas Detalhadas - Jumps, dodges, collisions, play time
 
-### Versão 1.2 - Mobile Optimization & Fixes
+### Versão 2.0 - Mobile Optimization & Fixes
 - ✅ **Responsividade Mobile Completa** - Layout totalmente otimizado para dispositivos móveis
 - ✅ **CSS Mobile Dedicado** - Arquivo CSS específico para mobile (`style.mobile.css`)
 - ✅ **Canvas Responsivo** - Dimensões dinâmicas para landscape/portrait sem rotação
