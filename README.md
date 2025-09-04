@@ -56,7 +56,7 @@ An endless runner game inspired by Pudge character from DOTA 2. Dodge obstacles 
 - Modern web browser (Chrome 80+, Firefox 75+, Safari 13+, Edge 80+)
 - HTTP server for local development (included in npm scripts)
 
-### Runing: Direct File Access
+### Running: Direct File Access
 
 Open `index.html` directly in your browser for quick testing (some features may require HTTP server).
 
@@ -90,7 +90,7 @@ Open `index.html` directly in your browser for quick testing (some features may 
 - Each dodged obstacle awards 10 points (multiplied by combo)
 - Speed and obstacle frequency increase every 100 points
 
-## � Difficulty Levels
+## 🎯 Difficulty Levels
 
 | Level | Name | Speed | Spawn Rate | Score Required |
 |-------|------|--------|------------|----------------|
@@ -165,9 +165,9 @@ pudge-runner/
 
 #### Version 4.1 - Gameplay Enhancement
 
-- � **Lives System** - Multiple chances with visual regeneration
-- � **Basic Power-ups** - Invincibility, double jump, slow motion
-- � **Expanded Achievements** - 15+ unlockable achievements
+- 🔄 **Lives System** - Multiple chances with visual regeneration
+- 🔄 **Basic Power-ups** - Invincibility, double jump, slow motion
+- 🔄 **Expanded Achievements** - 15+ unlockable achievements
 - 🔄 **Audio Enhancements** - Independent music/effects mixing
 
 #### Version 4.2 - Social & Performance
@@ -188,7 +188,7 @@ pudge-runner/
 - ✅ **Complete** - Feature implemented and tested
 - 🔄 **Planned** - In development roadmap
 
-## � Technologies Used
+## 💻 Technologies Used
 
 - **HTML5 Canvas** - Game rendering with mobile/desktop optimizations
 - **JavaScript ES6+ Modules** - Modular architecture with classes and imports/exports
@@ -239,7 +239,7 @@ We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) f
 4. Push to the branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
-## � License
+## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
