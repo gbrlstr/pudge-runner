@@ -593,6 +593,19 @@ export class Game {
       this.updateFinalScoreDisplay();
     }
 
+    // Salva score global no Firebase
+      let playerName = this.playerNickname || localStorage.getItem("pudgeRunnerPlayerName");
+    if (!playerName) {
+      playerName = prompt("Digite seu nome para o ranking global:") || "Anônimo";
+      localStorage.setItem("pudgeRunnerPlayerName", playerName);
+    }
+    try {
+        await saveScore(this.playerNickname || playerName, this.gameState.score);
+    } catch (e) {
+      console.warn("Erro ao salvar score global:", e);
+    }
+    
+
     // Clear and show ranking within the game over overlay
     const rankingContent = document.getElementById('rankingContent');
     if (rankingContent) rankingContent.innerHTML = '';
