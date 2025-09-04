@@ -1,7 +1,7 @@
 {
   "name": "pudge-runner",
-  "version": "1.0.0",
-  "description": "Um jogo endless runner inspirado no personagem Pudge do DOTA 2",
+  "version": "4.0.0",
+  "description": "An endless runner game inspired by Pudge character from DOTA 2. Dodge obstacles and achieve the highest score possible!",
   "main": "index.html",
   "keywords": [
     "game",
@@ -10,29 +10,41 @@
     "dota2",
     "pudge",
     "endless-runner",
-    "javascript"
+    "javascript",
+    "mobile",
+    "responsive",
+    "open-source"
   ],
   "author": "Developed for DOTA 2 Community",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/username/pudge-runner.git"
+    "url": "git+https://github.com/gbrlstr/pudge-runner.git"
   },
   "bugs": {
-    "url": "https://github.com/username/pudge-runner/issues"
+    "url": "https://github.com/gbrlstr/pudge-runner/issues"
   },
-  "homepage": "https://github.com/username/pudge-runner#readme",
+  "homepage": "https://github.com/gbrlstr/pudge-runner#readme",
   "scripts": {
     "start": "npx http-server -p 8000 -c-1",
     "dev": "npx http-server -p 8000 -c-1 -o",
     "build": "echo 'No build process needed for static HTML5 game'",
     "test": "echo 'No tests specified'",
-    "lint": "echo 'No linting configured'"
+    "lint": "echo 'No linting configured'",
+    "deploy": "echo 'Deploy to your preferred hosting platform'"
   },
   "devDependencies": {
     "http-server": "^14.1.1"
   },
   "engines": {
     "node": ">=14.0.0"
-  }
+  },
+  "browserslist": [
+    "Chrome >= 80",
+    "Firefox >= 75",
+    "Safari >= 13",
+    "Edge >= 80",
+    "iOS >= 13",
+    "Android >= 80"
+  ]
 }
