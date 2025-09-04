@@ -24,6 +24,36 @@
   padding: 0;
 }
 
+/* Global Scrollbar Styling - Remove fundo branco */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(100, 149, 237, 0.5) transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+  background: transparent;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: rgba(100, 149, 237, 0.4);
+  border-radius: 3px;
+  border: none;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: rgba(100, 149, 237, 0.6);
+}
+
+*::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
 body {
   background: linear-gradient(135deg, #0f1419 0%, #1a1f2e 50%, #0f1419 100%);
   color: var(--text-primary);
@@ -917,10 +947,11 @@ body {
 /* Enhanced scrollbar for ranking */
 #globalRankingContainer::-webkit-scrollbar {
   width: 6px !important;
+  background: transparent !important;
 }
 
 #globalRankingContainer::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.1) !important;
+  background: transparent !important;
   border-radius: 3px !important;
   margin: 4px !important;
 }
@@ -929,10 +960,119 @@ body {
   background: linear-gradient(180deg, var(--accent-primary), var(--accent-secondary)) !important;
   border-radius: 3px !important;
   box-shadow: 0 0 4px rgba(0, 0, 0, 0.3) !important;
+  border: none !important;
 }
 
 #globalRankingContainer::-webkit-scrollbar-thumb:hover {
   background: linear-gradient(180deg, var(--accent-secondary), var(--accent-gold)) !important;
+}
+
+#globalRankingContainer::-webkit-scrollbar-corner {
+  background: transparent !important;
+}
+
+/* Final Score Professional Design - Mobile */
+.final-score-container {
+  background: linear-gradient(145deg, rgba(15, 20, 35, 0.95), rgba(20, 25, 40, 0.95)) !important;
+  border-radius: 16px !important;
+  border: 2px solid rgba(255, 215, 0, 0.3) !important;
+  box-shadow: 
+    0 8px 24px rgba(0, 0, 0, 0.5),
+    0 0 40px rgba(255, 215, 0, 0.2) !important;
+  backdrop-filter: blur(15px) !important;
+  padding: 20px 24px !important;
+  margin: 0 !important;
+  max-width: 320px !important;
+  width: 100% !important;
+}
+
+/* Game Over Overlay Mobile Layout */
+#gameOverOverlay {
+  justify-content: flex-start !important;
+  gap: 16px !important;
+  padding: 16px 16px 30px !important;
+  overflow-y: auto !important;
+}
+
+#gameOverOverlay .menu-title {
+  font-size: 2rem !important;
+  margin: 10px 0 12px 0 !important;
+}
+
+.game-over-content {
+  display: flex !important;
+  flex-direction: column !important;
+  width: 100% !important;
+  gap: 20px !important;
+  align-items: center !important;
+}
+
+.game-over-left, .game-over-right {
+  width: 100% !important;
+  max-width: 340px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  gap: 16px !important;
+}
+
+/* Ranking Container Mobile */
+.ranking-container {
+  margin: 0 !important;
+  max-width: 320px !important;
+  width: 100% !important;
+  height: auto !important;
+}
+
+.final-score-header {
+  gap: 10px !important;
+  margin-bottom: 14px !important;
+}
+
+.score-icon {
+  font-size: 1.8rem !important;
+}
+
+.score-label {
+  font-size: 1.1rem !important;
+  letter-spacing: 1px !important;
+}
+
+.final-score-value {
+  font-size: 2.4rem !important;
+  margin: 10px 0 16px !important;
+}
+
+.final-score-details {
+  gap: 6px !important;
+  padding: 14px !important;
+  margin-bottom: 14px !important;
+}
+
+.score-detail {
+  padding: 5px 0 !important;
+}
+
+.detail-label {
+  font-size: 0.85rem !important;
+}
+
+.detail-value {
+  font-size: 0.95rem !important;
+}
+
+.score-achievement {
+  padding: 10px !important;
+  gap: 6px !important;
+}
+
+.achievement-icon {
+  font-size: 1.2rem !important;
+}
+
+.achievement-text {
+  font-size: 0.9rem !important;
+  letter-spacing: 0.5px !important;
 }
 
 /* Touch Optimization */

@@ -16,16 +16,11 @@
     }
     if (isMobile()) {
       document.write('<link rel="stylesheet" href="./style.mobile.css" />');
-      // Alerta de não suporte para mobile
-      document.addEventListener('DOMContentLoaded', function() {
-        alert('⚠️ AVISO: Este jogo ainda não tem suporte completo para dispositivos móveis.\n\n🔧 Estamos trabalhando para melhorar a experiência mobile.\n\n💻 Para a melhor experiência, recomendamos usar um computador desktop.');
-      });
     } else {
       document.write('<link rel="stylesheet" href="./assets/style.css" />');
     }
   </script>
   <style>
-    /* Performance optimizations for mobile */
     canvas {
       image-rendering: -webkit-optimize-contrast;
       image-rendering: crisp-edges;
@@ -66,49 +61,48 @@
       </div>
       <!-- Estatísticas Detalhadas e Combo/Multiplier -->
       <div class="stats-detalhadas" id="statsDetails">
-        <div>
+        <div class="stats-row">
           <span style="color:#ff5e7b;">Combo:</span> <b id="comboValue">0</b>
-          <span style="margin-left:10px;color:#ffb300;">Multiplier:</span> <b id="multiplierValue">x1</b>
+          <span style="margin-left:8px;color:#ffb300;">Multiplier:</span> <b id="multiplierValue">x1</b>
+          <span style="margin-left:8px;color:#ff5e7b;">Time:</span> <b id="playTimeValue">0.0s</b>
         </div>
-        <div>
+        <div class="stats-row">
           <span style="color:#ff5e7b;">Jumps:</span> <b id="jumpsValue">0</b>
-          <span style="margin-left:10px;color:#ff5e7b;">Dodges:</span> <b id="dodgesValue">0</b>
-          <span style="margin-left:10px;color:#ff5e7b;">Collisions:</span> <b id="collisionsValue">0</b>
-        </div>
-        <div>
-          <span style="color:#ff5e7b;">Play Time:</span> <b id="playTimeValue">0.0s</b>
+          <span style="margin-left:8px;color:#ff5e7b;">Dodges:</span> <b id="dodgesValue">0</b>
+          <span style="margin-left:8px;color:#ff5e7b;">Collisions:</span> <b id="collisionsValue">0</b>
         </div>
       </div>
     </div>
 
-    <!-- Game Canvas -->
-    <canvas id="gameCanvas"></canvas>
-    
-    <!-- Ícone de Som - Mobile Responsive -->
-    <button id="soundToggle" class="sound-toggle" title="Ativar/Desativar Som" aria-label="Toggle Sound">
-      <svg id="soundIconOn" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24" style="display:inline;">
-        <path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v8.06c1.48-.74 2.5-2.26 2.5-4.03zM19 12c0 2.53-1.19 4.78-3.07 6.22l1.43 1.43C19.07 18.07 21 15.31 21 12c0-3.31-1.93-6.07-4.64-7.65l-1.43 1.43C17.81 7.22 19 9.47 19 12zm-7-7v14l-5-5H3v-4h4l5-5z"/>
-      </svg>
-      <svg id="soundIconOff" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24" style="display:none;">
-        <path d="M3 10v4h4l5 5V5L7 10H3zm13.5 2c0-1.77-1.02-3.29-2.5-4.03v8.06c1.48-.74 2.5-2.26 2.5-4.03z"/>
-      </svg>
-    </button>
-
-    <!-- Mobile Panel Toggle Button -->
-    <button id="mobilePanelToggle" class="mobile-panel-toggle" title="Mostrar/Ocultar Painéis" aria-label="Toggle UI Panels">
-      <span id="panelToggleIcon">📱</span>
-    </button>
+    <!-- Game Canvas Container -->
+    <div class="canvas-container">
+      <canvas id="gameCanvas"></canvas>
+      
+      <!-- Ícone de Som -->
+      <button id="soundToggle" class="sound-toggle" title="Ativar/Desativar Som" aria-label="Toggle Sound">
+        <svg id="soundIconOn" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24" style="display:inline;">
+          <path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v8.06c1.48-.74 2.5-2.26 2.5-4.03zM19 12c0 2.53-1.19 4.78-3.07 6.22l1.43 1.43C19.07 18.07 21 15.31 21 12c0-3.31-1.93-6.07-4.64-7.65l-1.43 1.43C17.81 7.22 19 9.47 19 12zm-7-7v14l-5-5H3v-4h4l5-5z"/>
+        </svg>
+        <svg id="soundIconOff" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24" style="display:none;">
+          <path d="M3 10v4h4l5 5V5L7 10H3zm13.5 2c0-1.77-1.02-3.29-2.5-4.03v8.06c1.48-.74 2.5-2.26 2.5-4.03z"/>
+        </svg>
+      </button>
+    </div>
     <!-- Game Controls -->
     <div id="controlsPanel" class="ui-panel controls-panel">
       <div class="controls-list">
-        <span class="key">SPACE</span>
-        <span>Pular</span>
-        <span class="key">R</span>
-        <span>Reiniciar</span>
-        <span class="key">P</span>
-        <span>Pausar</span>
-        <span class="key">M</span>
-        <span>Menu</span>
+        <div class="control-item">
+          <span class="key">SPACE</span>
+          <span class="action">Pular</span>
+        </div>
+        <div class="control-item">
+          <span class="key">R</span>
+          <span class="action">Reiniciar</span>
+        </div>
+        <div class="control-item">
+          <span class="key">P</span>
+          <span class="action">Pausar</span>
+        </div>
       </div>
     </div>
 
@@ -138,7 +132,7 @@
       <div class="menu-title">DIGITE SEU NICKNAME</div>
       <div class="nickname-form">
         <input type="text" id="nicknameInput" maxlength="16" placeholder="Seu nick aqui..." class="nickname-input" autocomplete="off" />
-        <button class="menu-button" id="nicknameConfirmButton">CONFIRMAR NICK</button>
+        <button class="nickname-button" id="nicknameConfirmButton">CONFIRMAR</button>
       </div>
       <div class="nickname-hint">
         ⭐ Seu nickname aparecerá no ranking global!<br>
@@ -148,10 +142,58 @@
 
     <div class="menu-overlay" id="gameOverOverlay" style="display: none;">
       <div class="menu-title">GAME OVER</div>
-      <div class="menu-subtitle" id="finalScore">🏆 Pontuação Final: 0</div>
-      <button class="menu-button" id="restartButton">JOGAR NOVAMENTE</button>
-      <!-- Container para o Ranking Global -->
-      <div id="globalRankingContainer" style="display:none;"></div>
+      <div class="game-over-content">
+        <!-- Left Side: Final Score -->
+        <div class="game-over-left">
+          <!-- Final Score Professional Design -->
+          <div class="final-score-container" id="finalScore">
+            <div class="final-score-header">
+              <div class="score-icon">🏆</div>
+              <div class="score-label">PONTUAÇÃO FINAL</div>
+            </div>
+            <div class="final-score-value" id="finalScoreValue">0</div>
+            <div class="final-score-details" id="finalScoreDetails">
+              <div class="score-detail">
+                <span class="detail-label">Nível Alcançado:</span>
+                <span class="detail-value" id="finalLevel">1</span>
+              </div>
+              <div class="score-detail">
+                <span class="detail-label">Tempo de Jogo:</span>
+                <span class="detail-value" id="finalTime">0.0s</span>
+              </div>
+              <div class="score-detail">
+                <span class="detail-label">Melhor Combo:</span>
+                <span class="detail-value" id="finalCombo">0</span>
+              </div>
+            </div>
+            <div class="score-achievement" id="scoreAchievement" style="display: none;">
+              <div class="achievement-icon">⭐</div>
+              <div class="achievement-text">NOVO RECORDE PESSOAL!</div>
+            </div>
+          </div>
+          <button class="menu-button" id="restartButton">JOGAR NOVAMENTE</button>
+        </div>
+        
+        <!-- Right Side: Global Ranking -->
+        <div class="game-over-right">
+          <!-- Container Professional para o Ranking Global -->
+          <div id="globalRankingContainer" class="ranking-container" style="display:none;">
+            <div class="ranking-header">
+              <div class="ranking-title">
+                <span class="ranking-icon">🏆</span>
+                <span>RANKING GLOBAL</span>
+              </div>
+              <div class="ranking-subtitle">Top 10 Melhores Pontuações</div>
+            </div>
+            <div class="ranking-content" id="rankingContent">
+              <!-- Conteúdo será inserido dinamicamente -->
+            </div>
+            <div class="ranking-footer">
+              <span>Atualizações em tempo real</span>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <div class="menu-overlay" id="pauseOverlay" style="display: none;">
@@ -161,100 +203,71 @@
   </div>
 
   <div class="version-info">
-    🎮 Pudge Runner v2.0 - Mobile Enhanced Edition
+    🎮 Pudge Runner v4.0 - Professional Edition
   </div>
 
-  <script type="module" src="./js/pudgrunnerv2.js"></script>
+  <script type="module" src="./js/main.js"></script>
   <script>
-    // Controle do ícone de som - Melhorado
+    // Controle do ícone de som
     (function() {
       const soundToggle = document.getElementById('soundToggle');
       const soundIconOn = document.getElementById('soundIconOn');
       const soundIconOff = document.getElementById('soundIconOff');
       let soundEnabled = true;
 
-      // Enhanced sound button positioning with better mobile support
-      function positionSoundButton() {
-        const canvas = document.getElementById('gameCanvas');
-        if (canvas && soundToggle) {
-          const rect = canvas.getBoundingClientRect();
-          const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+      function toggleSound() {
+        soundEnabled = !soundEnabled;
+        
+        soundIconOn.style.display = soundEnabled ? 'inline' : 'none';
+        soundIconOff.style.display = soundEnabled ? 'none' : 'inline';
+        
+        // Aplicar mute no AssetManager do jogo quando estiver disponível
+        if (window.game && window.game.assetManager) {
+          window.game.assetManager.audioEnabled = soundEnabled;
+          window.game.assetManager.soundVolume = soundEnabled ? 0.5 : 0;
           
-          // Responsive positioning with safe areas
-          const safeOffset = isMobile ? 12 : 16;
-          const buttonSize = isMobile ? 44 : 48;
+          // Controlar música de fundo
+          if (window.game.bgMusic) {
+            window.game.assetManager.updateBackgroundMusic(window.game.bgMusic);
+          }
+        }
+        
+        // Salvar estado para quando o jogo carregar
+        window.gameAudioEnabled = soundEnabled;
+        
+        soundToggle.style.transform = 'scale(0.85)';
+        setTimeout(() => {
+          soundToggle.style.transform = 'scale(1)';
+        }, 200);
+        
+        localStorage.setItem('pudgeRunnerSoundEnabled', soundEnabled);
+      }
+
+      // Função para sincronizar o estado quando o jogo carregar
+      function syncAudioState() {
+        if (window.game && window.game.assetManager) {
+          window.game.assetManager.audioEnabled = soundEnabled;
+          window.game.assetManager.soundVolume = soundEnabled ? 0.5 : 0;
+          window.gameAudioEnabled = soundEnabled;
           
-          // Position relative to canvas with proper safe area
-          soundToggle.style.top = Math.max(safeOffset, rect.top + window.scrollY + safeOffset) + 'px';
-          soundToggle.style.left = Math.min(
-            window.innerWidth - buttonSize - safeOffset,
-            rect.right + window.scrollX - buttonSize - safeOffset
-          ) + 'px';
-          
-          // Ensure button stays visible
-          const maxTop = window.innerHeight - buttonSize - safeOffset;
-          const currentTop = parseInt(soundToggle.style.top);
-          if (currentTop > maxTop) {
-            soundToggle.style.top = maxTop + 'px';
+          // Controlar música de fundo
+          if (window.game.bgMusic) {
+            window.game.assetManager.updateBackgroundMusic(window.game.bgMusic);
           }
         }
       }
 
-      // Enhanced sound control with better feedback
-      function toggleSound() {
-        soundEnabled = !soundEnabled;
-        
-        // Update icons with smooth transition
-        soundIconOn.style.display = soundEnabled ? 'inline' : 'none';
-        soundIconOff.style.display = soundEnabled ? 'none' : 'inline';
-        
-        // Apply mute state to game sounds
-        const applyMute = () => {
-          if (window.game) {
-            if (window.game.bgMusic) {
-              window.game.bgMusic.muted = !soundEnabled;
-            }
-            if (window.game.killSound) {
-              window.game.killSound.muted = !soundEnabled;
-            }
-            
-            // Apply to all game sounds
-            ['jumpSounds', 'levelUpSounds', 'loseSounds', 'respawnSounds'].forEach(soundGroup => {
-              if (window.game[soundGroup]) {
-                window.game[soundGroup].forEach(sound => {
-                  if (sound) sound.muted = !soundEnabled;
-                });
-              }
-            });
-          } else {
-            setTimeout(applyMute, 100);
-          }
-        };
-        
-        applyMute();
-        
-        // Enhanced visual feedback
-        soundToggle.style.transform = 'scale(0.85)';
-        soundToggle.style.background = soundEnabled 
-          ? 'linear-gradient(135deg, var(--success), #27ae60)' 
-          : 'linear-gradient(135deg, var(--accent-primary), #c0392b)';
-        
-        setTimeout(() => {
-          soundToggle.style.transform = 'scale(1)';
-          soundToggle.style.background = '';
-        }, 200);
-        
-        // Store preference
-        localStorage.setItem('pudgeRunnerSoundEnabled', soundEnabled);
-      }
-
-      // Initialize sound button with saved preference
+      // Carregar preferência salva
       const savedSoundState = localStorage.getItem('pudgeRunnerSoundEnabled');
       if (savedSoundState !== null) {
         soundEnabled = savedSoundState === 'true';
+        soundIconOn.style.display = soundEnabled ? 'inline' : 'none';
+        soundIconOff.style.display = soundEnabled ? 'none' : 'inline';
       }
       
-      // Event listeners with better touch handling
+      // Definir estado global para o jogo acessar
+      window.gameAudioEnabled = soundEnabled;
+      
       soundToggle.addEventListener('click', toggleSound);
       soundToggle.addEventListener('touchend', (e) => {
         e.preventDefault();
@@ -262,215 +275,64 @@
         toggleSound();
       });
 
-      // Enhanced positioning system
-      let repositionTimeout;
-      function scheduleReposition() {
-        clearTimeout(repositionTimeout);
-        repositionTimeout = setTimeout(positionSoundButton, 100);
-      }
+      // Tentar sincronizar periodicamente até o jogo carregar
+      const syncInterval = setInterval(() => {
+        if (window.game && window.game.assetManager) {
+          syncAudioState();
+          clearInterval(syncInterval);
+        }
+      }, 100);
 
-      window.addEventListener('resize', scheduleReposition);
-      window.addEventListener('orientationchange', () => {
-        setTimeout(scheduleReposition, 200); // Longer delay for orientation change
-      });
-      window.addEventListener('DOMContentLoaded', () => {
-        // Set initial icon state
-        soundIconOn.style.display = soundEnabled ? 'inline' : 'none';
-        soundIconOff.style.display = soundEnabled ? 'none' : 'inline';
-        scheduleReposition();
-      });
-      
-      // Enhanced ResizeObserver for canvas changes
-      if (typeof ResizeObserver !== 'undefined') {
-        const observer = new ResizeObserver(scheduleReposition);
-        const canvas = document.getElementById('gameCanvas');
-        if (canvas) observer.observe(canvas);
-      }
-    })();
-
-    // Mobile Panel Toggle System
-    (function() {
-      const mobilePanelToggle = document.getElementById('mobilePanelToggle');
-      const panelToggleIcon = document.getElementById('panelToggleIcon');
-      let panelsVisible = false;
-      
-      // Detect mobile device
-      function isMobileDevice() {
-        return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || 
-               window.innerWidth <= 768;
-      }
-      
-      // Initialize mobile detection
-      function initMobileDetection() {
-        if (isMobileDevice()) {
-          document.body.classList.add('mobile-detected');
-          // Start with panels hidden on mobile
-          document.body.classList.add('mobile-panels-hidden');
-          panelsVisible = false;
-          updateToggleIcon();
-        } else {
-          document.body.classList.remove('mobile-detected', 'mobile-panels-hidden', 'panels-visible');
-        }
-      }
-      
-      // Update toggle icon based on state
-      function updateToggleIcon() {
-        panelToggleIcon.textContent = panelsVisible ? '📵' : '📱';
-        mobilePanelToggle.title = panelsVisible ? 'Ocultar Painéis' : 'Mostrar Painéis';
-      }
-      
-      // Toggle panels visibility
-      function togglePanels() {
-        if (!isMobileDevice()) return;
-        
-        panelsVisible = !panelsVisible;
-        
-        if (panelsVisible) {
-          document.body.classList.remove('mobile-panels-hidden');
-          document.body.classList.add('panels-visible');
-        } else {
-          document.body.classList.add('mobile-panels-hidden');
-          document.body.classList.remove('panels-visible');
-        }
-        
-        updateToggleIcon();
-        
-        // Save preference
-        localStorage.setItem('panelsVisible', panelsVisible.toString());
-      }
-      
-      // Load saved preference
-      function loadPanelPreference() {
-        const savedState = localStorage.getItem('panelsVisible');
-        if (savedState !== null && isMobileDevice()) {
-          panelsVisible = savedState === 'true';
-          if (panelsVisible) {
-            document.body.classList.remove('mobile-panels-hidden');
-            document.body.classList.add('panels-visible');
-          } else {
-            document.body.classList.add('mobile-panels-hidden');
-            document.body.classList.remove('panels-visible');
-          }
-          updateToggleIcon();
-        }
-      }
-      
-      // Event listeners
-      mobilePanelToggle.addEventListener('click', togglePanels);
-      mobilePanelToggle.addEventListener('touchend', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        togglePanels();
-      });
-      
-      // Keyboard shortcut 'M' for toggle
-      document.addEventListener('keydown', (e) => {
-        if (e.key.toLowerCase() === 'm' && isMobileDevice()) {
-          e.preventDefault();
-          togglePanels();
-        }
-      });
-      
-      // Initialize on load
-      window.addEventListener('DOMContentLoaded', () => {
-        initMobileDetection();
-        loadPanelPreference();
-      });
-      
-      // Reinitialize on resize
-      window.addEventListener('resize', () => {
-        setTimeout(initMobileDetection, 100);
-      });
-      
-      window.addEventListener('orientationchange', () => {
-        setTimeout(initMobileDetection, 200);
+      // Também sincronizar no evento de load
+      window.addEventListener('load', () => {
+        setTimeout(syncAudioState, 500);
       });
     })();
 
-    // Enhanced responsive system
+    // Canvas responsivo simplificado
+    function resizeCanvas() {
+      const canvas = document.getElementById('gameCanvas');
+      if (!canvas) return;
+      
+      const container = canvas.parentElement;
+      if (!container) return;
+      
+      const containerRect = container.getBoundingClientRect();
+      const aspectRatio = 3; // 3:1 aspect ratio
+      
+      let canvasWidth = Math.min(containerRect.width, 1200);
+      let canvasHeight = canvasWidth / aspectRatio;
+      
+      // Ajustar para viewport móvel
+      const maxHeight = window.innerHeight * 0.7;
+      if (canvasHeight > maxHeight) {
+        canvasHeight = maxHeight;
+        canvasWidth = canvasHeight * aspectRatio;
+      }
+      
+      canvas.width = canvasWidth;
+      canvas.height = canvasHeight;
+      canvas.style.width = canvasWidth + 'px';
+      canvas.style.height = canvasHeight + 'px';
+    }
+
+    // Event listeners para responsividade
     let resizeTimeout;
     function scheduleCanvasResize() {
       clearTimeout(resizeTimeout);
       resizeTimeout = setTimeout(() => {
         resizeCanvas();
-        // Update game dimensions if needed
         if (window.game && typeof window.setResponsiveCanvas === 'function') {
           window.setResponsiveCanvas();
         }
       }, 150);
     }
 
-    // Event listeners for better responsiveness
     window.addEventListener('resize', scheduleCanvasResize);
     window.addEventListener('orientationchange', () => {
-      // Longer delay for orientation changes
       setTimeout(scheduleCanvasResize, 300);
     });
     window.addEventListener('DOMContentLoaded', scheduleCanvasResize);
-    
-    // Enhanced orientation handling
-    function checkOrientation() {
-      const canvas = document.getElementById('gameCanvas');
-      if (canvas) {
-        scheduleCanvasResize();
-        
-        // Add visual indicator for better UX
-        const isLandscape = window.innerWidth > window.innerHeight;
-        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-        
-        if (isMobile && !isLandscape) {
-          // Could add a subtle hint for landscape mode
-          console.log('Portrait mode detected - landscape recommended for better experience');
-        }
-      }
-    }
-    
-    // Enhanced canvas resizing with better proportions
-    function resizeCanvas() {
-      const canvas = document.getElementById('gameCanvas');
-      if (!canvas) return;
-      
-      const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-      
-      if (isMobile) {
-        const vw = window.innerWidth;
-        const vh = window.innerHeight;
-        const isLandscape = vw > vh;
-        
-        // Enhanced mobile calculations
-        let targetWidth, targetHeight;
-        
-        if (isLandscape) {
-          // Landscape - optimal for gaming
-          targetWidth = Math.min(vw * 0.92, vh * 2.2);
-          targetHeight = Math.min(vh * 0.65, vw / 1.8);
-        } else {
-          // Portrait - adapted experience  
-          targetWidth = Math.min(vw * 0.88, vh * 0.8);
-          targetHeight = Math.min(vh * 0.42, vw / 1.6);
-        }
-        
-        // Apply calculated dimensions
-        canvas.width = Math.max(360, Math.min(targetWidth, 900));
-        canvas.height = Math.max(200, Math.min(targetHeight, 500));
-        
-        // Maintain aspect ratio
-        const aspectRatio = canvas.width / canvas.height;
-        if (aspectRatio < 1.5) {
-          canvas.height = canvas.width / 1.6;
-        }
-        
-        // Update CSS for visual consistency
-        canvas.style.width = canvas.width + 'px';
-        canvas.style.height = canvas.height + 'px';
-      } else {
-        // Desktop dimensions
-        canvas.width = 1500;
-        canvas.height = 500;
-        canvas.style.width = canvas.width + 'px';
-        canvas.style.height = canvas.height + 'px';
-      }
-    }
   </script>
 </body>
 </html>
