@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"/>
   <title>Pudge Runner - DOTA 2 Endless Runner</title>
   <link rel="icon" type="image/x-icon" href="./assets/logo.png">
-  <meta name="description" content="Um jogo endless runner baseado no Pudge do DOTA 2. Desvie dos obstáculos e alcance a maior pontuação!">
+  <meta name="description" content="An endless runner game based on Pudge from DOTA 2. Dodge obstacles and achieve the highest score!">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
@@ -79,7 +79,7 @@
       <canvas id="gameCanvas"></canvas>
       
       <!-- Ícone de Som -->
-      <button id="soundToggle" class="sound-toggle" title="Ativar/Desativar Som" aria-label="Toggle Sound">
+      <button id="soundToggle" class="sound-toggle" title="Enable/Disable Sound" aria-label="Toggle Sound">
         <svg id="soundIconOn" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24" style="display:inline;">
           <path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v8.06c1.48-.74 2.5-2.26 2.5-4.03zM19 12c0 2.53-1.19 4.78-3.07 6.22l1.43 1.43C19.07 18.07 21 15.31 21 12c0-3.31-1.93-6.07-4.64-7.65l-1.43 1.43C17.81 7.22 19 9.47 19 12zm-7-7v14l-5-5H3v-4h4l5-5z"/>
         </svg>
@@ -93,15 +93,15 @@
       <div class="controls-list">
         <div class="control-item">
           <span class="key">SPACE</span>
-          <span class="action">Pular</span>
+          <span class="action">Jump</span>
         </div>
         <div class="control-item">
           <span class="key">R</span>
-          <span class="action">Reiniciar</span>
+          <span class="action">Restart</span>
         </div>
         <div class="control-item">
           <span class="key">P</span>
-          <span class="action">Pausar</span>
+          <span class="action">Pause</span>
         </div>
       </div>
     </div>
@@ -112,31 +112,31 @@
       <div class="loading-bar">
         <div class="loading-progress" id="loadingProgress"></div>
       </div>
-      <div class="loading-text" id="loadingText">Carregando assets...</div>
+      <div class="loading-text" id="loadingText">Loading assets...</div>
     </div>
 
     <div class="menu-overlay" id="menuOverlay" style="display: none;">
       <div class="menu-title">PUDGE RUNNER</div>
       <div class="menu-subtitle">
-        🎮 <strong>Prepare-se para o desafio definitivo!</strong><br><br>
-        Desvie dos heróis, enfrente os inimigos e conquiste o topo do ranking.<br>
+        🎮 <strong>Get ready for the ultimate challenge!</strong><br><br>
+        Dodge the heroes, face the enemies and conquer the top of the ranking.<br>
         <span style="color: var(--accent-gold); font-weight: 600; font-size: 1.05em;">
-          Mostre suas habilidades e alcance a maior pontuação!
+          Show your skills and achieve the highest score!
         </span>
       </div>
-      <button class="menu-button" id="startButton">COMEÇAR A CORRIDA</button>
+      <button class="menu-button" id="startButton">START THE RUN</button>
     </div>
 
     <!-- Nickname Overlay -->
     <div class="menu-overlay" id="nicknameOverlay" style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
-      <div class="menu-title">DIGITE SEU NICKNAME</div>
+      <div class="menu-title">ENTER YOUR NICKNAME</div>
       <div class="nickname-form">
-        <input type="text" id="nicknameInput" maxlength="16" placeholder="Seu nick aqui..." class="nickname-input" autocomplete="off" />
-        <button class="nickname-button" id="nicknameConfirmButton">CONFIRMAR</button>
+        <input type="text" id="nicknameInput" maxlength="16" placeholder="Your nickname here..." class="nickname-input" autocomplete="off" />
+        <button class="nickname-button" id="nicknameConfirmButton">CONFIRM</button>
       </div>
       <div class="nickname-hint">
-        ⭐ Seu nickname aparecerá no ranking global!<br>
-        📱 Use até 16 caracteres para melhor visualização
+        ⭐ Your nickname will appear on the global ranking!<br>
+        📱 Use up to 16 characters for better visualization
       </div>
     </div>
 
@@ -149,29 +149,29 @@
           <div class="final-score-container" id="finalScore">
             <div class="final-score-header">
               <div class="score-icon">🏆</div>
-              <div class="score-label">PONTUAÇÃO FINAL</div>
+              <div class="score-label">FINAL SCORE</div>
             </div>
             <div class="final-score-value" id="finalScoreValue">0</div>
             <div class="final-score-details" id="finalScoreDetails">
               <div class="score-detail">
-                <span class="detail-label">Nível Alcançado:</span>
+                <span class="detail-label">Level Reached:</span>
                 <span class="detail-value" id="finalLevel">1</span>
               </div>
               <div class="score-detail">
-                <span class="detail-label">Tempo de Jogo:</span>
+                <span class="detail-label">Play Time:</span>
                 <span class="detail-value" id="finalTime">0.0s</span>
               </div>
               <div class="score-detail">
-                <span class="detail-label">Melhor Combo:</span>
+                <span class="detail-label">Best Combo:</span>
                 <span class="detail-value" id="finalCombo">0</span>
               </div>
             </div>
             <div class="score-achievement" id="scoreAchievement" style="display: none;">
               <div class="achievement-icon">⭐</div>
-              <div class="achievement-text">NOVO RECORDE PESSOAL!</div>
+              <div class="achievement-text">NEW PERSONAL RECORD!</div>
             </div>
           </div>
-          <button class="menu-button" id="restartButton">JOGAR NOVAMENTE</button>
+          <button class="menu-button" id="restartButton">PLAY AGAIN</button>
         </div>
         
         <!-- Right Side: Global Ranking -->
@@ -181,15 +181,15 @@
             <div class="ranking-header">
               <div class="ranking-title">
                 <span class="ranking-icon">🏆</span>
-                <span>RANKING GLOBAL</span>
+                <span>GLOBAL RANKING</span>
               </div>
-              <div class="ranking-subtitle">Top 10 Melhores Pontuações</div>
+              <div class="ranking-subtitle">Top 10 Best Scores</div>
             </div>
             <div class="ranking-content" id="rankingContent">
               <!-- Conteúdo será inserido dinamicamente -->
             </div>
             <div class="ranking-footer">
-              <span>Atualizações em tempo real</span>
+              <span>Real-time updates</span>
             </div>
           </div>
         </div>
@@ -197,8 +197,8 @@
     </div>
 
     <div class="menu-overlay" id="pauseOverlay" style="display: none;">
-      <div class="menu-title">⏸️ PAUSADO</div>
-      <div class="menu-subtitle">Pressione <strong>P</strong> para continuar ou toque na tela</div>
+      <div class="menu-title">⏸️ PAUSED</div>
+      <div class="menu-subtitle">Press <strong>P</strong> to continue or tap the screen</div>
     </div>
   </div>
 
