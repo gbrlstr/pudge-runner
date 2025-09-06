@@ -22,11 +22,14 @@ export class Player {
     this.onGround = false;
     this.groundY = this.game.config.GROUND_Y - (this.isMobileDevice ? 70 * this.mobileScale : 90);
     this.flipped = false;
-    this.frameRate = 10;
+    this.frameRate = 15; // Aumentado de 10 para 15 FPS para animação mais suave
     this.frameDelay = 0;
     this.currentFrame = 0;
   }
-  update() {
+  update(deltaTime = 16.6) {
+    // Normalizar deltaTime para 60fps (16.6ms por frame)
+    const dt = deltaTime / 16.6;
+    
     // Handle horizontal movement
     if (
       this.game.keys.indexOf("ArrowRight") > -1 ||
@@ -51,27 +54,28 @@ export class Player {
       this.jump();
     if (this.game.keys.indexOf(" ") > -1) this.jump();
 
-    // Atualiza posição do jogador
-    this.x += this.speedX;
-    // Apply gravity
-    this.dy += this.gravity;
-    this.y += this.dy;
+    // Atualiza posição do jogador com deltaTime
+    this.x += this.speedX * dt;
+    // Apply gravity com deltaTime
+    this.dy += this.gravity * dt;
+    this.y += this.dy * dt;
     // Verifica colisão com o chão
     if (this.y + this.height >= this.game.config.GROUND_Y) {
       this.y = this.game.config.GROUND_Y - this.height;
       this.dy = 0;
       this.onGround = true;
     }
-    this.animFrame += 0.3;
+    this.animFrame += 0.3 * dt;
     // Limitar posição do jogador dentro da tela
     if (this.x < 0) this.x = 0;
     if (this.y < 0) this.y = 0;
     if (this.x + this.width > this.game.width)
       this.x = this.game.width - this.width;
-    // Atualiza animação do player
+    // Atualiza animação do player com sistema simplificado
     if (this.game.playerFrames.length > 1) {
-      this.frameDelay++;
-      if (this.frameDelay >= Math.floor(60 / this.frameRate)) {
+      this.frameDelay += deltaTime; // Usar deltaTime direto em millisegundos
+      const frameInterval = 1000 / this.frameRate; // Intervalo em ms (ex: 100ms para 10fps)
+      if (this.frameDelay >= frameInterval) {
         this.frameDelay = 0;
         this.currentFrame = (this.currentFrame + 1) % this.game.playerFrames.length;
       }

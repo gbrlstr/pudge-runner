@@ -17,7 +17,8 @@ export class Game {
     this.keys = [];
     this.enemies = [];
     this.elements = {};
-    this.enemySpawnRate = 60;
+    this.enemySpawnTimer = 0;
+    this.enemySpawnInterval = 1000; // Intervalo em ms (1 segundo)
     this.particles = [];
     this.backgroundElements = [];
     this.parallaxLayers = [];
@@ -205,7 +206,7 @@ export class Game {
       level: 1,
       speed: this.config.BASE_SPEED,
       spawnRate: this.config.OBSTACLE_SPAWN_RATE,
-      nextSpawnFrame: this.config.OBSTACLE_SPAWN_RATE,
+      nextSpawnTime: 0, // Próximo spawn baseado em tempo
       combo: 0, // Combo/Multiplier
       multiplier: 1, // Combo/Multiplier
       startTime: 0, // Track when game actually started
@@ -959,11 +960,14 @@ export class Game {
     }
   }
 
-  updateBackground() {
+  updateBackground(deltaTime = 16.6) {
+    // Normalizar deltaTime para 60fps (16.6ms por frame)
+    const dt = deltaTime / 16.6;
+    
     // Parallax das imagens
     this.parallaxLayers.forEach(layer => {
       if (layer.img && layer.loaded) {
-        layer.x -= layer.speed * this.gameState.speed * 0.5; // Reduzir velocidade geral do parallax
+        layer.x -= layer.speed * this.gameState.speed * 0.5 * dt; // deltaTime no parallax
         // Loop horizontal melhorado
         if (layer.x <= -layer.img.width) {
           layer.x = 0;
@@ -975,7 +979,7 @@ export class Game {
     this.backgroundElements.forEach((element) => {
       // Parallax: quanto maior, mais devagar
       const parallax = 0.5 + (1 - element.opacity) * 1.5 + (element.size / 5);
-      element.x -= element.speed * parallax;
+      element.x -= element.speed * parallax * dt; // deltaTime nos elementos de background
       if (element.x < -element.size) {
         // Recicla elemento para o lado direito, com nova altura/opacidade/tamanho
         element.x = this.width + Math.random() * 40;
@@ -1078,14 +1082,14 @@ export class Game {
     this.gameState.stats.playTime += (deltaTime || 16.6) / 1000;
 
     // Update player - otimizado
-    this.player.update();
+    this.player.update(deltaTime);
     
     // Enemy update loop
     for (let i = this.enemies.length - 1; i >= 0; i--) {
       const enemy = this.enemies[i];
       
-      // Update enemy position
-      enemy.x += enemy.speedX;
+      // Update enemy position (removido porque será feito no enemy.update)
+      // enemy.x += enemy.speedX;
       
       // Check if enemy passed player (dar pontos quando inimigo passa)
       if (enemy.x < this.player.x && !enemy.passed) {
@@ -1130,19 +1134,22 @@ export class Game {
       }
 
       // Update enemy
-      enemy.update();
+      enemy.update(deltaTime);
     }
 
-    // Spawn enemies
-    if (this.gameState.frame % this.enemySpawnRate === 0) {
+    // Spawn enemies baseado em tempo
+    this.enemySpawnTimer += deltaTime;
+    if (this.enemySpawnTimer >= this.enemySpawnInterval) {
       this.addEnemy();
       this.gameState.stats.enemiesSpawned++;
-      this.enemySpawnRate = 180 + Math.floor(Math.random() * 70);
+      this.enemySpawnTimer = 0;
+      // Variação no intervalo para tornar mais interessante
+      this.enemySpawnInterval = 800 + Math.floor(Math.random() * 600); // 0.8s a 1.4s
     }
 
     // Update subsystems
     this.updateParticles(deltaTime || 16);
-    this.updateBackground();
+    this.updateBackground(deltaTime || 16.6);
     this.updateDifficulty();
     
     if (this.gameState.frame % 5 === 0) { // UI menos frequente

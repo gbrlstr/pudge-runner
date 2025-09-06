@@ -9,17 +9,31 @@ export class Enemy {
     this.width = 90;
     this.height = 90;
     this.type = types[Math.floor(Math.random() * types.length)];
-    this.frameRate = 10;
+    this.frameRate = 12;
     this.frameDelay = 0;
     this.currentFrame = 0;
+    
+    // Ajustar frameRate baseado no tipo de inimigo para melhor visual
+    const frameRates = {
+      'boss': 8,    // Boss mais lento e imponente
+      'ghost': 15,  // Ghost mais fluido
+      'mad': 18,    // Mad mais agitado
+      'spoon': 10,  // Spoon normal
+      'meepo': 12   // Meepo padrão
+    };
+    this.frameRate = frameRates[this.type] || 12;
   }
-  update() {
-    this.x += this.speedX;
+  update(deltaTime = 16.6) {
+    // Normalizar deltaTime para 60fps (16.6ms por frame)
+    const dt = deltaTime / 16.6;
+    
+    this.x += this.speedX * dt;
     // Atualiza animação do mob
     const frames = this.game.mobFrames[this.type];
     if (frames && frames.length > 1) {
-      this.frameDelay++;
-      if (this.frameDelay >= Math.floor(60 / this.frameRate)) {
+      this.frameDelay += deltaTime; // Usar deltaTime direto em millisegundos
+      const frameInterval = 1000 / this.frameRate; // Intervalo em ms (ex: 100ms para 10fps)
+      if (this.frameDelay >= frameInterval) {
         this.frameDelay = 0;
         this.currentFrame = (this.currentFrame + 1) % frames.length;
       }

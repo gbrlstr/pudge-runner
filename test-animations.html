@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste Animações - Pudge Runner</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background: #1a1a1a;
+            color: white;
+            font-family: Arial, sans-serif;
+        }
+        
+        #gameCanvas {
+            border: 2px solid #444;
+            background: #000;
+            display: block;
+            margin: 20px auto;
+        }
+        
+        .info {
+            text-align: center;
+            margin: 20px;
+        }
+        
+        .controls {
+            text-align: center;
+            margin: 20px;
+        }
+        
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        
+        button:hover {
+            background: #45a049;
+        }
+        
+        .active {
+            background: #ff9800 !important;
+        }
+        
+        .frameRate {
+            background: #2196F3;
+        }
+        
+        .frameRate:hover {
+            background: #1976D2;
+        }
+    </style>
+</head>
+<body>
+    <div class="info">
+        <h1>🎨 Teste de Animações - Sprites</h1>
+        <p>Teste as animações dos sprites com diferentes framerates para verificar se estão suaves.</p>
+        <p><strong>FPS do Jogo:</strong> <span id="gameFps">60</span> | <strong>FPS Animação:</strong> <span id="animFps">15</span></p>
+    </div>
+    
+    <div class="controls">
+        <h3>Framerate da Animação:</h3>
+        <button class="frameRate" onclick="setAnimationFPS(8)">8 FPS</button>
+        <button class="frameRate" onclick="setAnimationFPS(12)">12 FPS</button>
+        <button class="frameRate active" onclick="setAnimationFPS(15)">15 FPS</button>
+        <button class="frameRate" onclick="setAnimationFPS(20)">20 FPS</button>
+        <button class="frameRate" onclick="setAnimationFPS(30)">30 FPS</button>
+    </div>
+    
+    <div class="controls">
+        <h3>Framerate do Jogo:</h3>
+        <button onclick="setGameFPS(30)">30 FPS</button>
+        <button onclick="setGameFPS(60)" class="active" id="fps60">60 FPS</button>
+        <button onclick="setGameFPS(120)">120 FPS</button>
+        <button onclick="setGameFPS(144)">144 FPS</button>
+    </div>
+    
+    <canvas id="gameCanvas" width="800" height="400"></canvas>
+    
+    <div class="info">
+        <p><strong>Frame Atual:</strong> <span id="currentFrame">0</span> / <span id="totalFrames">8</span></p>
+        <p><strong>Tempo entre frames:</strong> <span id="frameInterval">66.7</span> ms</p>
+        <p><strong>Status:</strong> <span id="animStatus">Suave</span></p>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Simulação de sprite animado
+        let sprite = {
+            x: 100,
+            y: 200,
+            frameRate: 15,
+            frameDelay: 0,
+            currentFrame: 0,
+            totalFrames: 8,
+            speedX: 2
+        };
+        
+        let sprite2 = {
+            x: 400,
+            y: 200,
+            frameRate: 12,
+            frameDelay: 0,
+            currentFrame: 0,
+            totalFrames: 6,
+            speedX: -1.5
+        };
+        
+        let lastTime = 0;
+        let targetGameFPS = 60;
+        let gameFrameInterval = 1000 / targetGameFPS;
+        
+        function setAnimationFPS(fps) {
+            sprite.frameRate = fps;
+            sprite2.frameRate = fps;
+            document.getElementById('animFps').textContent = fps;
+            
+            // Update active button
+            document.querySelectorAll('.frameRate').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            updateDisplay();
+        }
+        
+        function setGameFPS(fps) {
+            targetGameFPS = fps;
+            gameFrameInterval = 1000 / fps;
+            document.getElementById('gameFps').textContent = fps;
+            
+            // Update active button
+            document.querySelectorAll('button:not(.frameRate)').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+        
+        function updateDisplay() {
+            document.getElementById('currentFrame').textContent = sprite.currentFrame;
+            document.getElementById('totalFrames').textContent = sprite.totalFrames;
+            document.getElementById('frameInterval').textContent = (1000 / sprite.frameRate).toFixed(1);
+            
+            // Análise da suavidade
+            const frameInterval = 1000 / sprite.frameRate;
+            let status = '';
+            if (frameInterval < 50) status = '⚡ Muito rápida';
+            else if (frameInterval < 80) status = '✅ Suave';
+            else if (frameInterval < 150) status = '⚠️ Normal';
+            else status = '🐌 Lenta';
+            
+            document.getElementById('animStatus').textContent = status;
+        }
+        
+        function updateAnimation(sprite, deltaTime) {
+            // Sistema de animação corrigido (mesmo do Enemy.js)
+            sprite.frameDelay += deltaTime; // deltaTime em millisegundos
+            const frameInterval = 1000 / sprite.frameRate; // Intervalo em ms
+            
+            if (sprite.frameDelay >= frameInterval) {
+                sprite.frameDelay = 0;
+                sprite.currentFrame = (sprite.currentFrame + 1) % sprite.totalFrames;
+            }
+        }
+        
+        function updateMovement(sprite, deltaTime) {
+            // Movimento normalizado
+            const dt = deltaTime / 16.6;
+            sprite.x += sprite.speedX * dt;
+            
+            // Reset position
+            if (sprite.x > canvas.width + 50) sprite.x = -50;
+            if (sprite.x < -50) sprite.x = canvas.width + 50;
+        }
+        
+        function drawSprite(sprite, color) {
+            // Simular frames de animação com cores diferentes
+            const colors = [
+                color, 
+                color + '80', // Mais transparente
+                color + '60',
+                color + '40',
+                color + '80',
+                color + '60',
+                color + '40',
+                color + '20'
+            ];
+            
+            ctx.fillStyle = colors[sprite.currentFrame] || color;
+            ctx.fillRect(sprite.x, sprite.y, 60, 60);
+            
+            // Indicador do frame atual
+            ctx.fillStyle = '#fff';
+            ctx.font = '12px Arial';
+            ctx.fillText(`F: ${sprite.currentFrame}`, sprite.x + 5, sprite.y - 5);
+            
+            // Indicador de FPS da animação
+            ctx.fillText(`${sprite.frameRate}fps`, sprite.x + 5, sprite.y + 75);
+        }
+        
+        function draw() {
+            // Clear canvas
+            ctx.fillStyle = '#1a1a2e';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw sprites
+            drawSprite(sprite, '#4CAF50');
+            drawSprite(sprite2, '#f44336');
+            
+            // Draw info
+            ctx.fillStyle = '#fff';
+            ctx.font = '16px Arial';
+            ctx.fillText(`Game FPS: ${targetGameFPS}`, 10, 30);
+            ctx.fillText(`Animation FPS: ${sprite.frameRate}`, 10, 50);
+            ctx.fillText('Sprite 1 (Verde) | Sprite 2 (Vermelho)', 10, canvas.height - 20);
+        }
+        
+        function gameLoop(timestamp) {
+            const deltaTime = timestamp - lastTime;
+            
+            // Throttle to target FPS
+            if (deltaTime >= gameFrameInterval - 1) {
+                lastTime = timestamp;
+                
+                // Update animations
+                updateAnimation(sprite, deltaTime);
+                updateAnimation(sprite2, deltaTime);
+                
+                // Update movement
+                updateMovement(sprite, deltaTime);
+                updateMovement(sprite2, deltaTime);
+                
+                // Draw
+                draw();
+                
+                // Update display
+                updateDisplay();
+            }
+            
+            requestAnimationFrame(gameLoop);
+        }
+        
+        // Initialize
+        updateDisplay();
+        gameLoop(0);
+        
+        console.log('🎨 Teste de animações iniciado. Ajuste os framerates para ver as diferenças.');
+    </script>
+</body>
+</html>
