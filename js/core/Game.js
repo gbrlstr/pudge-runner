@@ -41,7 +41,16 @@ export class Game {
     this.startLoadingSequence();
     this.initializeAudioState();
     this.playerFrames = [];
-    this.mobFrames = { boss: [], meepo: [], ghost: [], mad: [], spoon: [] };
+    this.mobFrames = { 
+      // Básicos
+      meepo: [], ghost: [], mad: [], spoon: [],
+      // Intermediários  
+      boss: [], ghost02: [], glad: [], sad: [],
+      // Avançados
+      bat: [], bloodthirsty: [], necromancer: [],
+      // Extremos
+      broodmother: [], tb: []
+    };
     this.playerFrameIndex = 0;
     this.playerFrameDelay = 0;
     this.mobFrameIndex = {};
@@ -116,29 +125,72 @@ export class Game {
       OBSTACLE_SPAWN_RATE: isMobileDevice ? 140 : 120,
       PARTICLE_COUNT: isMobileDevice ? 50 : 100,
       LEVELS: [
-        { speed: baseSpeed, spawnRate: 140, name: "Iniciante" },
-        { speed: baseSpeed * 1.2, spawnRate: 130, name: "Fácil" },
-        { speed: baseSpeed * 1.4, spawnRate: 120, name: "Normal" },
-        { speed: baseSpeed * 1.6, spawnRate: 110, name: "Difícil" },
-        { speed: baseSpeed * 1.8, spawnRate: 100, name: "Expert" },
-        { speed: baseSpeed * 2, spawnRate: 90, name: "Insano" },
+        { speed: baseSpeed, spawnRate: 140, name: "Iniciante", multiSpawn: 1 },
+        { speed: baseSpeed * 1.2, spawnRate: 130, name: "Fácil", multiSpawn: 1 },
+        { speed: baseSpeed * 1.4, spawnRate: 120, name: "Normal", multiSpawn: 1 },
+        { speed: baseSpeed * 1.6, spawnRate: 110, name: "Difícil", multiSpawn: 1 },
+        { speed: baseSpeed * 1.8, spawnRate: 100, name: "Expert", multiSpawn: 1 },
+        { speed: baseSpeed * 2, spawnRate: 90, name: "Insano", multiSpawn: 2 },
+        { speed: baseSpeed * 2.2, spawnRate: 85, name: "Extremo", multiSpawn: 2 },
+        { speed: baseSpeed * 2.4, spawnRate: 80, name: "Lendário", multiSpawn: 2 },
+        { speed: baseSpeed * 2.6, spawnRate: 75, name: "Mítico", multiSpawn: 2 },
+        { speed: baseSpeed * 2.8, spawnRate: 70, name: "Divino", multiSpawn: 3 },
+        { speed: baseSpeed * 3, spawnRate: 65, name: "Imortal", multiSpawn: 3 },
+        { speed: baseSpeed * 3.2, spawnRate: 60, name: "Ancestral", multiSpawn: 3 },
+        { speed: baseSpeed * 3.4, spawnRate: 55, name: "Transcendente", multiSpawn: 3 },
+        { speed: baseSpeed * 3.6, spawnRate: 50, name: "Apocalíptico", multiSpawn: 4 },
+        { speed: baseSpeed * 3.8, spawnRate: 45, name: "Cataclísmico", multiSpawn: 4 },
+        { speed: baseSpeed * 4, spawnRate: 40, name: "Impossível", multiSpawn: 4 }
       ],
+      // Sistema de dificuldade infinita após level 20
+      INFINITE_DIFFICULTY: {
+        baseSpeed: baseSpeed * 4,
+        baseSpawnRate: 40,
+        speedIncrement: baseSpeed * 0.1,
+        spawnRateDecrement: 1,
+        multiSpawnIncrement: 0.2,
+        maxMultiSpawn: 6
+      },
     };
     this.spriteUrls = {
       pudge: "../assets/imgs/pudge.png",
-      boss: "../assets/imgs/boss.png",
+      // Inimigos Básicos (Níveis 1-5)
       meepo: "../assets/imgs/meepo.png",
       ghost: "../assets/imgs/ghost.png",
       mad: "../assets/imgs/mad.png",
       spoon: "../assets/imgs/spoon.png",
+      // Inimigos Intermediários (Níveis 6-10)
+      boss: "../assets/imgs/boss.png",
+      ghost02: "../assets/imgs/ghost02.png",
+      glad: "../assets/imgs/glad.png",
+      sad: "../assets/imgs/sad.png",
+      // Inimigos Avançados (Níveis 11-15)
+      bat: "../assets/imgs/bat.png",
+      bloodthirsty: "../assets/imgs/bloodthirsty.png",
+      necromancer: "../assets/imgs/necromancer.png",
+      // Inimigos Extremos (Níveis 16+)
+      broodmother: "../assets/imgs/broodmother.png",
+      tb: "../assets/imgs/tb.png"
     };
     this.sprites = {
       pudge: null,
-      boss: null,
+      // Básicos
       meepo: null,
       ghost: null,
       mad: null,
       spoon: null,
+      // Intermediários
+      boss: null,
+      ghost02: null,
+      glad: null,
+      sad: null,
+      // Avançados
+      bat: null,
+      bloodthirsty: null,
+      necromancer: null,
+      // Extremos
+      broodmother: null,
+      tb: null
     };
     this.voiceLines = {
       respawn: [
@@ -206,6 +258,7 @@ export class Game {
       level: 1,
       speed: this.config.BASE_SPEED,
       spawnRate: this.config.OBSTACLE_SPAWN_RATE,
+      multiSpawn: 1, // Quantidade de inimigos por spawn
       nextSpawnTime: 0, // Próximo spawn baseado em tempo
       combo: 0, // Combo/Multiplier
       multiplier: 1, // Combo/Multiplier
@@ -340,13 +393,25 @@ export class Game {
   initializePools() {
     this.spritePool = {
       pudge: { instances: [], maxInstances: 5, currentIndex: 0 },
-      boss: { instances: [], maxInstances: 3, currentIndex: 0 },
+      // Básicos
       meepo: { instances: [], maxInstances: 3, currentIndex: 0 },
       ghost: { instances: [], maxInstances: 3, currentIndex: 0 },
       mad: { instances: [], maxInstances: 3, currentIndex: 0 },
       spoon: { instances: [], maxInstances: 3, currentIndex: 0 },
+      // Intermediários
+      boss: { instances: [], maxInstances: 3, currentIndex: 0 },
+      ghost02: { instances: [], maxInstances: 3, currentIndex: 0 },
+      glad: { instances: [], maxInstances: 3, currentIndex: 0 },
+      sad: { instances: [], maxInstances: 3, currentIndex: 0 },
+      // Avançados
+      bat: { instances: [], maxInstances: 4, currentIndex: 0 },
+      bloodthirsty: { instances: [], maxInstances: 3, currentIndex: 0 },
+      necromancer: { instances: [], maxInstances: 2, currentIndex: 0 },
+      // Extremos
+      broodmother: { instances: [], maxInstances: 2, currentIndex: 0 },
+      tb: { instances: [], maxInstances: 2, currentIndex: 0 }
     };
-    this.canvasPool = { available: [], active: [], maxSize: 10 };
+    this.canvasPool = { available: [], active: [], maxSize: 15 }; // Aumentado para mais inimigos
     this.preCreateCanvasPool();
   }
   preCreateCanvasPool() {
@@ -810,6 +875,72 @@ export class Game {
     }
   }
 
+  // Efeitos específicos para tipos de inimigos
+  createEnemyDeathEffect(enemy) {
+    if (typeof Particle === 'function') {
+      let effectType = 'collision';
+      let intensity = 1;
+      
+      // Efeitos específicos baseados no tipo de inimigo
+      switch (enemy.type) {
+        case 'necromancer':
+          effectType = 'necromancy';
+          intensity = 2;
+          break;
+        case 'bloodthirsty':
+          effectType = 'blood';
+          intensity = 1.5;
+          break;
+        case 'broodmother':
+          effectType = 'venom';
+          intensity = 1.8;
+          break;
+        case 'tb':
+          effectType = 'demon';
+          intensity = 2.5;
+          break;
+        case 'bat':
+          effectType = 'bat_trail';
+          intensity = 1.2;
+          break;
+        case 'ghost':
+        case 'ghost02':
+          effectType = 'magic';
+          intensity = 1.3;
+          break;
+      }
+      
+      // Criar efeito de morte
+      const particles = Particle.createExplosion(
+        enemy.x + enemy.width / 2, 
+        enemy.y + enemy.height / 2, 
+        intensity
+      );
+      this.particles.push(...particles);
+      
+      // Efeito específico adicional
+      const specialParticles = Particle.createBurst(
+        enemy.x + enemy.width / 2, 
+        enemy.y + enemy.height / 2, 
+        effectType, 
+        Math.floor(3 * intensity)
+      );
+      this.particles.push(...specialParticles);
+    }
+  }
+
+  // Trail de partículas para inimigos voadores
+  createEnemyTrail(enemy) {
+    if (typeof Particle === 'function' && enemy.type === 'bat' && Math.random() < 0.3) {
+      const trailParticle = new Particle(
+        enemy.x + enemy.width / 2, 
+        enemy.y + enemy.height / 2, 
+        'bat_trail'
+      );
+      this.particles.push(trailParticle);
+    }
+  }
+
   drawBackground(context) {
     // Parallax layers - optimized for mobile
     const isMobileDevice = isMobile();
@@ -943,6 +1074,8 @@ export class Game {
       context.fillRect(0, 0, this.width, this.height);
       context.restore();
     }
+    
+    // Efeitos visuais baseados no nível de dificuldade
     if (this.gameState.speed > 7) {
       context.save();
       context.strokeStyle = "rgba(255, 255, 255, 0.1)";
@@ -956,6 +1089,42 @@ export class Game {
         context.lineTo(50, y);
         context.stroke();
       }
+      context.restore();
+    }
+    
+    // Efeitos especiais para níveis extremos
+    if (this.gameState.level > 15) {
+      context.save();
+      const intensity = Math.min(1, (this.gameState.level - 15) / 10);
+      context.globalAlpha = 0.05 + intensity * 0.15;
+      
+      // Efeito de borda vermelha pulsante
+      const pulse = Math.sin(this.gameState.frame * 0.1) * 0.5 + 0.5;
+      context.strokeStyle = `rgba(255, 0, 0, ${pulse * intensity})`;
+      context.lineWidth = 8;
+      context.strokeRect(0, 0, this.width, this.height);
+      
+      // Linhas de velocidade mais intensas
+      context.strokeStyle = `rgba(255, 100, 100, ${intensity * 0.3})`;
+      context.lineWidth = 1;
+      for (let i = 0; i < 20; i++) {
+        const y = (this.gameState.frame * this.gameState.speed * 3 + i * 25) % this.height;
+        context.beginPath();
+        context.moveTo(0, y);
+        context.lineTo(this.width * 0.2, y);
+        context.stroke();
+      }
+      
+      context.restore();
+    }
+    
+    // Aviso visual para níveis impossíveis
+    if (this.gameState.level > 25) {
+      context.save();
+      context.font = "bold 24px Orbitron";
+      context.fillStyle = `rgba(255, 0, 0, ${Math.sin(this.gameState.frame * 0.2) * 0.5 + 0.5})`;
+      context.textAlign = "center";
+      context.fillText("NIGHTMARE MODE", this.width / 2, 50);
       context.restore();
     }
   }
@@ -993,14 +1162,38 @@ export class Game {
 
   updateDifficulty() {
     const newLevel = Math.floor(this.gameState.score / 100) + 1;
-    if (
-      newLevel !== this.gameState.level &&
-      newLevel <= this.config.LEVELS.length
-    ) {
+    if (newLevel !== this.gameState.level) {
       this.gameState.level = newLevel;
-      const levelConfig = this.config.LEVELS[newLevel - 1];
-      this.gameState.speed = levelConfig.speed;
-      this.gameState.spawnRate = levelConfig.spawnRate;
+      
+      // Sistema de dificuldade: primeiros 20 níveis usam configuração fixa
+      if (newLevel <= this.config.LEVELS.length) {
+        const levelConfig = this.config.LEVELS[newLevel - 1];
+        this.gameState.speed = levelConfig.speed;
+        this.gameState.spawnRate = levelConfig.spawnRate;
+        this.gameState.multiSpawn = levelConfig.multiSpawn || 1;
+      } else {
+        // Dificuldade infinita após level 20
+        const infiniteConfig = this.config.INFINITE_DIFFICULTY;
+        const excessLevels = newLevel - this.config.LEVELS.length;
+        
+        this.gameState.speed = infiniteConfig.baseSpeed + (excessLevels * infiniteConfig.speedIncrement);
+        this.gameState.spawnRate = Math.max(20, infiniteConfig.baseSpawnRate - (excessLevels * infiniteConfig.spawnRateDecrement));
+        this.gameState.multiSpawn = Math.min(
+          infiniteConfig.maxMultiSpawn, 
+          Math.floor(4 + (excessLevels * infiniteConfig.multiSpawnIncrement))
+        );
+        
+        // Tornar o jogo ainda mais difícil em níveis extremos
+        if (newLevel > 50) {
+          this.gameState.speed += (newLevel - 50) * 0.2; // Aceleração extra
+          this.gameState.multiSpawn = Math.min(8, this.gameState.multiSpawn + 1);
+        }
+      }
+      
+      // Som de level up apenas se não estiver em níveis extremos (evitar spam)
+      if (newLevel <= 20 || newLevel % 5 === 0) {
+        this.playVoice("levelup");
+      }
     }
   }
 
@@ -1051,35 +1244,87 @@ export class Game {
         totalFrames: 8,
         framesPerRow: 8
       },
-      boss: {
-        frameWidth: 86,    // Ajustar conforme a imagem real
-        frameHeight: 58,
-        totalFrames: 9,    // boss_frame_0 até boss_frame_8 = 9 frames
-        framesPerRow: 9    // Assumindo linha horizontal
+      // Inimigos Básicos
+      meepo: {
+        frameWidth: 45,
+        frameHeight: 50,
+        totalFrames: 6,
+        framesPerRow: 6
       },
       ghost: {
         frameWidth: 54,
         frameHeight: 50,
-        totalFrames: 8,    // ghost_frame_0 até ghost_frame_7 = 8 frames
+        totalFrames: 8,
         framesPerRow: 8
-      },
-      meepo: {
-        frameWidth: 45,
-        frameHeight: 50,
-        totalFrames: 6,    // meepo_frame_0 até meepo_frame_5 = 6 frames
-        framesPerRow: 6
       },
       mad: {
         frameWidth: 32,
         frameHeight: 32,
-        totalFrames: 4,    // mad_frame_0 até mad_frame_3 = 4 frames
+        totalFrames: 4,
         framesPerRow: 4
       },
       spoon: {
         frameWidth: 44,
         frameHeight: 44,
-        totalFrames: 45,   // spoon_frame_0 até spoon_frame_44 = 45 frames
-        framesPerRow: 45   // Grid 15x3 (ou ajustar conforme o layout real)
+        totalFrames: 45,
+        framesPerRow: 45
+      },
+      // Inimigos Intermediários
+      boss: {
+        frameWidth: 86,
+        frameHeight: 65,
+        totalFrames: 9,
+        framesPerRow: 9
+      },
+      ghost02: {
+        frameWidth: 32,
+        frameHeight: 35,
+        totalFrames: 8,
+        framesPerRow: 8
+      },
+      glad: {
+        frameWidth: 32,
+        frameHeight: 32,
+        totalFrames: 4,
+        framesPerRow: 4
+      },
+      sad: {
+        frameWidth: 32,
+        frameHeight: 32,
+        totalFrames: 4,
+        framesPerRow: 4
+      },
+      // Inimigos Avançados
+      bat: {
+        frameWidth: 90,
+        frameHeight: 85,
+        totalFrames: 10,
+        framesPerRow: 10
+      },
+      bloodthirsty: {
+        frameWidth: 32,
+        frameHeight: 32,
+        totalFrames: 4,
+        framesPerRow: 4
+      },
+      necromancer: {
+        frameWidth: 54,
+        frameHeight: 64,
+        totalFrames: 8,
+        framesPerRow: 8
+      },
+      // Inimigos Extremos
+      broodmother: {
+        frameWidth: 140,
+        frameHeight: 72,
+        totalFrames: 20,
+        framesPerRow: 20
+      },
+      tb: {
+        frameWidth: 72,
+        frameHeight: 80,
+        totalFrames: 4,
+        framesPerRow: 4
       }
     };
   }
@@ -1106,9 +1351,18 @@ export class Game {
 
   async loadMobFrames() {
     const configs = this.getSpriteSheetConfigs();
-    const mobList = ["boss", "meepo", "ghost", "mad", "spoon"];
+    const allMobs = [
+      // Básicos
+      "meepo", "ghost", "mad", "spoon",
+      // Intermediários
+      "boss", "ghost02", "glad", "sad", 
+      // Avançados
+      "bat", "bloodthirsty", "necromancer",
+      // Extremos
+      "broodmother", "tb"
+    ];
     
-    for (const mob of mobList) {
+    for (const mob of allMobs) {
       this.mobFrames[mob] = [];
       try {
           this.mobFrames[mob] = await this.extractFramesFromSpriteSheet(
@@ -1166,9 +1420,6 @@ export class Game {
     for (let i = this.enemies.length - 1; i >= 0; i--) {
       const enemy = this.enemies[i];
       
-      // Update enemy position (removido porque será feito no enemy.update)
-      // enemy.x += enemy.speedX;
-      
       // Check if enemy passed player (dar pontos quando inimigo passa)
       if (enemy.x < this.player.x && !enemy.passed) {
         enemy.passed = true;
@@ -1179,16 +1430,38 @@ export class Game {
           this.gameState.multiplier = Math.min(5, 1 + Math.floor(this.gameState.combo / 5));
         }
         
-        this.gameState.score += 10 * this.gameState.multiplier;
+        // Sistema de pontuação escalonada - pontos diminuem em níveis muito altos
+        let basePoints = 10;
+        if (this.gameState.level > 20) {
+          // Reduzir pontos base em níveis extremos para tornar mais difícil
+          basePoints = Math.max(5, 10 - Math.floor((this.gameState.level - 20) / 5));
+        }
+        
+        // Bonificação por múltiplos inimigos, mas com diminishing returns
+        let enemyBonus = 1;
+        if (this.gameState.multiSpawn > 1) {
+          enemyBonus = 1 + (this.gameState.multiSpawn - 1) * 0.3; // 30% por inimigo extra
+        }
+        
+        const pointsEarned = Math.floor(basePoints * this.gameState.multiplier * enemyBonus);
+        this.gameState.score += pointsEarned;
         this.gameState.stats.enemiesDodged++;
         
         // Criar partículas
-        this.createScoreParticles(enemy.x + enemy.width / 2, enemy.y - this.player.height / 2);
+        this.createScoreParticles(enemy.x + enemy.width / 2, enemy.y - this.player.height / 2, pointsEarned);
         
         // Level up sound (apenas quando necessário)
         if (this.gameState.score % 100 === 0) {
           this.playVoice("levelup");
         }
+      }
+
+      // Update enemy
+      enemy.update(deltaTime);
+      
+      // Criar trails para inimigos específicos
+      if (enemy.type === 'bat' || enemy.type === 'ghost' || enemy.type === 'ghost02') {
+        this.createEnemyTrail(enemy);
       }
 
       // Remove enemies that are off-screen
@@ -1199,30 +1472,40 @@ export class Game {
 
       // Collision detection - apenas game over
       if (this.isColliding(this.player, enemy)) {
+        // Criar efeito de morte específico do inimigo
+        this.createEnemyDeathEffect(enemy);
+        
         this.enemies.splice(i, 1);
         this.gameState.stats.collisions++;
 
-        // Criar partículas de colisão
+        // Criar partículas de colisão adicionais
         const px = (this.player.x + this.player.width / 2 + enemy.x + enemy.width / 2) / 2;
         const py = (this.player.y + this.player.height / 2 + enemy.y + enemy.height / 2) / 2;
-        this.createCollisionParticles(px, py);
+        this.createCollisionParticles(px, py, 1.5);
         
         this.gameOver();
         return;
       }
-
-      // Update enemy
-      enemy.update(deltaTime);
     }
 
-    // Spawn enemies baseado em tempo
+    // Spawn enemies baseado em tempo - mais agressivo em níveis altos
     this.enemySpawnTimer += deltaTime;
-    if (this.enemySpawnTimer >= this.enemySpawnInterval) {
+    let currentSpawnInterval = this.enemySpawnInterval;
+    
+    // Reduzir intervalo de spawn dramaticamente em níveis altos
+    if (this.gameState.level > 10) {
+      currentSpawnInterval *= (1 - Math.min(0.7, (this.gameState.level - 10) * 0.05));
+    }
+    
+    if (this.enemySpawnTimer >= currentSpawnInterval) {
       this.addEnemy();
-      this.gameState.stats.enemiesSpawned++;
+      this.gameState.stats.enemiesSpawned += this.gameState.multiSpawn || 1;
       this.enemySpawnTimer = 0;
-      // Variação no intervalo para tornar mais interessante
-      this.enemySpawnInterval = 800 + Math.floor(Math.random() * 600); // 0.8s a 1.4s
+      
+      // Variação no intervalo baseada no nível - mais caótico em níveis altos
+      const baseVariation = this.gameState.level > 15 ? 200 : 600;
+      const variation = Math.max(100, baseVariation - (this.gameState.level * 20));
+      this.enemySpawnInterval = Math.max(300, 800 - (this.gameState.level * 30) + Math.floor(Math.random() * variation));
     }
 
     // Update subsystems
@@ -1272,13 +1555,80 @@ export class Game {
   }
 
   addEnemy() {
-    const minDistance = this.player.width * 2.5;
-    if (
-      this.enemies.length === 0 ||
-      this.enemies[this.enemies.length - 1].x < this.width - minDistance
-    ) {
-      const enemy = new EnemyAngler(this);
-      this.enemies.push(enemy);
+    // Distância mínima aumentada para níveis avançados
+    const baseMinDistance = this.player.width * 2.5;
+    const levelMultiplier = this.gameState.level > 10 ? 1.8 : 1.0;
+    const minDistance = baseMinDistance * levelMultiplier;
+    const spawnCount = this.gameState.multiSpawn || 1;
+    
+    // Verificar se há espaço para spawn com distância adequada
+    if (this.enemies.length === 0 || 
+        this.enemies[this.enemies.length - 1].x < this.width - minDistance) {
+      
+      // Sistema de spawn inteligente para evitar combinações impossíveis
+      let spawnedEnemies = [];
+      
+      // Ajustar espaçamento baseado no nível - níveis avançados precisam de mais espaço
+      const levelMultiplier = this.gameState.level > 10 ? 1.5 : 1.0;
+      const advancedLevelMultiplier = this.gameState.level > 15 ? 2.0 : levelMultiplier;
+      
+      for (let i = 0; i < spawnCount; i++) {
+        const enemy = new EnemyAngler(this);
+        
+        // Verificar se há conflito com inimigos já spawnados nesta onda
+        const hasGroundEnemy = spawnedEnemies.some(e => !e.isFlying);
+        const hasFlyingEnemy = spawnedEnemies.some(e => e.isFlying);
+        
+        // Se já há um inimigo terrestre e este é voador, aplicar distância segura
+        if (hasGroundEnemy && enemy.isFlying) {
+          enemy.x = this.width + (this.player.width * 6 * advancedLevelMultiplier); // Distância extra segura para níveis avançados
+        }
+        // Se já há um inimigo voador e este é terrestre, aplicar distância segura
+        else if (hasFlyingEnemy && !enemy.isFlying) {
+          enemy.x = this.width + (this.player.width * 6 * advancedLevelMultiplier); // Distância extra segura para níveis avançados
+        }
+        // Posicionamento normal para grupos homogêneos
+        else if (spawnCount > 1) {
+          // Calcular espaçamento seguro baseado no tamanho do player e nível
+          const baseJumpDistance = this.player.width * 1.8; // Espaço base para o player passar pulando
+          const safeJumpDistance = baseJumpDistance * advancedLevelMultiplier;
+          
+          if (enemy.isFlying) {
+            // Inimigos voadores: espaçamento horizontal ainda maior
+            const flyingSpacing = Math.max(safeJumpDistance * 1.8, this.player.width * 4);
+            enemy.x += i * flyingSpacing;
+            // Pequena variação na altura para parecer mais natural
+            const heightVariation = (Math.random() - 0.5) * 40;
+            enemy.y = Math.max(
+              this.config.GROUND_Y * 0.2, 
+              Math.min(this.config.GROUND_Y * 0.5, enemy.y + heightVariation)
+            );
+          } else {
+            // Inimigos terrestres: espaçamento horizontal adequado para pulos
+            const horizontalSpacing = Math.max(safeJumpDistance, this.player.width * 2.5);
+            enemy.x += i * horizontalSpacing;
+            
+            // Formação vertical mais espaçada também
+            const verticalOffset = (i - (spawnCount - 1) / 2) * (enemy.height + 30);
+            enemy.y = Math.max(0, 
+              Math.min(this.config.GROUND_Y - enemy.height, 
+                      enemy.y + verticalOffset)
+            );
+          }
+        }
+        
+        // Tornar inimigos mais rápidos em níveis altos
+        if (this.gameState.level > 10) {
+          enemy.speedX *= (1 + (this.gameState.level - 10) * 0.05);
+        }
+        
+        spawnedEnemies.push(enemy);
+      }
+      
+      // Adicionar todos os inimigos spawnados ao jogo
+      spawnedEnemies.forEach(enemy => {
+        this.enemies.push(enemy);
+      });
     }
   }
 
@@ -1299,8 +1649,14 @@ export class Game {
     const obsPadX = Math.max(8, rect2.width * 0.15);
     const obsPadY = Math.max(8, rect2.height * 0.15);
 
-    // Tolerância extra para evitar game over injusto
-    const tolerance = 8;
+    // Tolerância diminui em níveis altos para aumentar dificuldade
+    let tolerance = 8;
+    if (this.gameState.level > 10) {
+      tolerance = Math.max(2, 8 - (this.gameState.level - 10) * 0.5);
+    }
+    if (this.gameState.level > 20) {
+      tolerance = 1; // Hitbox quase perfeita em níveis extremos
+    }
 
     // Hitbox do pudge
     const pudgeLeft   = rect1.x + pudgePadX + tolerance;
@@ -1308,11 +1664,14 @@ export class Game {
     const pudgeTop    = rect1.y + pudgePadY + tolerance;
     const pudgeBottom = rect1.y + rect1.height - pudgePadY - tolerance;
 
-    // Hitbox do obstáculo
-    const obsLeft   = rect2.x + obsPadX;
-    const obsRight  = rect2.x + rect2.width - obsPadX;
-    const obsTop    = rect2.y + obsPadY;
-    const obsBottom = rect2.y + rect2.height - obsPadY;
+    // Hitbox do obstáculo - mais rigorosa em níveis altos
+    const obsToleranceX = this.gameState.level > 15 ? obsPadX * 0.5 : obsPadX;
+    const obsToleranceY = this.gameState.level > 15 ? obsPadY * 0.5 : obsPadY;
+    
+    const obsLeft   = rect2.x + obsToleranceX;
+    const obsRight  = rect2.x + rect2.width - obsToleranceX;
+    const obsTop    = rect2.y + obsToleranceY;
+    const obsBottom = rect2.y + rect2.height - obsToleranceY;
 
     // Colisão só ocorre se houver sobreposição real
     return (
@@ -1324,7 +1683,23 @@ export class Game {
   }
   updateUI() {
     if (this.elements.currentScore) this.elements.currentScore.textContent = this.gameState?.score ?? 0;
-    if (this.elements.currentLevel) this.elements.currentLevel.textContent = this.gameState?.level ?? 1;
+    
+    // Mostrar nível com nome se disponível
+    if (this.elements.currentLevel) {
+      const level = this.gameState?.level ?? 1;
+      let levelText = level.toString();
+      
+      if (level <= this.config.LEVELS.length) {
+        const levelConfig = this.config.LEVELS[level - 1];
+        levelText = `${level} (${levelConfig.name})`;
+      } else {
+        // Níveis infinitos
+        levelText = `${level} (∞)`;
+      }
+      
+      this.elements.currentLevel.textContent = levelText;
+    }
+    
     if (this.elements.bestScore) this.elements.bestScore.textContent = this.getBestScore();
     if (this.elements.playerNameCenter) {
       this.elements.playerNameCenter.textContent = this.playerNickname || localStorage.getItem("pudgeRunnerPlayerName") || "";

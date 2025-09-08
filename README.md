@@ -92,14 +92,61 @@ Open `index.html` directly in your browser for quick testing (some features may 
 
 ## 🎯 Difficulty Levels
 
-| Level | Name | Speed | Spawn Rate | Score Required |
-|-------|------|--------|------------|----------------|
-| 1 | Beginner | 5 | 120 frames | 0 |
-| 2 | Easy | 6 | 110 frames | 100 |
-| 3 | Normal | 7 | 100 frames | 200 |
-| 4 | Hard | 8 | 90 frames | 300 |
-| 5 | Expert | 9 | 80 frames | 400 |
-| 6 | Insane | 10 | 70 frames | 500+ |
+| Level | Name | Speed | Spawn Rate | Multi-Spawn | Score Required |
+|-------|------|--------|------------|-------------|----------------|
+| 1 | Iniciante | 5 | 140 frames | 1 | 0 |
+| 2 | Fácil | 6 | 130 frames | 1 | 100 |
+| 3 | Normal | 7 | 120 frames | 1 | 200 |
+| 4 | Difícil | 8 | 110 frames | 1 | 300 |
+| 5 | Expert | 9 | 100 frames | 1 | 400 |
+| 6 | Insano | 10 | 90 frames | 2 | 500 |
+| 7 | Extremo | 11 | 85 frames | 2 | 600 |
+| 8 | Lendário | 12 | 80 frames | 2 | 700 |
+| 9 | Mítico | 13 | 75 frames | 2 | 800 |
+| 10 | Divino | 14 | 70 frames | 3 | 900 |
+| 11 | Imortal | 15 | 65 frames | 3 | 1000 |
+| 12 | Ancestral | 16 | 60 frames | 3 | 1100 |
+| 13 | Transcendente | 17 | 55 frames | 3 | 1200 |
+| 14 | Apocalíptico | 18 | 50 frames | 4 | 1300 |
+| 15 | Cataclísmico | 19 | 45 frames | 4 | 1400 |
+| 16 | Impossível | 20 | 40 frames | 4 | 1500 |
+| 17+ | ∞ Infinito | 20+ | 40- frames | 4+ | 1600+ |
+
+### 🔥 New Extreme Difficulty Features
+
+**Multi-Enemy Spawns** - Starting from level 6, multiple enemies spawn simultaneously
+
+**15 Different Enemy Types** - Organized by difficulty tiers:
+
+- **Basic Enemies (Levels 1-5):** Meepo, Ghost, Mad, Spoon
+- **Intermediate Enemies (Levels 6-10):** Boss, Ghost02, Glad, Sad  
+- **Advanced Enemies (Levels 11-15):** Bat, Bloodthirsty, Necromancer
+- **Extreme Enemies (Levels 16+):** Broodmother, Terrorblade
+
+**Advanced Enemy Behaviors** - Each enemy type has unique characteristics:
+
+- **Flying Enemies** (Bat, Ghost variants): Vertical movement and trail effects
+- **Magical Enemies** (Necromancer): Death pulse abilities and dark auras
+- **Aggressive Enemies** (Bloodthirsty): Enhanced speed when near player
+- **Heavy Enemies** (Boss, Sad): Increased size and resistance
+- **Spawner Enemies** (Broodmother): Can create minions in extreme levels
+- **Demon Enemies** (Terrorblade): Metamorphosis and teleport abilities
+
+**Infinite Scaling** - After level 16, difficulty continues to increase indefinitely:
+
+- Speed increases by 0.5 per level
+- Spawn rate decreases (more frequent spawns)
+- Up to 6 enemies can spawn at once in extreme levels
+
+**Advanced Enemy Behaviors** - Higher level enemies have special abilities:
+
+- **Vertical Movement** (Nightmare Mode 10+): Ghosts and bosses move up and down
+- **Erratic Movement** (Hell Mode 15+): Mad and spoon enemies move unpredictably
+- **Increased Size & Speed** (All Advanced Enemies)
+
+**Stricter Collision Detection** - Hitboxes become more precise at higher levels
+
+**Reduced Score Scaling** - Points decrease in extreme levels to prevent infinite scoring
 
 ## 🏗️ Project Structure
 
@@ -185,6 +232,7 @@ pudge-runner/
 - 🔄 **3D Audio & Haptic** - Spatial audio and vibration feedback
 
 **Legend:**
+
 - ✅ **Complete** - Feature implemented and tested
 - 🔄 **Planned** - In development roadmap
 

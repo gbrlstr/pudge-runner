@@ -5,18 +5,45 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <div class="original">
             <h2>Sprite Sheet Original</h2>
-            <select id="spriteSelect" onchange="changeSpriteSheet()">
-                <option value="pudge">Pudge (Player)</option>
-                <option value="boss">Boss</option>
-                <option value="ghost">Ghost</option>
-                <option value="meepo">Meepo</option>
-                <option value="mad">Mad</option>
-                <option value="spoon">Spoon</option>
-            </select>
-            <br><br>
+            <div class="sprite-selector">
+                <select id="spriteSelect" onchange="changeSpriteSheet()">
+                    <optgroup label="🏃 Player">
+                        <option value="pudge">Pudge (Player)</option>
+                    </optgroup>
+                    <optgroup label="👾 Inimigos Básicos (Lv 1-5)">
+                        <option value="meepo">Meepo</option>
+                        <option value="ghost">Ghost</option>
+                        <option value="mad">Mad</option>
+                        <option value="spoon">Spoon</option>
+                    </optgroup>
+                    <optgroup label="⚔️ Inimigos Intermediários (Lv 6-10)">
+                        <option value="boss">Boss</option>
+                        <option value="ghost02">Ghost 02</option>
+                        <option value="glad">Glad (Pump Glad)</option>
+                        <option value="sad">Sad (Pump Sad)</option>
+                    </optgroup>
+                    <optgroup label="🔥 Inimigos Avançados (Lv 11-15)">
+                        <option value="bat">Bat</option>
+                        <option value="bloodthirsty">Bloodthirsty</option>
+                        <option value="necromancer">Necromancer</option>
+                    </optgroup>
+                    <optgroup label="💀 Inimigos Extremos (Lv 16+)">
+                        <option value="broodmother">Broodmother</option>
+                        <option value="tb">Terrorblade</option>
+                    </optgroup>
+                </select>
+                <div class="sprite-info" id="spriteInfo">
+                    <span class="level-badge" id="levelBadge">Player</span>
+                    <span class="behavior-badge" id="behaviorBadge">Normal</span>
+                </div>
+            </div>
+            <br>
             <img id="originalSprite" src="../assets/imgs/pudge.png" alt="Sprite Sheet" style="max-width: 100%;">
         </div>
-    <title>Teste Sprite Sheet - Pudge</title>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste Sprite Sheet - Pudge Runner</title>
     <style>
         body {
             margin: 0;
@@ -27,8 +54,50 @@
         }
         
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
+        }
+        
+        .sprite-selector {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        
+        .sprite-selector select {
+            padding: 10px 15px;
+            background: #333;
+            color: white;
+            border: 2px solid #4CAF50;
+            border-radius: 8px;
+            font-size: 16px;
+            min-width: 300px;
+        }
+        
+        .sprite-info {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .level-badge, .behavior-badge {
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        
+        .level-badge {
+            background: #2196F3;
+            color: white;
+        }
+        
+        .behavior-badge {
+            background: #ff9800;
+            color: white;
         }
         
         .original {
@@ -44,18 +113,26 @@
         }
         
         .frames {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
             justify-content: center;
             margin: 20px 0;
+            max-width: 100%;
         }
         
         .frame {
             border: 2px solid #2196F3;
-            background: #333;
-            padding: 10px;
+            background: linear-gradient(135deg, #333, #444);
+            padding: 15px;
             text-align: center;
+            border-radius: 10px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .frame:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(33, 150, 243, 0.3);
         }
         
         .frame img {
@@ -76,31 +153,77 @@
         }
         
         button {
-            padding: 10px 20px;
-            margin: 5px;
-            background: #4CAF50;
+            padding: 12px 25px;
+            margin: 8px;
+            background: linear-gradient(135deg, #4CAF50, #45a049);
             color: white;
             border: none;
-            border-radius: 5px;
+            border-radius: 8px;
             cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(76, 175, 80, 0.3);
         }
         
         button:hover {
-            background: #45a049;
+            background: linear-gradient(135deg, #45a049, #3d8b40);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(76, 175, 80, 0.4);
+        }
+        
+        button:active {
+            transform: translateY(0);
         }
         
         .config {
-            background: #333;
-            padding: 15px;
-            border-radius: 5px;
+            background: linear-gradient(135deg, #333, #444);
+            padding: 20px;
+            border-radius: 10px;
             margin: 20px 0;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+        
+        .config h3 {
+            margin-top: 0;
+            color: #4CAF50;
+            text-align: center;
+        }
+        
+        .config-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .config-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .config-item label {
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #ccc;
         }
         
         .config input {
-            width: 60px;
-            padding: 5px;
-            margin: 0 5px;
+            width: 80px;
+            padding: 8px;
+            margin: 0;
             text-align: center;
+            background: #555;
+            color: white;
+            border: 2px solid #666;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        
+        .config input:focus {
+            border-color: #4CAF50;
+            outline: none;
         }
         
         .status {
@@ -121,29 +244,87 @@
         .warning {
             background: #ff9800;
         }
+        
+        .footer-info {
+            text-align: center;
+            margin: 40px 0 20px 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #333, #444);
+            border-radius: 10px;
+            border-left: 4px solid #4CAF50;
+        }
+        
+        .footer-info h4 {
+            color: #4CAF50;
+            margin-bottom: 10px;
+        }
+        
+        .enemy-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .stat-item {
+            background: #555;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 24px;
+            font-weight: bold;
+            color: #4CAF50;
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            color: #ccc;
+            text-transform: uppercase;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>🎨 Teste de Extração de Sprite Sheet - Pudge</h1>
+        <h1>🎨 Teste de Extração de Sprite Sheet - Pudge Runner</h1>
+        <p style="text-align: center; color: #ccc; margin-bottom: 30px;">
+            Testador interativo para todas as sprite sheets do jogo. Agora com 15 inimigos organizados por nível de dificuldade!
+        </p>
         
         <div class="original">
             <h2>Sprite Sheet Original</h2>
-            <img id="originalSprite" src="../assets/imgs/meepo.png" alt="Pudge Sprite Sheet" style="max-width: 100%;">
+            <img id="originalSprite" src="../assets/imgs/pudge.png" alt="Pudge Sprite Sheet" style="max-width: 100%;">
         </div>
         
         <div class="config">
             <h3>⚙️ Configuração da Extração</h3>
-            <label>Largura do Frame: <input type="number" id="frameWidth" value="64" min="16" max="256"></label>
-            <label>Altura do Frame: <input type="number" id="frameHeight" value="64" min="16" max="256"></label>
-            <label>Total de Frames: <input type="number" id="totalFrames" value="8" min="1" max="32"></label>
-            <label>Frames por Linha: <input type="number" id="framesPerRow" value="8" min="1" max="16"></label>
+            <div class="config-grid">
+                <div class="config-item">
+                    <label>Largura do Frame:</label>
+                    <input type="number" id="frameWidth" value="64" min="16" max="256">
+                </div>
+                <div class="config-item">
+                    <label>Altura do Frame:</label>
+                    <input type="number" id="frameHeight" value="64" min="16" max="256">
+                </div>
+                <div class="config-item">
+                    <label>Total de Frames:</label>
+                    <input type="number" id="totalFrames" value="8" min="1" max="32">
+                </div>
+                <div class="config-item">
+                    <label>Frames por Linha:</label>
+                    <input type="number" id="framesPerRow" value="8" min="1" max="16">
+                </div>
+            </div>
         </div>
         
         <div class="controls">
             <button onclick="extractFrames()">🔄 Extrair Frames</button>
             <button onclick="testAnimation()">▶️ Testar Animação</button>
             <button onclick="resetConfig()">🔧 Resetar Config</button>
+            <button onclick="showSpriteDetails()">ℹ️ Detalhes do Sprite</button>
         </div>
         
         <div id="status" class="status"></div>
@@ -162,6 +343,29 @@
             </div>
             <div id="animInfo">Frame: 0 | FPS: 15</div>
         </div>
+        
+        <div class="footer-info">
+            <h4>📊 Estatísticas do Sistema de Inimigos</h4>
+            <p>Sistema completo com 15 tipos de inimigos organizados em 4 categorias de dificuldade</p>
+            <div class="enemy-stats">
+                <div class="stat-item">
+                    <div class="stat-number">15</div>
+                    <div class="stat-label">Total Inimigos</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">4</div>
+                    <div class="stat-label">Categorias</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">11</div>
+                    <div class="stat-label">Comportamentos</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">20+</div>
+                    <div class="stat-label">Níveis Suportados</div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -173,41 +377,136 @@
         
         // Configurações das sprite sheets (mesmo do Game.js)
         const spriteConfigs = {
+            // Player
             pudge: {
                 frameWidth: 66,
                 frameHeight: 48,
                 totalFrames: 8,
-                framesPerRow: 8
+                framesPerRow: 8,
+                category: "Player",
+                level: "Player",
+                behavior: "Controlled"
             },
-            boss: {
-                frameWidth: 64,
-                frameHeight: 64,
-                totalFrames: 9,
-                framesPerRow: 9
+            // Inimigos Básicos (Lv 1-5)
+            meepo: {
+                frameWidth: 45,
+                frameHeight: 50,
+                totalFrames: 6,
+                framesPerRow: 6,
+                category: "Básico",
+                level: "Lv 1-5",
+                behavior: "Normal"
             },
             ghost: {
-                frameWidth: 64,
-                frameHeight: 64,
+                frameWidth: 54,
+                frameHeight: 50,
                 totalFrames: 8,
-                framesPerRow: 8
-            },
-            meepo: {
-                frameWidth: 64,
-                frameHeight: 64,
-                totalFrames: 6,
-                framesPerRow: 6
+                framesPerRow: 8,
+                category: "Básico",
+                level: "Lv 1-5",
+                behavior: "Floating"
             },
             mad: {
-                frameWidth: 64,
-                frameHeight: 64,
+                frameWidth: 32,
+                frameHeight: 32,
                 totalFrames: 4,
-                framesPerRow: 4
+                framesPerRow: 4,
+                category: "Básico",
+                level: "Lv 1-5",
+                behavior: "Erratic"
             },
             spoon: {
                 frameWidth: 44,
                 frameHeight: 44,
                 totalFrames: 45,
-                framesPerRow: 45
+                framesPerRow: 45,
+                category: "Básico",
+                level: "Lv 1-5",
+                behavior: "Normal"
+            },
+            // Inimigos Intermediários (Lv 6-10)
+            boss: {
+                frameWidth: 86,
+                frameHeight: 58,
+                totalFrames: 9,
+                framesPerRow: 9,
+                category: "Intermediário",
+                level: "Lv 6-10",
+                behavior: "Heavy"
+            },
+            ghost02: {
+                frameWidth: 32,
+                frameHeight: 35,
+                totalFrames: 8,
+                framesPerRow: 8,
+                category: "Intermediário",
+                level: "Lv 6-10",
+                behavior: "Floating"
+            },
+            glad: {
+                frameWidth: 32,
+                frameHeight: 32,
+                totalFrames: 4,
+                framesPerRow: 4,
+                category: "Intermediário",
+                level: "Lv 6-10",
+                behavior: "Charging"
+            },
+            sad: {
+                frameWidth: 32,
+                frameHeight: 32,
+                totalFrames: 4,
+                framesPerRow: 4,
+                category: "Intermediário",
+                level: "Lv 6-10",
+                behavior: "Defensive"
+            },
+            // Inimigos Avançados (Lv 11-15)
+            bat: {
+                frameWidth: 90,
+                frameHeight: 85,
+                totalFrames: 10,
+                framesPerRow: 10,
+                category: "Avançado",
+                level: "Lv 11-15",
+                behavior: "Flying"
+            },
+            bloodthirsty: {
+                frameWidth: 32,
+                frameHeight: 32,
+                totalFrames: 4,
+                framesPerRow: 4,
+                category: "Avançado",
+                level: "Lv 11-15",
+                behavior: "Aggressive"
+            },
+            necromancer: {
+                frameWidth: 54,
+                frameHeight: 64,
+                totalFrames: 8,
+                framesPerRow: 8,
+                category: "Avançado",
+                level: "Lv 11-15",
+                behavior: "Magical"
+            },
+            // Inimigos Extremos (Lv 16+)
+            broodmother: {
+                frameWidth: 140,
+                frameHeight: 72,
+                totalFrames: 20,
+                framesPerRow: 20,
+                category: "Extremo",
+                level: "Lv 16+",
+                behavior: "Spawner"
+            },
+            tb: {
+                frameWidth: 32,
+                frameHeight: 32,
+                totalFrames: 4,
+                framesPerRow: 4,
+                category: "Extremo",
+                level: "Lv 16+",
+                behavior: "Demon"
             }
         };
         
@@ -228,7 +527,63 @@
                 document.getElementById('totalFrames').value = config.totalFrames;
                 document.getElementById('framesPerRow').value = config.framesPerRow;
                 
-                updateStatus(`Configuração carregada para ${selectedSprite}`, 'success');
+                // Atualizar badges informativos
+                document.getElementById('levelBadge').textContent = config.level;
+                document.getElementById('behaviorBadge').textContent = config.behavior;
+                
+                // Atualizar cores dos badges baseado na categoria
+                const levelBadge = document.getElementById('levelBadge');
+                const behaviorBadge = document.getElementById('behaviorBadge');
+                
+                switch(config.category) {
+                    case 'Player':
+                        levelBadge.style.background = '#9C27B0';
+                        break;
+                    case 'Básico':
+                        levelBadge.style.background = '#4CAF50';
+                        break;
+                    case 'Intermediário':
+                        levelBadge.style.background = '#2196F3';
+                        break;
+                    case 'Avançado':
+                        levelBadge.style.background = '#FF9800';
+                        break;
+                    case 'Extremo':
+                        levelBadge.style.background = '#F44336';
+                        break;
+                }
+                
+                // Cor do behavior badge baseado no comportamento
+                switch(config.behavior) {
+                    case 'Controlled':
+                        behaviorBadge.style.background = '#9C27B0';
+                        break;
+                    case 'Normal':
+                        behaviorBadge.style.background = '#4CAF50';
+                        break;
+                    case 'Floating':
+                    case 'Flying':
+                        behaviorBadge.style.background = '#2196F3';
+                        break;
+                    case 'Erratic':
+                    case 'Aggressive':
+                        behaviorBadge.style.background = '#FF5722';
+                        break;
+                    case 'Heavy':
+                    case 'Defensive':
+                        behaviorBadge.style.background = '#795548';
+                        break;
+                    case 'Charging':
+                        behaviorBadge.style.background = '#FF9800';
+                        break;
+                    case 'Magical':
+                    case 'Spawner':
+                    case 'Demon':
+                        behaviorBadge.style.background = '#9C27B0';
+                        break;
+                }
+                
+                updateStatus(`Configuração carregada para ${selectedSprite} (${config.category} - ${config.behavior})`, 'success');
             }
         }
         
@@ -295,14 +650,15 @@
                     // Adicionar ao array
                     extractedFrames.push(frameCanvas);
                     
-                    // Criar elemento visual
+                    // Criar elemento visual com informações melhoradas
                     const frameDiv = document.createElement('div');
                     frameDiv.className = 'frame';
                     frameDiv.innerHTML = `
-                        <img src="${frameCanvas.toDataURL()}" style="width: 64px; height: 64px;">
+                        <img src="${frameCanvas.toDataURL()}" style="width: 80px; height: 80px;">
                         <div class="frame-info">
-                            Frame ${i}<br>
-                            Pos: ${sourceX},${sourceY}
+                            <strong>Frame ${i}</strong><br>
+                            <small>Pos: ${sourceX},${sourceY}</small><br>
+                            <small>Size: ${config.frameWidth}x${config.frameHeight}</small>
                         </div>
                     `;
                     container.appendChild(frameDiv);
@@ -415,7 +771,34 @@
             }
         };
         
-        console.log('🎨 Teste de Sprite Sheet iniciado. Use os controles para testar a extração.');
+        // Função para mostrar informações detalhadas do sprite
+        function showSpriteDetails() {
+            const select = document.getElementById('spriteSelect');
+            const selectedSprite = select.value;
+            const config = spriteConfigs[selectedSprite];
+            
+            if (config) {
+                const details = `
+🎮 Sprite: ${selectedSprite}
+📂 Categoria: ${config.category}
+🎯 Nível: ${config.level}
+🤖 Comportamento: ${config.behavior}
+📏 Dimensões: ${config.frameWidth}x${config.frameHeight}px
+🎞️ Total de Frames: ${config.totalFrames}
+📐 Frames por Linha: ${config.framesPerRow}
+                `;
+                
+                alert(details);
+            }
+        }
+        
+        console.log('🎨 Teste de Sprite Sheet iniciado com 15 inimigos!');
+        console.log('📊 Categorias disponíveis:');
+        console.log('   👾 Básicos (4): meepo, ghost, mad, spoon');
+        console.log('   ⚔️ Intermediários (4): boss, ghost02, glad, sad');  
+        console.log('   🔥 Avançados (3): bat, bloodthirsty, necromancer');
+        console.log('   💀 Extremos (2): broodmother, tb');
+        console.log('Use os controles para testar a extração de qualquer sprite!');
     </script>
 </body>
 </html>
