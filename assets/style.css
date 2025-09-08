@@ -695,6 +695,52 @@ canvas:hover {
   letter-spacing: 1px;
 }
 
+/* Developer Mode Indicator */
+.developer-mode-indicator {
+  background: linear-gradient(135deg, rgba(255, 179, 0, 0.15), rgba(255, 107, 107, 0.15));
+  border: 2px solid #ffb300;
+  border-radius: 12px;
+  padding: 16px;
+  margin-top: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  animation: developerGlow 1.5s ease-in-out infinite;
+}
+
+.developer-icon {
+  font-size: 1.5rem;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.developer-text {
+  font-family: 'Orbitron', 'Arial', sans-serif;
+  font-weight: 600;
+  font-size: 1rem;
+  color: #ffb300;
+  text-shadow: 0 1px 3px rgba(255, 179, 0, 0.5);
+  letter-spacing: 0.5px;
+}
+
+@keyframes developerGlow {
+  0%, 100% {
+    box-shadow: 0 0 15px rgba(255, 179, 0, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 25px rgba(255, 179, 0, 0.5);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
 /* Animations */
 @keyframes scoreReveal {
   from {

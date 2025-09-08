@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Level Enemies - Pudge Runner</title>
+    <style>
+        body {
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            color: #fff;
+            font-family: 'Orbitron', monospace;
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .title {
+            font-size: 2.5em;
+            font-weight: 900;
+            color: #ff6b6b;
+            margin-bottom: 10px;
+            text-shadow: 0 0 20px rgba(255, 107, 107, 0.5);
+        }
+        
+        .subtitle {
+            font-size: 1.1em;
+            color: #ffb300;
+            margin-bottom: 20px;
+        }
+        
+        .level-section {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .level-title {
+            font-size: 1.5em;
+            font-weight: 700;
+            color: #ff6b6b;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .level-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .info-item {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 10px;
+            border-radius: 5px;
+            border-left: 3px solid #ffb300;
+        }
+        
+        .info-label {
+            font-size: 0.8em;
+            color: #ffb300;
+            font-weight: 600;
+        }
+        
+        .info-value {
+            font-size: 1.1em;
+            color: #fff;
+            font-weight: 400;
+        }
+        
+        .enemies-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .enemy-card {
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .enemy-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(255, 107, 107, 0.3);
+        }
+        
+        .enemy-name {
+            font-size: 0.9em;
+            font-weight: 600;
+            color: #ff6b6b;
+            margin-bottom: 5px;
+        }
+        
+        .enemy-behavior {
+            font-size: 0.8em;
+            color: #ffb300;
+            padding: 2px 6px;
+            background: rgba(255, 179, 0, 0.2);
+            border-radius: 10px;
+            display: inline-block;
+            margin-bottom: 8px;
+        }
+        
+        .enemy-stats {
+            font-size: 0.7em;
+            color: #ccc;
+            line-height: 1.3;
+        }
+        
+        .test-button {
+            background: linear-gradient(45deg, #ff6b6b, #ff8e53);
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-family: 'Orbitron', monospace;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+            margin: 5px;
+        }
+        
+        .test-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.4);
+        }
+        
+        .controls {
+            background: rgba(255, 179, 0, 0.1);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255, 179, 0, 0.3);
+            text-align: center;
+        }
+        
+        .controls-title {
+            font-size: 1.2em;
+            color: #ffb300;
+            margin-bottom: 10px;
+        }
+        
+        .key {
+            background: #333;
+            color: #ffb300;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+            margin: 0 2px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="title">🧪 LEVEL ENEMY TESTER</div>
+            <div class="subtitle">Test enemies from different difficulty levels</div>
+        </div>
+        
+        <div class="controls">
+            <div class="controls-title">🎮 Quick Test Controls</div>
+            <div>
+                <span class="key">1</span> Level 1-4 (Basic) |
+                <span class="key">2</span> Level 5-9 (Intermediate) |
+                <span class="key">3</span> Level 10-14 (Advanced) |
+                <span class="key">4</span> Level 15-19 (Master) |
+                <span class="key">5</span> Level 20+ (Legendary)
+            </div>
+            <div style="margin-top: 8px; font-size: 0.9em; color: #ccc;">
+                Or use the test buttons below to test specific levels in the main game
+            </div>
+        </div>
+        
+        <!-- BASIC ENEMIES (Levels 1-4) -->
+        <div class="level-section">
+            <div class="level-title">
+                🟢 BASIC ENEMIES (Levels 1-4)
+                <a href="index.html" class="test-button">Test in Game</a>
+            </div>
+            <div class="level-info">
+                <div class="info-item">
+                    <div class="info-label">Speed Range</div>
+                    <div class="info-value">1.5 - 3.0</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Spawn Rate</div>
+                    <div class="info-value">1500 - 800ms</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Multi Spawn</div>
+                    <div class="info-value">1 enemy</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Difficulty</div>
+                    <div class="info-value">Beginner friendly</div>
+                </div>
+            </div>
+            <div class="enemies-grid">
+                <div class="enemy-card">
+                    <div class="enemy-name">Meepo</div>
+                    <div class="enemy-behavior">normal</div>
+                    <div class="enemy-stats">Speed: 1.0x<br>Health: 1<br>Size: 1.0x</div>
+                </div>
+                <div class="enemy-card">
+                    <div class="enemy-name">Ghost</div>
+                    <div class="enemy-behavior">normal</div>
+                    <div class="enemy-stats">Speed: 1.1x<br>Health: 1<br>Size: 1.0x</div>
+                </div>
+                <div class="enemy-card">
+                    <div class="enemy-name">Mad</div>
+                    <div class="enemy-behavior">erratic</div>
+                    <div class="enemy-stats">Speed: 1.2x<br>Health: 1<br>Size: 1.1x</div>
+                </div>
+                <div class="enemy-card">
+                    <div class="enemy-name">Spoon</div>
+                    <div class="enemy-behavior">normal</div>
+                    <div class="enemy-stats">Speed: 1.0x<br>Health: 1<br>Size: 0.9x</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- INTERMEDIATE ENEMIES (Levels 5-9) -->
+        <div class="level-section">
+            <div class="level-title">
+                🟡 INTERMEDIATE ENEMIES (Levels 5-9)
+                <a href="index.html" class="test-button">Test in Game</a>
+            </div>
+            <div class="level-info">
+                <div class="info-item">
+                    <div class="info-label">Speed Range</div>
+                    <div class="info-value">3.5 - 5.5</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Spawn Rate</div>
+                    <div class="info-value">700 - 400ms</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Multi Spawn</div>
+                    <div class="info-value">1-2 enemies</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Difficulty</div>
+                    <div class="info-value">Moderate challenge</div>
+                </div>
+            </div>
+            <div class="enemies-grid">
+                <div class="enemy-card">
+                    <div class="enemy-name">Boss</div>
+                    <div class="enemy-behavior">heavy</div>
+                    <div class="enemy-stats">Speed: 0.8x<br>Health: 3<br>Size: 1.5x</div>
+                </div>
+                <div class="enemy-card">
+                    <div class="enemy-name">Ghost02</div>
+                    <div class="enemy-behavior">normal</div>
+                    <div class="enemy-stats">Speed: 1.2x<br>Health: 1<br>Size: 1.1x</div>
+                </div>
+                <div class="enemy-card">
+                    <div class="enemy-name">Glad</div>
+                    <div class="enemy-behavior">charging</div>
+                    <div class="enemy-stats">Speed: 1.3x<br>Health: 2<br>Size: 1.2x</div>
+                </div>
+                <div class="enemy-card">
+                    <div class="enemy-name">Sad</div>
+                    <div class="enemy-behavior">defensive</div>
+                    <div class="enemy-stats">Speed: 0.9x<br>Health: 2<br>Size: 1.0x</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- ADVANCED ENEMIES (Levels 10-14) -->
+        <div class="level-section">
+            <div class="level-title">
+                🟠 ADVANCED ENEMIES (Levels 10-14)
+                <a href="index.html" class="test-button">Test in Game</a>
+            </div>
+            <div class="level-info">
+                <div class="info-item">
+                    <div class="info-label">Speed Range</div>
+                    <div class="info-value">6.0 - 8.0</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Spawn Rate</div>
+                    <div class="info-value">350 - 200ms</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Multi Spawn</div>
+                    <div class="info-value">2-3 enemies</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Difficulty</div>
+                    <div class="info-value">High challenge</div>
+                </div>
+            </div>
+            <div class="enemies-grid">
+                <div class="enemy-card">
+                    <div class="enemy-name">Bat</div>
+                    <div class="enemy-behavior">flying</div>
+                    <div class="enemy-stats">Speed: 1.4x<br>Health: 1<br>Size: 0.8x<br>✈️ Flying</div>
+                </div>
+                <div class="enemy-card">
+                    <div class="enemy-name">Bloodthirsty</div>
+                    <div class="enemy-behavior">aggressive</div>
+                    <div class="enemy-stats">Speed: 1.5x<br>Health: 2<br>Size: 1.3x</div>
+                </div>
+                <div class="enemy-card">
+                    <div class="enemy-name">Necromancer</div>
+                    <div class="enemy-behavior">magical</div>
+                    <div class="enemy-stats">Speed: 1.1x<br>Health: 3<br>Size: 1.4x<br>🧙 Magic</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- MASTER ENEMIES (Levels 15-19) -->
+        <div class="level-section">
+            <div class="level-title">
+                🔴 MASTER ENEMIES (Levels 15-19)
+                <a href="index.html" class="test-button">Test in Game</a>
+            </div>
+            <div class="level-info">
+                <div class="info-item">
+                    <div class="info-label">Speed Range</div>
+                    <div class="info-value">8.5 - 10.5</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Spawn Rate</div>
+                    <div class="info-value">150 - 80ms</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Multi Spawn</div>
+                    <div class="info-value">3-4 enemies</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Difficulty</div>
+                    <div class="info-value">Expert level</div>
+                </div>
+            </div>
+            <div class="enemies-grid">
+                <div class="enemy-card">
+                    <div class="enemy-name">Demon</div>
+                    <div class="enemy-behavior">demon</div>
+                    <div class="enemy-stats">Speed: 1.6x<br>Health: 4<br>Size: 1.6x<br>👹 Demon</div>
+                </div>
+                <div class="enemy-card">
+                    <div class="enemy-name">Spider</div>
+                    <div class="enemy-behavior">spawner</div>
+                    <div class="enemy-stats">Speed: 1.2x<br>Health: 2<br>Size: 1.1x<br>🕷️ Spawner</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- LEGENDARY ENEMIES (Levels 20+) -->
+        <div class="level-section">
+            <div class="level-title">
+                🟣 LEGENDARY ENEMIES (Levels 20+)
+                <a href="index.html" class="test-button">Test in Game</a>
+            </div>
+            <div class="level-info">
+                <div class="info-item">
+                    <div class="info-label">Speed Range</div>
+                    <div class="info-value">11.0+ (Infinite scaling)</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Spawn Rate</div>
+                    <div class="info-value">20ms (Max speed)</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Multi Spawn</div>
+                    <div class="info-value">4-8 enemies</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Difficulty</div>
+                    <div class="info-value">Nightmare mode</div>
+                </div>
+            </div>
+            <div class="enemies-grid">
+                <div class="enemy-card">
+                    <div class="enemy-name">Phoenix</div>
+                    <div class="enemy-behavior">flying</div>
+                    <div class="enemy-stats">Speed: 1.8x<br>Health: 3<br>Size: 1.5x<br>🔥 Flying Fire</div>
+                </div>
+                <div class="enemy-card">
+                    <div class="enemy-name">Dragon</div>
+                    <div class="enemy-behavior">demon</div>
+                    <div class="enemy-stats">Speed: 1.7x<br>Health: 5<br>Size: 2.0x<br>🐉 Ultimate</div>
+                </div>
+                <div class="enemy-card">
+                    <div class="enemy-name">All Previous</div>
+                    <div class="enemy-behavior">mixed</div>
+                    <div class="enemy-stats">All enemies from<br>previous levels<br>appear randomly</div>
+                </div>
+            </div>
+        </div>
+        
+        <div style="text-align: center; margin-top: 30px; font-size: 0.9em; color: #ccc;">
+            <p>🎮 Use the number keys (1-9, 0) in the main game menu to start at specific levels</p>
+            <p>📊 This page shows enemy distribution and difficulty scaling across all levels</p>
+            <a href="index.html" class="test-button" style="font-size: 1.1em; margin-top: 10px;">
+                🚀 Back to Main Game
+            </a>
+        </div>
+    </div>
+    
+    <script>
+        // Add keyboard shortcuts for this page too
+        document.addEventListener('keydown', function(e) {
+            switch(e.key) {
+                case '1':
+                    alert('🟢 BASIC ENEMIES (Levels 1-4)\n\nEnemies: Meepo, Ghost, Mad, Spoon\nDifficulty: Beginner friendly\nSpeed: 1.5 - 3.0\n\nPress number keys in main game to test!');
+                    break;
+                case '2':
+                    alert('🟡 INTERMEDIATE ENEMIES (Levels 5-9)\n\nEnemies: Boss, Ghost02, Glad, Sad\nDifficulty: Moderate challenge\nSpeed: 3.5 - 5.5\n\nPress number keys in main game to test!');
+                    break;
+                case '3':
+                    alert('🟠 ADVANCED ENEMIES (Levels 10-14)\n\nEnemies: Bat (Flying), Bloodthirsty, Necromancer (Magic)\nDifficulty: High challenge\nSpeed: 6.0 - 8.0\n\nPress number keys in main game to test!');
+                    break;
+                case '4':
+                    alert('🔴 MASTER ENEMIES (Levels 15-19)\n\nEnemies: Demon, Spider (Spawner)\nDifficulty: Expert level\nSpeed: 8.5 - 10.5\n\nPress number keys in main game to test!');
+                    break;
+                case '5':
+                    alert('🟣 LEGENDARY ENEMIES (Levels 20+)\n\nEnemies: Phoenix (Flying), Dragon (Ultimate), All Previous\nDifficulty: Nightmare mode\nSpeed: 11.0+ (Infinite scaling)\n\nPress number keys in main game to test!');
+                    break;
+            }
+        });
+    </script>
+</body>
+</html>

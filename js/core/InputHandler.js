@@ -34,6 +34,63 @@ export class InputHandler {
             this.game.showMenuControls();
           }
           break;
+        // CONTROLES DE TESTE - apenas quando o jogo não está iniciado
+        case "Digit1":
+          if (!this.game.gameState.started) {
+            this.game.startGameAtLevel(1);
+          }
+          break;
+        case "Digit2":
+          if (!this.game.gameState.started) {
+            this.game.startGameAtLevel(5);
+          }
+          break;
+        case "Digit3":
+          if (!this.game.gameState.started) {
+            this.game.startGameAtLevel(10);
+          }
+          break;
+        case "Digit4":
+          if (!this.game.gameState.started) {
+            this.game.startGameAtLevel(15);
+          }
+          break;
+        case "Digit5":
+          if (!this.game.gameState.started) {
+            this.game.startGameAtLevel(20);
+          }
+          break;
+        case "Digit6":
+          if (!this.game.gameState.started) {
+            this.game.startGameAtLevel(25);
+          }
+          break;
+        case "Digit7":
+          if (!this.game.gameState.started) {
+            this.game.startGameAtLevel(30);
+          }
+          break;
+        case "Digit8":
+          if (!this.game.gameState.started) {
+            this.game.startGameAtLevel(40);
+          }
+          break;
+        case "Digit9":
+          if (!this.game.gameState.started) {
+            this.game.startGameAtLevel(50);
+          }
+          break;
+        case "Digit0":
+          if (!this.game.gameState.started) {
+            this.game.startGameAtLevel(100);
+          }
+          break;
+        // TECLA SECRETA PARA MOSTRAR/OCULTAR INDICADORES DESENVOLVEDOR
+        case "KeyD":
+          if (e.ctrlKey && e.shiftKey) { // Ctrl+Shift+D
+            this.game.toggleDeveloperModeDisplay();
+          }
+          break;
       }
     });
     window.addEventListener("keyup", (e) => {

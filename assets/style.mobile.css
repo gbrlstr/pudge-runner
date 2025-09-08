@@ -1075,6 +1075,22 @@ body {
   letter-spacing: 0.5px !important;
 }
 
+/* Developer Mode Indicator Mobile */
+.developer-mode-indicator {
+  padding: 10px !important;
+  gap: 6px !important;
+  margin-top: 15px !important;
+}
+
+.developer-icon {
+  font-size: 1.2rem !important;
+}
+
+.developer-text {
+  font-size: 0.85rem !important;
+  letter-spacing: 0.3px !important;
+}
+
 /* Touch Optimization */
 @media (hover: none) and (pointer: coarse) {
   .premium-btn:hover {

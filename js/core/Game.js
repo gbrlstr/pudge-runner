@@ -263,6 +263,8 @@ export class Game {
       combo: 0, // Combo/Multiplier
       multiplier: 1, // Combo/Multiplier
       startTime: 0, // Track when game actually started
+      isDeveloperMode: false, // Flag para modo desenvolvedor (não salva no Firebase)
+      showDeveloperIndicators: false, // Flag para mostrar indicadores visuais (Ctrl+Shift+D)
       stats: {
         jumps: 0,
         perfectDodges: 0,
@@ -431,6 +433,7 @@ export class Game {
     this.gameState.started = true;
     this.gameState.paused = false;
     this.gameState.gameOver = false;
+    this.gameState.isDeveloperMode = false; // Reset developer mode for normal games
     this.gameState.startTime = Date.now(); // Record when game actually started
     console.log("🎮 Game started at:", this.gameState.startTime, "Document hidden:", document.hidden);
     
@@ -443,6 +446,65 @@ export class Game {
     // Som de respawn via AssetManager
     this.playVoice("respawn");
     this.hideAllOverlays();
+  }
+
+  // MÉTODO DE TESTE - Inicia o jogo em um nível específico
+  startGameAtLevel(targetLevel) {
+    console.log("🧪 Starting game at level:", targetLevel);
+    
+    // Primeiro, inicializar o jogo normalmente
+    this.startGame();
+    
+    // Marcar como modo desenvolvedor
+    this.gameState.isDeveloperMode = true;
+    
+    // Ajustar o nível e score
+    this.gameState.level = targetLevel;
+    this.gameState.score = (targetLevel - 1) * 100; // Score baseado no nível
+    
+    // Atualizar dificuldade para o nível desejado
+    this.updateDifficultyForLevel(targetLevel);
+    
+    console.log(`🧪 Game started at level ${targetLevel} with score ${this.gameState.score} [DEVELOPER MODE]`);
+  }
+
+  updateDifficultyForLevel(level) {
+    // Sistema de dificuldade: primeiros 20 níveis usam configuração fixa
+    if (level <= this.config.LEVELS.length) {
+      const levelConfig = this.config.LEVELS[level - 1];
+      this.gameState.speed = levelConfig.speed;
+      this.gameState.spawnRate = levelConfig.spawnRate;
+      this.gameState.multiSpawn = levelConfig.multiSpawn || 1;
+    } else {
+      // Dificuldade infinita após level 20
+      const infiniteConfig = this.config.INFINITE_DIFFICULTY;
+      const excessLevels = level - this.config.LEVELS.length;
+      
+      this.gameState.speed = infiniteConfig.baseSpeed + (excessLevels * infiniteConfig.speedIncrement);
+      this.gameState.spawnRate = Math.max(20, infiniteConfig.baseSpawnRate - (excessLevels * infiniteConfig.spawnRateDecrement));
+      this.gameState.multiSpawn = Math.min(
+        infiniteConfig.maxMultiSpawn, 
+        Math.floor(4 + (excessLevels * infiniteConfig.multiSpawnIncrement))
+      );
+      
+      // Tornar o jogo ainda mais difícil em níveis extremos
+      if (level > 50) {
+        this.gameState.speed += (level - 50) * 0.2; // Aceleração extra
+        this.gameState.multiSpawn = Math.min(8, this.gameState.multiSpawn + 1);
+      }
+    }
+  }
+
+  // MÉTODO SECRETO - Toggle dos indicadores visuais de desenvolvedor
+  toggleDeveloperModeDisplay() {
+    this.gameState.showDeveloperIndicators = !this.gameState.showDeveloperIndicators;
+    const status = this.gameState.showDeveloperIndicators ? 'ATIVADOS' : 'DESATIVADOS';
+    console.log(`🧪 Indicadores de desenvolvedor ${status}`);
+    
+    // Se não estiver em modo desenvolvedor e ativou os indicadores, mostrar aviso
+    if (this.gameState.showDeveloperIndicators && !this.gameState.isDeveloperMode) {
+      console.log('ℹ️ Use as teclas 1-9/0 no menu principal para entrar em modo desenvolvedor');
+    }
   }
 
   restartGame() {
@@ -659,16 +721,20 @@ export class Game {
       this.updateFinalScoreDisplay();
     }
 
-    // Salva score global no Firebase
+    // Salva score global no Firebase (apenas se não for modo desenvolvedor)
+    if (!this.gameState.isDeveloperMode) {
       let playerName = this.playerNickname || localStorage.getItem("pudgeRunnerPlayerName");
-    if (!playerName) {
-      playerName = prompt("Digite seu nome para o ranking global:") || "Anônimo";
-      localStorage.setItem("pudgeRunnerPlayerName", playerName);
-    }
-    try {
-        await saveScore(this.playerNickname || playerName, this.gameState.score);
-    } catch (e) {
-      console.warn("Erro ao salvar score global:", e);
+      if (!playerName) {
+        playerName = prompt("Digite seu nome para o ranking global:") || "Anônimo";
+        localStorage.setItem("pudgeRunnerPlayerName", playerName);
+      }
+      try {
+          await saveScore(this.playerNickname || playerName, this.gameState.score);
+      } catch (e) {
+        console.warn("Erro ao salvar score global:", e);
+      }
+    } else {
+      console.log("🧪 DEVELOPER MODE: Score não salvo no Firebase");
     }
     
 
@@ -739,7 +805,7 @@ export class Game {
     const currentBest = parseInt(localStorage.getItem('pudgeRunnerBestScore') || '0');
     const scoreAchievement = document.getElementById('scoreAchievement');
     
-    if (this.gameState.score > currentBest && scoreAchievement) {
+    if (this.gameState.score > currentBest && scoreAchievement && !this.gameState.isDeveloperMode) {
       scoreAchievement.style.display = 'flex';
       // Animação especial para novo recorde
       setTimeout(() => {
@@ -747,6 +813,20 @@ export class Game {
       }, 500);
     } else if (scoreAchievement) {
       scoreAchievement.style.display = 'none';
+    }
+
+    // Show developer mode indicator - só se indicadores estiverem habilitados
+    const developerModeIndicator = document.getElementById('developerModeIndicator');
+    if (developerModeIndicator) {
+      if (this.gameState.isDeveloperMode && this.gameState.showDeveloperIndicators) {
+        developerModeIndicator.style.display = 'flex';
+        // Animação especial para modo desenvolvedor
+        setTimeout(() => {
+          developerModeIndicator.style.animation = 'developerGlow 1.5s ease-in-out infinite';
+        }, 300);
+      } else {
+        developerModeIndicator.style.display = 'none';
+      }
     }
   }
 
@@ -1552,6 +1632,35 @@ export class Game {
     }
     
     this.drawScreenEffects(context);
+    
+    // Indicador de modo desenvolvedor
+    this.drawDeveloperModeIndicator(context);
+  }
+
+  drawDeveloperModeIndicator(context) {
+    // Só mostrar se AMBAS as condições forem verdadeiras: está em modo dev E indicadores estão habilitados
+    if (this.gameState.isDeveloperMode && this.gameState.showDeveloperIndicators && this.gameState.started) {
+      context.save();
+      
+      // Fundo semi-transparente
+      context.fillStyle = 'rgba(255, 179, 0, 0.8)';
+      context.fillRect(10, 10, 200, 35);
+      
+      // Borda
+      context.strokeStyle = '#ff6b6b';
+      context.lineWidth = 2;
+      context.strokeRect(10, 10, 200, 35);
+      
+      // Texto
+      context.fillStyle = '#000';
+      context.font = 'bold 14px Arial';
+      context.textAlign = 'left';
+      context.fillText('🧪 DEVELOPER MODE', 15, 30);
+      context.font = '10px Arial';
+      context.fillText('Score will not be saved', 15, 42);
+      
+      context.restore();
+    }
   }
 
   addEnemy() {
