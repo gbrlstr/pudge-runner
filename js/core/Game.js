@@ -125,12 +125,12 @@ export class Game {
       ],
     };
     this.spriteUrls = {
-      pudge: "../assets/imgs/pudg.gif",
-      boss: "../assets/imgs/boss.gif",
-      meepo: "../assets/imgs/meepo.gif",
-      ghost: "../assets/imgs/ghost.gif",
-      mad: "../assets/imgs/mad.gif",
-      spoon: "../assets/imgs/spoon.gif",
+      pudge: "../assets/imgs/pudge.png",
+      boss: "../assets/imgs/boss.png",
+      meepo: "../assets/imgs/meepo.png",
+      ghost: "../assets/imgs/ghost.png",
+      mad: "../assets/imgs/mad.png",
+      spoon: "../assets/imgs/spoon.png",
     };
     this.sprites = {
       pudge: null,
@@ -1004,49 +1004,127 @@ export class Game {
     }
   }
 
-  async loadPlayerFrames() {
-    // pudge animation
-    const frameCount = 7;
-    for (let i = 0; i <= frameCount; i++) {
-      try {
-        const img = await this.loadImage(`../assets/imgs/pudge/pudge_frame_${i}.gif`);
-        this.playerFrames.push(img);
-      } catch (e) {
-        break;
-      }
+  // Método auxiliar para extrair frames de sprite sheet
+  async extractFramesFromSpriteSheet(spriteSheetPath, config) {
+    const spriteSheet = await this.loadImage(spriteSheetPath);
+    const frames = [];
+    
+    for (let i = 0; i < config.totalFrames; i++) {
+      const frameCanvas = document.createElement('canvas');
+      frameCanvas.width = config.frameWidth;
+      frameCanvas.height = config.frameHeight;
+      const frameCtx = frameCanvas.getContext('2d');
+      
+      // Calcular posição do frame na sprite sheet
+      const col = i % config.framesPerRow;
+      const row = Math.floor(i / config.framesPerRow);
+      const sourceX = col * config.frameWidth;
+      const sourceY = row * config.frameHeight;
+      
+      // Extrair o frame da sprite sheet
+      frameCtx.drawImage(
+        spriteSheet,
+        sourceX, sourceY, config.frameWidth, config.frameHeight,
+        0, 0, config.frameWidth, config.frameHeight
+      );
+      
+      // Converter canvas para imagem
+      const frameImage = new Image();
+      frameImage.src = frameCanvas.toDataURL();
+      
+      await new Promise((resolve) => {
+        frameImage.onload = resolve;
+      });
+      
+      frames.push(frameImage);
     }
-    // fallback
-    if (this.playerFrames.length === 0 && this.sprites.pudge) {
-      this.playerFrames.push(this.sprites.pudge);
+    
+    return frames;
+  }
+
+  // Configurações das sprite sheets para todos os sprites
+  getSpriteSheetConfigs() {
+    return {
+      pudge: {
+        frameWidth: 66,
+        frameHeight: 48,
+        totalFrames: 8,
+        framesPerRow: 8
+      },
+      boss: {
+        frameWidth: 86,    // Ajustar conforme a imagem real
+        frameHeight: 58,
+        totalFrames: 9,    // boss_frame_0 até boss_frame_8 = 9 frames
+        framesPerRow: 9    // Assumindo linha horizontal
+      },
+      ghost: {
+        frameWidth: 54,
+        frameHeight: 50,
+        totalFrames: 8,    // ghost_frame_0 até ghost_frame_7 = 8 frames
+        framesPerRow: 8
+      },
+      meepo: {
+        frameWidth: 45,
+        frameHeight: 50,
+        totalFrames: 6,    // meepo_frame_0 até meepo_frame_5 = 6 frames
+        framesPerRow: 6
+      },
+      mad: {
+        frameWidth: 32,
+        frameHeight: 32,
+        totalFrames: 4,    // mad_frame_0 até mad_frame_3 = 4 frames
+        framesPerRow: 4
+      },
+      spoon: {
+        frameWidth: 44,
+        frameHeight: 44,
+        totalFrames: 45,   // spoon_frame_0 até spoon_frame_44 = 45 frames
+        framesPerRow: 45   // Grid 15x3 (ou ajustar conforme o layout real)
+      }
+    };
+  }
+
+  async loadPlayerFrames() {
+    try {
+      const configs = this.getSpriteSheetConfigs();
+      
+      // Extrair frames da sprite sheet
+      this.playerFrames = await this.extractFramesFromSpriteSheet(
+        `../assets/imgs/pudge.png`, 
+        configs.pudge
+      );
+    } catch (error) {
+      console.warn('Erro ao carregar sprite sheet do pudge:', error);
+      
+      // Fallback: usar sprite padrão
+      if (this.sprites.pudge) {
+        this.playerFrames.push(this.sprites.pudge);
+        console.log('🔄 Usando sprite fallback do pudge');
+      }
     }
   }
 
   async loadMobFrames() {
+    const configs = this.getSpriteSheetConfigs();
     const mobList = ["boss", "meepo", "ghost", "mad", "spoon"];
-    // Defina o número de frames para cada mob
-    const mobFrameCounts = {
-      boss: 8,
-      meepo: 5,
-      ghost: 7,
-      mad: 3,
-      spoon: 43
-    };
+    
     for (const mob of mobList) {
       this.mobFrames[mob] = [];
-      const frameCount = mobFrameCounts[mob] !== undefined ? mobFrameCounts[mob] : 7;
-      for (let i = 0; i <= frameCount; i++) {
-        try {
-          const img = await this.loadImage(`../assets/imgs/${mob}/${mob}_frame_${i}.png`);
-          this.mobFrames[mob].push(img);
-        } catch (e) {
-          // Para de tentar se não encontrar o frame
-          break;
-        }
+      try {
+          this.mobFrames[mob] = await this.extractFramesFromSpriteSheet(
+            `../assets/imgs/${mob}.png`,
+            configs[mob]
+          );
+      } catch (error) {
+        console.warn(`Erro ao carregar sprite sheet do ${mob}:`, error);
       }
-      // fallback
+      
+      // Último fallback: usar sprite padrão
       if (this.mobFrames[mob].length === 0 && this.sprites[mob]) {
         this.mobFrames[mob].push(this.sprites[mob]);
+        console.log(`⚠️ Usando sprite único para ${mob}`);
       }
+      
       this.mobFrameIndex[mob] = 0;
       this.mobFrameDelay[mob] = 0;
     }

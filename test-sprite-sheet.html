@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <div class="original">
+            <h2>Sprite Sheet Original</h2>
+            <select id="spriteSelect" onchange="changeSpriteSheet()">
+                <option value="pudge">Pudge (Player)</option>
+                <option value="boss">Boss</option>
+                <option value="ghost">Ghost</option>
+                <option value="meepo">Meepo</option>
+                <option value="mad">Mad</option>
+                <option value="spoon">Spoon</option>
+            </select>
+            <br><br>
+            <img id="originalSprite" src="../assets/imgs/pudge.png" alt="Sprite Sheet" style="max-width: 100%;">
+        </div>
+    <title>Teste Sprite Sheet - Pudge</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background: #1a1a1a;
+            color: white;
+            font-family: Arial, sans-serif;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .original {
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        .original img {
+            border: 2px solid #4CAF50;
+            image-rendering: pixelated;
+            image-rendering: -moz-crisp-edges;
+            image-rendering: crisp-edges;
+        }
+        
+        .frames {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin: 20px 0;
+        }
+        
+        .frame {
+            border: 2px solid #2196F3;
+            background: #333;
+            padding: 10px;
+            text-align: center;
+        }
+        
+        .frame img {
+            image-rendering: pixelated;
+            image-rendering: -moz-crisp-edges;
+            image-rendering: crisp-edges;
+        }
+        
+        .frame-info {
+            margin-top: 5px;
+            font-size: 12px;
+            color: #ccc;
+        }
+        
+        .controls {
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        
+        button:hover {
+            background: #45a049;
+        }
+        
+        .config {
+            background: #333;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        
+        .config input {
+            width: 60px;
+            padding: 5px;
+            margin: 0 5px;
+            text-align: center;
+        }
+        
+        .status {
+            text-align: center;
+            margin: 20px 0;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        
+        .success {
+            background: #4CAF50;
+        }
+        
+        .error {
+            background: #f44336;
+        }
+        
+        .warning {
+            background: #ff9800;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎨 Teste de Extração de Sprite Sheet - Pudge</h1>
+        
+        <div class="original">
+            <h2>Sprite Sheet Original</h2>
+            <img id="originalSprite" src="../assets/imgs/meepo.png" alt="Pudge Sprite Sheet" style="max-width: 100%;">
+        </div>
+        
+        <div class="config">
+            <h3>⚙️ Configuração da Extração</h3>
+            <label>Largura do Frame: <input type="number" id="frameWidth" value="64" min="16" max="256"></label>
+            <label>Altura do Frame: <input type="number" id="frameHeight" value="64" min="16" max="256"></label>
+            <label>Total de Frames: <input type="number" id="totalFrames" value="8" min="1" max="32"></label>
+            <label>Frames por Linha: <input type="number" id="framesPerRow" value="8" min="1" max="16"></label>
+        </div>
+        
+        <div class="controls">
+            <button onclick="extractFrames()">🔄 Extrair Frames</button>
+            <button onclick="testAnimation()">▶️ Testar Animação</button>
+            <button onclick="resetConfig()">🔧 Resetar Config</button>
+        </div>
+        
+        <div id="status" class="status"></div>
+        
+        <div class="frames" id="framesContainer">
+            <!-- Frames extraídos aparecerão aqui -->
+        </div>
+        
+        <div class="original" id="animationTest" style="display: none;">
+            <h2>🎬 Teste de Animação</h2>
+            <canvas id="animationCanvas" width="128" height="128" style="border: 2px solid #ff9800; image-rendering: pixelated;"></canvas>
+            <div>
+                <button onclick="startAnimation()">▶️ Iniciar</button>
+                <button onclick="stopAnimation()">⏸️ Parar</button>
+                <button onclick="stepFrame()">⏭️ Próximo Frame</button>
+            </div>
+            <div id="animInfo">Frame: 0 | FPS: 15</div>
+        </div>
+    </div>
+
+    <script>
+        let extractedFrames = [];
+        let animationId = null;
+        let currentFrame = 0;
+        let lastTime = 0;
+        const frameRate = 15; // FPS da animação
+        
+        // Configurações das sprite sheets (mesmo do Game.js)
+        const spriteConfigs = {
+            pudge: {
+                frameWidth: 66,
+                frameHeight: 48,
+                totalFrames: 8,
+                framesPerRow: 8
+            },
+            boss: {
+                frameWidth: 64,
+                frameHeight: 64,
+                totalFrames: 9,
+                framesPerRow: 9
+            },
+            ghost: {
+                frameWidth: 64,
+                frameHeight: 64,
+                totalFrames: 8,
+                framesPerRow: 8
+            },
+            meepo: {
+                frameWidth: 64,
+                frameHeight: 64,
+                totalFrames: 6,
+                framesPerRow: 6
+            },
+            mad: {
+                frameWidth: 64,
+                frameHeight: 64,
+                totalFrames: 4,
+                framesPerRow: 4
+            },
+            spoon: {
+                frameWidth: 44,
+                frameHeight: 44,
+                totalFrames: 45,
+                framesPerRow: 45
+            }
+        };
+        
+        function changeSpriteSheet() {
+            const select = document.getElementById('spriteSelect');
+            const selectedSprite = select.value;
+            const img = document.getElementById('originalSprite');
+            
+            // Atualizar imagem
+            img.src = `../assets/imgs/${selectedSprite}.png`;
+            img.alt = `${selectedSprite} Sprite Sheet`;
+            
+            // Atualizar configuração automaticamente
+            const config = spriteConfigs[selectedSprite];
+            if (config) {
+                document.getElementById('frameWidth').value = config.frameWidth;
+                document.getElementById('frameHeight').value = config.frameHeight;
+                document.getElementById('totalFrames').value = config.totalFrames;
+                document.getElementById('framesPerRow').value = config.framesPerRow;
+                
+                updateStatus(`Configuração carregada para ${selectedSprite}`, 'success');
+            }
+        }
+        
+        function updateStatus(message, type = 'success') {
+            const status = document.getElementById('status');
+            status.textContent = message;
+            status.className = `status ${type}`;
+        }
+        
+        function resetConfig() {
+            const select = document.getElementById('spriteSelect');
+            const selectedSprite = select.value;
+            const config = spriteConfigs[selectedSprite];
+            
+            if (config) {
+                document.getElementById('frameWidth').value = config.frameWidth;
+                document.getElementById('frameHeight').value = config.frameHeight;
+                document.getElementById('totalFrames').value = config.totalFrames;
+                document.getElementById('framesPerRow').value = config.framesPerRow;
+                updateStatus(`Configuração resetada para ${selectedSprite}`, 'warning');
+            }
+        }
+        
+        async function extractFrames() {
+            try {
+                updateStatus('Extraindo frames...', 'warning');
+                
+                // Obter configuração
+                const config = {
+                    frameWidth: parseInt(document.getElementById('frameWidth').value),
+                    frameHeight: parseInt(document.getElementById('frameHeight').value),
+                    totalFrames: parseInt(document.getElementById('totalFrames').value),
+                    framesPerRow: parseInt(document.getElementById('framesPerRow').value)
+                };
+                
+                // Carregar sprite sheet
+                const spriteSheet = document.getElementById('originalSprite');
+                
+                // Limpar frames anteriores
+                extractedFrames = [];
+                const container = document.getElementById('framesContainer');
+                container.innerHTML = '';
+                
+                // Extrair cada frame
+                for (let i = 0; i < config.totalFrames; i++) {
+                    const frameCanvas = document.createElement('canvas');
+                    frameCanvas.width = config.frameWidth;
+                    frameCanvas.height = config.frameHeight;
+                    const frameCtx = frameCanvas.getContext('2d');
+                    
+                    // Calcular posição do frame na sprite sheet
+                    const col = i % config.framesPerRow;
+                    const row = Math.floor(i / config.framesPerRow);
+                    const sourceX = col * config.frameWidth;
+                    const sourceY = row * config.frameHeight;
+                    
+                    // Extrair o frame
+                    frameCtx.drawImage(
+                        spriteSheet,
+                        sourceX, sourceY, config.frameWidth, config.frameHeight,
+                        0, 0, config.frameWidth, config.frameHeight
+                    );
+                    
+                    // Adicionar ao array
+                    extractedFrames.push(frameCanvas);
+                    
+                    // Criar elemento visual
+                    const frameDiv = document.createElement('div');
+                    frameDiv.className = 'frame';
+                    frameDiv.innerHTML = `
+                        <img src="${frameCanvas.toDataURL()}" style="width: 64px; height: 64px;">
+                        <div class="frame-info">
+                            Frame ${i}<br>
+                            Pos: ${sourceX},${sourceY}
+                        </div>
+                    `;
+                    container.appendChild(frameDiv);
+                }
+                
+                updateStatus(`✅ ${extractedFrames.length} frames extraídos com sucesso!`, 'success');
+                
+            } catch (error) {
+                updateStatus(`❌ Erro ao extrair frames: ${error.message}`, 'error');
+                console.error('Erro:', error);
+            }
+        }
+        
+        function testAnimation() {
+            if (extractedFrames.length === 0) {
+                updateStatus('❌ Extraia os frames primeiro!', 'error');
+                return;
+            }
+            
+            document.getElementById('animationTest').style.display = 'block';
+            updateStatus('🎬 Modo de teste de animação ativado', 'success');
+        }
+        
+        function startAnimation() {
+            if (animationId) stopAnimation();
+            
+            const canvas = document.getElementById('animationCanvas');
+            const ctx = canvas.getContext('2d');
+            
+            function animate(timestamp) {
+                if (timestamp - lastTime >= 1000 / frameRate) {
+                    // Limpar canvas
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    
+                    // Desenhar frame atual
+                    if (extractedFrames[currentFrame]) {
+                        const scale = 2; // Escala para visualização
+                        ctx.imageSmoothingEnabled = false;
+                        ctx.drawImage(
+                            extractedFrames[currentFrame],
+                            0, 0, 64, 64,
+                            0, 0, 128, 128
+                        );
+                    }
+                    
+                    // Próximo frame
+                    currentFrame = (currentFrame + 1) % extractedFrames.length;
+                    
+                    // Atualizar info
+                    document.getElementById('animInfo').textContent = 
+                        `Frame: ${currentFrame} | FPS: ${frameRate} | Total: ${extractedFrames.length}`;
+                    
+                    lastTime = timestamp;
+                }
+                
+                animationId = requestAnimationFrame(animate);
+            }
+            
+            animate(0);
+        }
+        
+        function stopAnimation() {
+            if (animationId) {
+                cancelAnimationFrame(animationId);
+                animationId = null;
+            }
+        }
+        
+        function stepFrame() {
+            if (extractedFrames.length === 0) return;
+            
+            const canvas = document.getElementById('animationCanvas');
+            const ctx = canvas.getContext('2d');
+            
+            // Limpar canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Desenhar frame atual
+            if (extractedFrames[currentFrame]) {
+                ctx.imageSmoothingEnabled = false;
+                ctx.drawImage(
+                    extractedFrames[currentFrame],
+                    0, 0, 64, 64,
+                    0, 0, 128, 128
+                );
+            }
+            
+            // Próximo frame
+            currentFrame = (currentFrame + 1) % extractedFrames.length;
+            
+            // Atualizar info
+            document.getElementById('animInfo').textContent = 
+                `Frame: ${currentFrame} | Manual | Total: ${extractedFrames.length}`;
+        }
+        
+        // Carregar e extrair automaticamente ao carregar a página
+        window.onload = function() {
+            // Configurar sprite inicial
+            changeSpriteSheet();
+            
+            document.getElementById('originalSprite').onload = function() {
+                const select = document.getElementById('spriteSelect');
+                updateStatus(`Sprite sheet ${select.value} carregada. Clique em "Extrair Frames" para começar.`, 'warning');
+            };
+            
+            // Se a imagem já estiver carregada
+            if (document.getElementById('originalSprite').complete) {
+                const select = document.getElementById('spriteSelect');
+                updateStatus(`Sprite sheet ${select.value} carregada. Clique em "Extrair Frames" para começar.`, 'warning');
+            }
+        };
+        
+        console.log('🎨 Teste de Sprite Sheet iniciado. Use os controles para testar a extração.');
+    </script>
+</body>
+</html>
