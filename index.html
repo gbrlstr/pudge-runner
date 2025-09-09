@@ -8,7 +8,7 @@
   <meta name="description" content="An endless runner game based on Pudge from DOTA 2. Dodge obstacles and achieve the highest score!">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="./assets/style.css" />
   <style>
     canvas {
@@ -34,32 +34,63 @@
 
     <!-- UI Panels -->
     <div class="ui-panel score-panel">
-      <div class="player-name-center" id="playerNameCenter"></div>
+      <div class="player-name-center" id="playerNameCenter">MONO</div>
+      
+      <!-- Main Stats Display -->
       <div class="stats-display">
-        <div class="stat-item">
-          <div class="stat-label">SCORE</div>
-          <div class="stat-value" id="currentScore">0</div>
+        <div class="stat-item primary-stat" style="--index: 0">
+          <div class="stat-icon">🏆</div>
+          <div class="stat-content">
+            <div class="stat-label">SCORE</div>
+            <div class="stat-value" id="currentScore">0</div>
+          </div>
         </div>
-        <div class="stat-item">
-          <div class="stat-label">BEST</div>
-          <div class="stat-value" id="bestScore">0</div>
+        <div class="stat-item" style="--index: 1">
+          <div class="stat-icon">⭐</div>
+          <div class="stat-content">
+            <div class="stat-label">BEST</div>
+            <div class="stat-value" id="bestScore">0</div>
+          </div>
         </div>
-        <div class="stat-item">
-          <div class="stat-label">LEVEL</div>
-          <div class="stat-value" id="currentLevel">1</div>
+        <div class="stat-item" style="--index: 2">
+          <div class="stat-icon">🎯</div>
+          <div class="stat-content">
+            <div class="stat-label">LEVEL</div>
+            <div class="stat-value" id="currentLevel">1</div>
+            <div class="stat-sublabel" id="currentLevelText">Iniciante</div>
+          </div>
         </div>
       </div>
-      <!-- Estatísticas Detalhadas e Combo/Multiplier -->
-      <div class="stats-detalhadas" id="statsDetails">
-        <div class="stats-row">
-          <span style="color:#ff5e7b;">Combo:</span> <b id="comboValue">0</b>
-          <span style="margin-left:8px;color:#ffb300;">Multiplier:</span> <b id="multiplierValue">x1</b>
-          <span style="margin-left:8px;color:#ff5e7b;">Time:</span> <b id="playTimeValue">0.0s</b>
+      
+      <!-- Game Statistics Grid -->
+      <div class="game-stats-grid" id="statsDetails">
+        <div class="stat-group">
+          <div class="stat-mini">
+            <span class="stat-mini-label">Combo</span>
+            <span class="stat-mini-value" id="comboValue">0</span>
+          </div>
+          <div class="stat-mini">
+            <span class="stat-mini-label">Multiplier</span>
+            <span class="stat-mini-value multiplier" id="multiplierValue">x1</span>
+          </div>
+          <div class="stat-mini">
+            <span class="stat-mini-label">Time</span>
+            <span class="stat-mini-value" id="playTimeValue">1.5s</span>
+          </div>
         </div>
-        <div class="stats-row">
-          <span style="color:#ff5e7b;">Jumps:</span> <b id="jumpsValue">0</b>
-          <span style="margin-left:8px;color:#ff5e7b;">Dodges:</span> <b id="dodgesValue">0</b>
-          <span style="margin-left:8px;color:#ff5e7b;">Collisions:</span> <b id="collisionsValue">0</b>
+        <div class="stat-group">
+          <div class="stat-mini">
+            <span class="stat-mini-label">Jumps</span>
+            <span class="stat-mini-value" id="jumpsValue">0</span>
+          </div>
+          <div class="stat-mini">
+            <span class="stat-mini-label">Dodges</span>
+            <span class="stat-mini-value" id="dodgesValue">0</span>
+          </div>
+          <div class="stat-mini">
+            <span class="stat-mini-label">Collisions</span>
+            <span class="stat-mini-value danger" id="collisionsValue">0</span>
+          </div>
         </div>
       </div>
     </div>
@@ -81,6 +112,10 @@
     <!-- Game Controls -->
     <div id="controlsPanel" class="ui-panel controls-panel">
       <div class="controls-list">
+        <div class="control-item">
+          <span class="key">WASD</span>
+          <span class="action">Move</span>
+        </div>
         <div class="control-item">
           <span class="key">SPACE</span>
           <span class="action">Jump</span>

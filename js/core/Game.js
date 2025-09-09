@@ -68,6 +68,7 @@ export class Game {
       currentScore: document.getElementById("currentScore"),
       bestScore: document.getElementById("bestScore"),
       currentLevel: document.getElementById("currentLevel"),
+      currentLevelText: document.getElementById("currentLevelText"),
       finalScore: document.getElementById("finalScore"),
       controlsPanel: document.getElementById("controlsPanel"),
       nicknameOverlay: document.getElementById('nicknameOverlay'),
@@ -1633,13 +1634,14 @@ export class Game {
       
       if (level <= this.config.LEVELS.length) {
         const levelConfig = this.config.LEVELS[level - 1];
-        levelText = `${level} (${levelConfig.name})`;
+        levelText = `(${levelConfig.name})`;
       } else {
         // Níveis infinitos
-        levelText = `${level} (∞)`;
+        levelText = `(∞)`;
       }
       
-      this.elements.currentLevel.textContent = levelText;
+      this.elements.currentLevel.textContent = level.toString();
+      this.elements.currentLevelText.textContent = levelText;
     }
     
     if (this.elements.bestScore) this.elements.bestScore.textContent = this.getBestScore();
