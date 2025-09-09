@@ -14,8 +14,25 @@ export async function saveScore(name, score) {
 }
 
 export async function getTopScores(top = 10) {
-  const q = query(rankCollection, orderBy("score", "desc"), limit(top));
+  const q = query(rankCollection, orderBy("score", "desc"), limit(100)); // Busca 100 registros
   const snapshot = await getDocs(q);
-  const topScores = snapshot.docs.map(doc => doc.data());
-  return topScores;
+  const allScores = snapshot.docs.map(doc => doc.data());
+  
+  // Filtrar para manter apenas a melhor pontuação de cada nome
+  const uniqueScores = [];
+  const seenNames = new Set();
+  
+  for (const score of allScores) {
+    const normalizedName = score.name.toLowerCase().trim();
+    if (!seenNames.has(normalizedName)) {
+      seenNames.add(normalizedName);
+      uniqueScores.push(score);
+      
+      if (uniqueScores.length >= top) {
+        break;
+      }
+    }
+  }
+  
+  return uniqueScores;
 }
