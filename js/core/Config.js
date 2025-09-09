@@ -1,5 +1,6 @@
 // Configurações e constantes do jogo - Web Only
 export const CONFIG = {
+  GAME_VERSION: "4.1.0",
   BASE_WIDTH: 1500,
   BASE_HEIGHT: 500,
   PLAYER_BASE_SIZE: 130,

@@ -1,6 +1,6 @@
 {
   "name": "pudge-runner",
-  "version": "4.0.0",
+  "version": "4.1.0",
   "description": "An endless runner game inspired by Pudge character from DOTA 2. Dodge obstacles and achieve the highest score possible!",
   "main": "index.html",
   "keywords": [

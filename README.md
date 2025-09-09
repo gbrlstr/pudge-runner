@@ -1,6 +1,6 @@
-# 🎮 Pudge Runner - Enhanced Edition
+# 🎮 Pudge Runner - Extreme Difficulty Edition
 
-[![Version](https://img.shields.io/badge/Version-4.0-blue)](https://github.com/gbrlstr/pudge-runner)
+[![Version](https://img.shields.io/badge/Version-4.1-blue)](https://github.com/gbrlstr/pudge-runner)
 [![HTML5](https://img.shields.io/badge/HTML5-Canvas-orange)](https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API)
 [![Web Game](https://img.shields.io/badge/Platform-Web-green)](https://pudge-runner.vercel.app)
 [![License](https://img.shields.io/badge/License-MIT-yellow)](LICENSE)
