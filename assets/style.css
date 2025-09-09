@@ -1185,8 +1185,8 @@ canvas::before {
   .sound-toggle {
     width: 44px;
     height: 44px;
-    top: var(--spacing-md);
-    right: -120px;
+    top: var(--spacing-lg);
+    right: var(--spacing-md);
   }
   
   .score-panel {
@@ -1274,8 +1274,8 @@ canvas::before {
   .sound-toggle {
     width: 44px;
     height: 44px;
-    top: 14px;
-    right: 0px;
+    top: var(--spacing-lg);
+    right: var(--spacing-md);
   }
   
   .ui-panel {
@@ -1328,8 +1328,8 @@ canvas::before {
   .sound-toggle {
     width: 36px;
     height: 36px;
-    top: 10px;
-    right: 0px;
+    top: var(--spacing-md);
+    right: var(--spacing-md);
   }
   
   .ui-panel {
@@ -1446,8 +1446,8 @@ canvas::before {
   .sound-toggle {
     width: 32px;
     height: 32px;
-    top: 8px;
-    right: 0px;
+    top: 6px;
+    right: 6px;
   }
   
   .ui-panel {
@@ -1780,8 +1780,8 @@ canvas::before {
   .sound-toggle {
     width: 32px;
     height: 32px;
-    top: 5px;
-    right: 0px;
+    top: 4px;
+    right: 4px;
   }
 }
 
@@ -1899,7 +1899,7 @@ canvas::before {
 .sound-toggle {
   position: absolute;
   top: var(--spacing-lg);
-  right: -140px;
+  right: var(--spacing-lg);
   background: var(--gradient-button);
   color: white;
   border: none;
