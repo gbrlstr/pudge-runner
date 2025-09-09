@@ -139,9 +139,9 @@ export class Enemy {
     // Aplicar comportamentos específicos baseados no tipo
     this.setupSpecificBehavior();
     
-    // Modificadores baseados no nível de dificuldade
+    // Modificadores baseados no nível de dificuldade - mais suaves
     if (this.isAdvanced) {
-      this.speedX *= 1.1;
+      this.speedX *= 1.05; // Reduzido de 1.1 para 1.05
       if (["boss", "broodmother", "tb"].includes(this.type)) {
         this.width *= 1.1;
         this.height *= 1.1;
@@ -149,21 +149,21 @@ export class Enemy {
     }
     
     if (this.isNightmare) {
-      this.speedX *= 1.3;
+      this.speedX *= 1.15; // Reduzido de 1.3 para 1.15
       
       // Movimento vertical APENAS para inimigos voadores específicos
       if (["ghost", "ghost02"].includes(this.type) && this.behavior !== "flying") {
         this.verticalMovement = true;
-        this.verticalSpeed = (Math.random() - 0.5) * 3;
-        this.verticalRange = 60;
+        this.verticalSpeed = (Math.random() - 0.5) * 2; // Reduzido de 3 para 2
+        this.verticalRange = 40; // Reduzido de 60 para 40
         this.initialY = this.y;
       }
     }
     
     if (this.isHell) {
-      this.speedX *= 1.5;
-      this.width *= 1.1;
-      this.height *= 1.1;
+      this.speedX *= 1.25; // Reduzido de 1.5 para 1.25
+      this.width *= 1.05; // Reduzido de 1.1 para 1.05
+      this.height *= 1.05;
       
       // Movimento errático para tipos específicos
       if (["mad", "bloodthirsty", "tb"].includes(this.type)) {
@@ -198,7 +198,7 @@ export class Enemy {
         break;
         
       case "charging":
-        this.chargeSpeed = 1.5;
+        this.chargeSpeed = 1.3; // Reduzido de 1.5 para 1.3
         this.isCharging = false;
         break;
         
@@ -214,7 +214,7 @@ export class Enemy {
         
       case "aggressive":
         this.attackRange = 100;
-        this.speedX *= 1.2;
+        this.speedX *= 1.1; // Reduzido de 1.2 para 1.1
         break;
         
       case "magical":
@@ -260,13 +260,13 @@ export class Enemy {
     // Movimento errático para inimigos hell
     if (this.erraticMovement) {
       this.erraticTimer += deltaTime;
-      if (this.erraticTimer > 200) {
-        this.speedX = -this.game.gameState.speed * (0.8 + Math.random() * 0.6);
+      if (this.erraticTimer > 300) { // Aumentado de 200 para 300ms
+        this.speedX = -this.game.gameState.speed * (0.9 + Math.random() * 0.4); // Range menor: 0.9-1.3 em vez de 0.8-1.4
         this.erraticTimer = 0;
         
-        // Pulos ocasionais para tipos específicos
-        if (["mad", "bloodthirsty"].includes(this.type) && Math.random() < 0.3) {
-          this.y -= 20;
+        // Pulos ocasionais para tipos específicos - menos frequentes
+        if (["mad", "bloodthirsty"].includes(this.type) && Math.random() < 0.2) { // Reduzido de 0.3 para 0.2
+          this.y -= 15; // Reduzido de 20 para 15
         }
       }
     }
@@ -322,7 +322,7 @@ export class Enemy {
       case "erratic":
         this.changeDirectionTimer += 16.6; // deltaTime em ms
         if (this.changeDirectionTimer >= this.directionChangeInterval) {
-          this.speedX = -this.game.gameState.speed * (0.7 + Math.random() * 0.8);
+          this.speedX = -this.game.gameState.speed * (0.8 + Math.random() * 0.5); // Range menor: 0.8-1.3 em vez de 0.7-1.5
           this.changeDirectionTimer = 0;
         }
         break;
@@ -340,7 +340,7 @@ export class Enemy {
         
       case "aggressive":
         if (Math.abs(this.x - this.game.player.x) < this.attackRange) {
-          this.speedX *= 1.3; // Acelera quando próximo do player
+          this.speedX *= 1.2; // Reduzido de 1.3 para 1.2
         }
         break;
     }

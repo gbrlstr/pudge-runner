@@ -1,6 +1,4 @@
 
-import { isMobile } from './Utils.js';
-
 export class InputHandler {
   constructor(game) {
     this.game = game;
@@ -99,54 +97,9 @@ export class InputHandler {
       }
     });
 
-    window.addEventListener("touchstart", (e) => {
-      const target = e.target;
-      if (target.closest('button') || 
-          target.closest('input') || 
-          target.closest('.menu-overlay') ||
-          target.closest('.sound-toggle') ||
-          target.closest('.mobile-panel-toggle') ||
-          target.closest('.score-panel') ||
-          target.closest('.stats-details') ||
-          target.closest('.controls-panel') ||
-          target.closest('#globalRankingContainer')) {
-        return;
-      }
-      e.preventDefault();
-      if (isMobile()) {
-        // Single touch to jump - improved for mobile
-        if (!this.game.gameState.gameOver && !this.game.gameState.paused) {
-          this.game.player.jump();
-        }
-      }
-    });
 
-    // Better mobile gesture support - sem auto restart
-    window.addEventListener("touchend", (e) => {
-      // Enhanced UI element detection to prevent accidental game actions
-      const target = e.target;
-      if (target.closest('button') || 
-          target.closest('input') || 
-          target.closest('.menu-overlay') ||
-          target.closest('.sound-toggle') ||
-          target.closest('.mobile-panel-toggle') ||
-          target.closest('.score-panel') ||
-          target.closest('.stats-details') ||
-          target.closest('.controls-panel') ||
-          target.closest('#globalRankingContainer')) {
-        return; 
-      }
-      
-      e.preventDefault();
-      
-    }, { passive: false });
 
-    // Prevent default touch behaviors that might interfere
-    window.addEventListener("touchmove", (e) => {
-      e.preventDefault();
-    }, { passive: false });
-
-        // Enhanced visibilitychange for mobile - more selective pausing
+        // Enhanced visibilitychange - selective pausing
     window.addEventListener("visibilitychange", (e) => {
       // Debug logging
       console.log("🔄 Visibility change:", {
@@ -176,26 +129,14 @@ export class InputHandler {
       }
     });
 
-    // Start and Restart button event listeners - melhorados para mobile
+    // Start and Restart button event listeners
     this.game.elements.startButton.addEventListener("click", (e) => {
       e.preventDefault();
       e.stopPropagation();
       this.game.startGame();
     });
     
-    this.game.elements.startButton.addEventListener("touchend", (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      this.game.startGame();
-    });
-    
     this.game.elements.restartButton.addEventListener("click", (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      this.game.restartGame();
-    });
-    
-    this.game.elements.restartButton.addEventListener("touchend", (e) => {
       e.preventDefault();
       e.stopPropagation();
       this.game.restartGame();

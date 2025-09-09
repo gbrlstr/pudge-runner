@@ -5,7 +5,6 @@ import { EnemyAngler } from './EnemyAngler.js';
 import { UI } from './UI.js';
 import { InputHandler } from './InputHandler.js';
 import { Particle } from './Particle.js';
-import { isMobile, getMobileScaleFactor } from './Utils.js';
 import { CONFIG } from './Config.js';
 import { AssetManager } from './AssetManager.js';
 import { saveScore, getTopScores } from "../firebase-rank.js";
@@ -41,16 +40,15 @@ export class Game {
     this.startLoadingSequence();
     this.initializeAudioState();
     this.playerFrames = [];
-    this.mobFrames = { 
-      // Básicos
-      meepo: [], ghost: [], mad: [], spoon: [],
-      // Intermediários  
-      boss: [], ghost02: [], glad: [], sad: [],
-      // Avançados
-      bat: [], bloodthirsty: [], necromancer: [],
-      // Extremos
-      broodmother: [], tb: []
-    };
+    
+    // Inicializar mobFrames dinamicamente baseado no CONFIG
+    this.mobFrames = {};
+    Object.keys(CONFIG.SPRITE_URLS).forEach(key => {
+      if (key !== 'pudge') { // Exclude player sprite
+        this.mobFrames[key] = [];
+      }
+    });
+    
     this.playerFrameIndex = 0;
     this.playerFrameDelay = 0;
     this.mobFrameIndex = {};
@@ -111,116 +109,28 @@ export class Game {
   }
 
   initializeConfig() {
-    // Mobile responsive config adjustments
-    // (Ajustar para usar importações depois)
-    const mobileScale = typeof getMobileScaleFactor === 'function' ? getMobileScaleFactor() : 1;
-    const isMobileDevice = typeof isMobile === 'function' ? isMobile() : false;
-    const groundOffset = isMobileDevice ? 40 * mobileScale : 50;
-    const jumpPower = isMobileDevice ? -14 * mobileScale : -16;
-    const baseSpeed = isMobileDevice ? 4 * mobileScale : 5;
+    // Usar configurações do arquivo Config.js
     this.config = {
-      GROUND_Y: this.height - groundOffset,
-      JUMP_POWER: jumpPower,
-      BASE_SPEED: baseSpeed,
-      OBSTACLE_SPAWN_RATE: isMobileDevice ? 140 : 120,
-      PARTICLE_COUNT: isMobileDevice ? 50 : 100,
-      LEVELS: [
-        { speed: baseSpeed, spawnRate: 140, name: "Iniciante", multiSpawn: 1 },
-        { speed: baseSpeed * 1.2, spawnRate: 130, name: "Fácil", multiSpawn: 1 },
-        { speed: baseSpeed * 1.4, spawnRate: 120, name: "Normal", multiSpawn: 1 },
-        { speed: baseSpeed * 1.6, spawnRate: 110, name: "Difícil", multiSpawn: 1 },
-        { speed: baseSpeed * 1.8, spawnRate: 100, name: "Expert", multiSpawn: 1 },
-        { speed: baseSpeed * 2, spawnRate: 90, name: "Insano", multiSpawn: 2 },
-        { speed: baseSpeed * 2.2, spawnRate: 85, name: "Extremo", multiSpawn: 2 },
-        { speed: baseSpeed * 2.4, spawnRate: 80, name: "Lendário", multiSpawn: 2 },
-        { speed: baseSpeed * 2.6, spawnRate: 75, name: "Mítico", multiSpawn: 2 },
-        { speed: baseSpeed * 2.8, spawnRate: 70, name: "Divino", multiSpawn: 3 },
-        { speed: baseSpeed * 3, spawnRate: 65, name: "Imortal", multiSpawn: 3 },
-        { speed: baseSpeed * 3.2, spawnRate: 60, name: "Ancestral", multiSpawn: 3 },
-        { speed: baseSpeed * 3.4, spawnRate: 55, name: "Transcendente", multiSpawn: 3 },
-        { speed: baseSpeed * 3.6, spawnRate: 50, name: "Apocalíptico", multiSpawn: 4 },
-        { speed: baseSpeed * 3.8, spawnRate: 45, name: "Cataclísmico", multiSpawn: 4 },
-        { speed: baseSpeed * 4, spawnRate: 40, name: "Impossível", multiSpawn: 4 }
-      ],
-      // Sistema de dificuldade infinita após level 20
-      INFINITE_DIFFICULTY: {
-        baseSpeed: baseSpeed * 4,
-        baseSpawnRate: 40,
-        speedIncrement: baseSpeed * 0.1,
-        spawnRateDecrement: 1,
-        multiSpawnIncrement: 0.2,
-        maxMultiSpawn: 6
-      },
+      GROUND_Y: this.height - CONFIG.GROUND_OFFSET,
+      JUMP_POWER: CONFIG.JUMP_POWER,
+      BASE_SPEED: CONFIG.BASE_SPEED,
+      OBSTACLE_SPAWN_RATE: CONFIG.OBSTACLE_SPAWN_RATE,
+      PARTICLE_COUNT: CONFIG.PARTICLE_COUNT,
+      LEVELS: CONFIG.LEVELS,
+      INFINITE_DIFFICULTY: CONFIG.INFINITE_DIFFICULTY,
     };
-    this.spriteUrls = {
-      pudge: "../assets/imgs/pudge.png",
-      // Inimigos Básicos (Níveis 1-5)
-      meepo: "../assets/imgs/meepo.png",
-      ghost: "../assets/imgs/ghost.png",
-      mad: "../assets/imgs/mad.png",
-      spoon: "../assets/imgs/spoon.png",
-      // Inimigos Intermediários (Níveis 6-10)
-      boss: "../assets/imgs/boss.png",
-      ghost02: "../assets/imgs/ghost02.png",
-      glad: "../assets/imgs/glad.png",
-      sad: "../assets/imgs/sad.png",
-      // Inimigos Avançados (Níveis 11-15)
-      bat: "../assets/imgs/bat.png",
-      bloodthirsty: "../assets/imgs/bloodthirsty.png",
-      necromancer: "../assets/imgs/necromancer.png",
-      // Inimigos Extremos (Níveis 16+)
-      broodmother: "../assets/imgs/broodmother.png",
-      tb: "../assets/imgs/tb.png"
-    };
-    this.sprites = {
-      pudge: null,
-      // Básicos
-      meepo: null,
-      ghost: null,
-      mad: null,
-      spoon: null,
-      // Intermediários
-      boss: null,
-      ghost02: null,
-      glad: null,
-      sad: null,
-      // Avançados
-      bat: null,
-      bloodthirsty: null,
-      necromancer: null,
-      // Extremos
-      broodmother: null,
-      tb: null
-    };
-    this.voiceLines = {
-      respawn: [
-        "../assets/sounds/pudge_respawn_01.mpeg",
-        "../assets/sounds/pudge_respawn_02.mpeg",
-        "../assets/sounds/pudge_respawn_03.mpeg",
-        "../assets/sounds/pudge_respawn_04.mpeg",
-        "../assets/sounds/pudge_respawn_05.mpeg",
-        "../assets/sounds/pudge_respawn_06.mpeg",
-        "../assets/sounds/pudge_respawn_07.mpeg"
-      ],
-      jump: [
-        "../assets/sounds/kill.ogg"
-      ],
-      levelup: [
-        "../assets/sounds/pudge_levelup_01.mpeg",
-        "../assets/sounds/pudge_levelup_02.mpeg",
-        "../assets/sounds/pudge_levelup_03.mpeg",
-        "../assets/sounds/pudge_levelup_04.mpeg",
-        "../assets/sounds/pudge_levelup_05.mpeg"
-      ],
-      lose: [
-        "../assets/sounds/pudge_lose_01.mpeg",
-        "../assets/sounds/pudge_lose_02.mpeg",
-        "../assets/sounds/pudge_lose_03.mpeg",
-        "../assets/sounds/pudge_lose_04.mpeg",
-        "../assets/sounds/pudge_lose_05.mpeg",
-        "../assets/sounds/pudge_lose_06.mpeg"
-      ]
-    };
+    
+    // Usar URLs de sprites do Config.js
+    this.spriteUrls = CONFIG.SPRITE_URLS;
+    
+    // Inicializar sprites como null
+    this.sprites = {};
+    Object.keys(CONFIG.SPRITE_URLS).forEach(key => {
+      this.sprites[key] = null;
+    });
+    
+    // Usar voice lines do Config.js
+    this.voiceLines = CONFIG.VOICE_LINES;
   }
   // Add method to update dimensions when canvas is resized
   updateDimensions(width, height) {
@@ -282,15 +192,7 @@ export class Game {
     this.initializeParallaxLayers();
   }
   initializeParallaxLayers() {
-    // Mobile responsive parallax optimization
-    const isMobileDevice = isMobile();
-
-    const layerConfigs = isMobileDevice ? [
-      { src: "../assets/imgs/background/plx-2.png", speed: 0.15 },
-      { src: "../assets/imgs/background/plx-3.png", speed: 0.35 },
-      { src: "../assets/imgs/background/plx-4.png", speed: 0.6 },
-      { src: "../assets/imgs/background/plx-5.png", speed: 0.9 },
-    ] : [
+    const layerConfigs = [
       { src: "../assets/imgs/background/plx-2.png", speed: 0.2 },
       { src: "../assets/imgs/background/plx-3.png", speed: 0.4 },
       { src: "../assets/imgs/background/plx-4.png", speed: 0.7 },
@@ -310,25 +212,6 @@ export class Game {
       this.lazyLoadImage(layer.src).then(img => { 
         layer.img = img;
         layer.loaded = true;
-        
-        // Otimizar apenas imagens muito grandes no mobile
-        if (isMobileDevice && img.width > 1200) {
-          // Criar uma versão redimensionada para mobile
-          const canvas = document.createElement('canvas');
-          const ctx = canvas.getContext('2d');
-          const scaleFactor = 0.8; // Menos agressivo
-          canvas.width = img.width * scaleFactor;
-          canvas.height = img.height * scaleFactor;
-          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-          
-          // Substituir a imagem original pela versão otimizada
-          const optimizedImg = new Image();
-          optimizedImg.onload = () => { 
-            layer.img = optimizedImg;
-            layer.loaded = true;
-          };
-          optimizedImg.src = canvas.toDataURL('image/jpeg', 0.85); // Melhor qualidade
-        }
       }).catch(error => {
         console.warn(`Erro ao carregar parallax layer ${index}:`, error);
         // Manter a layer mas marcar como não carregada
@@ -348,21 +231,17 @@ export class Game {
     }
 
   initializeBackground() {
-    // Mobile responsive background adjustments
-    const mobileScale = getMobileScaleFactor();
-    const isMobileDevice = isMobile();
-    
-    // Reduce background elements on mobile for better performance
-    const starCount = isMobileDevice ? 16 : 32;
-    const planetCount = isMobileDevice ? 4 : 7;
-    const nebulaCount = isMobileDevice ? 3 : 6;
+    // Background elements count
+    const starCount = 32;
+    const planetCount = 7;
+    const nebulaCount = 6;
     
     // Estrelas pequenas
     for (let i = 0; i < starCount; i++) {
         this.backgroundElements.push({
             x: Math.random() * this.width * 2,
-            y: Math.random() * (this.config.GROUND_Y - (isMobileDevice ? 80 : 120)),
-            size: (Math.random() * 1.2 + 0.3) * mobileScale,
+            y: Math.random() * (this.config.GROUND_Y - 120),
+            size: Math.random() * 1.2 + 0.3,
             speed: Math.random() * 0.3 + 0.08,
             opacity: Math.random() * 0.5 + 0.3,
             type: 'star'
@@ -372,8 +251,8 @@ export class Game {
     for (let i = 0; i < planetCount; i++) {
         this.backgroundElements.push({
             x: Math.random() * this.width * 2,
-            y: Math.random() * (this.config.GROUND_Y - (isMobileDevice ? 120 : 180)) + (isMobileDevice ? 30 : 40),
-            size: (Math.random() * 1.5 + 2.2) * mobileScale,
+            y: Math.random() * (this.config.GROUND_Y - 180) + 40,
+            size: Math.random() * 1.5 + 2.2,
             speed: Math.random() * 0.18 + 0.08,
             opacity: Math.random() * 0.3 + 0.2,
             type: 'planet'
@@ -383,8 +262,8 @@ export class Game {
     for (let i = 0; i < nebulaCount; i++) {
         this.backgroundElements.push({
             x: Math.random() * this.width * 2,
-            y: Math.random() * (this.config.GROUND_Y - (isMobileDevice ? 140 : 200)) + (isMobileDevice ? 40 : 60),
-            size: (Math.random() * 2.5 + 2.5) * mobileScale,
+            y: Math.random() * (this.config.GROUND_Y - 200) + 60,
+            size: Math.random() * 2.5 + 2.5,
             speed: Math.random() * 0.12 + 0.05,
             opacity: Math.random() * 0.25 + 0.15,
             type: 'nebula'
@@ -393,26 +272,20 @@ export class Game {
   }
 
   initializePools() {
-    this.spritePool = {
-      pudge: { instances: [], maxInstances: 5, currentIndex: 0 },
-      // Básicos
-      meepo: { instances: [], maxInstances: 3, currentIndex: 0 },
-      ghost: { instances: [], maxInstances: 3, currentIndex: 0 },
-      mad: { instances: [], maxInstances: 3, currentIndex: 0 },
-      spoon: { instances: [], maxInstances: 3, currentIndex: 0 },
-      // Intermediários
-      boss: { instances: [], maxInstances: 3, currentIndex: 0 },
-      ghost02: { instances: [], maxInstances: 3, currentIndex: 0 },
-      glad: { instances: [], maxInstances: 3, currentIndex: 0 },
-      sad: { instances: [], maxInstances: 3, currentIndex: 0 },
-      // Avançados
-      bat: { instances: [], maxInstances: 4, currentIndex: 0 },
-      bloodthirsty: { instances: [], maxInstances: 3, currentIndex: 0 },
-      necromancer: { instances: [], maxInstances: 2, currentIndex: 0 },
-      // Extremos
-      broodmother: { instances: [], maxInstances: 2, currentIndex: 0 },
-      tb: { instances: [], maxInstances: 2, currentIndex: 0 }
-    };
+    // Inicializar spritePool dinamicamente baseado no CONFIG
+    this.spritePool = {};
+    Object.keys(CONFIG.SPRITE_URLS).forEach(key => {
+      const maxInstances = key === 'pudge' ? 5 : 
+                          ['broodmother', 'tb', 'necromancer'].includes(key) ? 2 :
+                          key === 'bat' ? 4 : 3;
+      
+      this.spritePool[key] = { 
+        instances: [], 
+        maxInstances: maxInstances, 
+        currentIndex: 0 
+      };
+    });
+    
     this.canvasPool = { available: [], active: [], maxSize: 15 }; // Aumentado para mais inimigos
     this.preCreateCanvasPool();
   }
@@ -906,7 +779,7 @@ export class Game {
 
   createJumpParticles(x, y) {
     // Cria burst de partículas de pulo
-    const count = isMobile() ? 3 : 5;
+    const count = 5;
     if (typeof Particle === 'function') {
       const burstParticles = Particle.createBurst(x, y, 'jump', count);
       this.particles.push(...burstParticles);
@@ -1022,20 +895,12 @@ export class Game {
   }
 
   drawBackground(context) {
-    // Parallax layers - optimized for mobile
-    const isMobileDevice = isMobile();
+    // Parallax layers - desktop optimized
     
     this.parallaxLayers.forEach((layer, index) => {
       if (layer.img && layer.loaded && layer.img.complete && layer.img.naturalWidth > 0) {
         let imgW = layer.img.width;
         let imgH = layer.img.height;
-        
-        // Scale images for mobile if needed
-        if (isMobileDevice) {
-          const mobileScale = getMobileScaleFactor();
-          imgW *= Math.max(mobileScale, 0.7); // Mínimo 0.7 para manter visibilidade
-          imgH *= Math.max(mobileScale, 0.7);
-        }
         
         let y = 0;
         if (imgH < this.height) {
@@ -1047,7 +912,7 @@ export class Game {
         if (x1 > 0) x1 -= imgW; // Garantir cobertura completa
         
         for (let x = x1; x < this.width + imgW; x += imgW) {
-          const posY = !isMobileDevice ? y - 90 : y;
+          const posY = y - 90;
           context.drawImage(layer.img, x, posY, imgW, imgH);
         }
       }
@@ -1055,13 +920,10 @@ export class Game {
   }
 
   drawBackgroundElements(context) {
-    // Background image (fallback) - optimized for mobile
-    const isMobileDevice = isMobile();
-    const mobileScale = getMobileScaleFactor();
+    // Background image (fallback) - desktop optimized
     
-    // Reduce gradient complexity on mobile for performance
     const gradient = context.createLinearGradient(0, 0, 0, this.height);
-    const time = this.gameState.frame * (isMobileDevice ? 0.005 : 0.01); // Slower animation on mobile
+    const time = this.gameState.frame * 0.01;
     gradient.addColorStop(0, `hsl(${220 + Math.sin(time) * 10}, 30%, 15%)`);
     gradient.addColorStop(0.5, `hsl(${210 + Math.cos(time) * 10}, 25%, 10%)`);
     gradient.addColorStop(
@@ -1070,18 +932,13 @@ export class Game {
     );
     context.fillStyle = gradient;
     context.fillRect(0, 0, this.width, this.height);
-
-    // Skip every other background element on very small screens for performance
-    const skipElements = isMobileDevice && window.innerWidth < 400;
     
     this.backgroundElements.forEach((element, index) => {
-      if (skipElements && index % 2 === 0) return; // Skip every other element on small screens
-      
       context.save();
-      context.globalAlpha = element.opacity * (isMobileDevice ? 0.8 : 1); // Slightly more transparent on mobile
+      context.globalAlpha = element.opacity;
 
-      // Estrela (pequena) - scaled for mobile
-      if (element.size < 2 * mobileScale) {
+      // Estrela (pequena)
+      if (element.size < 2) {
         context.beginPath();
         context.arc(element.x, element.y, element.size, 0, Math.PI * 2);
         context.fillStyle = `rgba(255,255,255,${element.opacity})`;
@@ -1376,7 +1233,7 @@ export class Game {
       },
       // Inimigos Avançados
       bat: {
-        frameWidth: 90,
+        frameWidth: 96,
         frameHeight: 85,
         totalFrames: 10,
         framesPerRow: 10
@@ -1401,8 +1258,8 @@ export class Game {
         framesPerRow: 20
       },
       tb: {
-        frameWidth: 72,
-        frameHeight: 80,
+        frameWidth: 32,
+        frameHeight: 32,
         totalFrames: 4,
         framesPerRow: 4
       }
@@ -1413,9 +1270,9 @@ export class Game {
     try {
       const configs = this.getSpriteSheetConfigs();
       
-      // Extrair frames da sprite sheet
+      // Extrair frames da sprite sheet usando CONFIG
       this.playerFrames = await this.extractFramesFromSpriteSheet(
-        `../assets/imgs/pudge.png`, 
+        CONFIG.SPRITE_URLS.pudge, 
         configs.pudge
       );
     } catch (error) {
@@ -1431,22 +1288,15 @@ export class Game {
 
   async loadMobFrames() {
     const configs = this.getSpriteSheetConfigs();
-    const allMobs = [
-      // Básicos
-      "meepo", "ghost", "mad", "spoon",
-      // Intermediários
-      "boss", "ghost02", "glad", "sad", 
-      // Avançados
-      "bat", "bloodthirsty", "necromancer",
-      // Extremos
-      "broodmother", "tb"
-    ];
+    
+    // Obter todos os mobs dinamicamente do CONFIG, excluindo pudge
+    const allMobs = Object.keys(CONFIG.SPRITE_URLS).filter(key => key !== 'pudge');
     
     for (const mob of allMobs) {
       this.mobFrames[mob] = [];
       try {
           this.mobFrames[mob] = await this.extractFramesFromSpriteSheet(
-            `../assets/imgs/${mob}.png`,
+            CONFIG.SPRITE_URLS[mob],
             configs[mob]
           );
       } catch (error) {
@@ -1572,9 +1422,9 @@ export class Game {
     this.enemySpawnTimer += deltaTime;
     let currentSpawnInterval = this.enemySpawnInterval;
     
-    // Reduzir intervalo de spawn dramaticamente em níveis altos
-    if (this.gameState.level > 10) {
-      currentSpawnInterval *= (1 - Math.min(0.7, (this.gameState.level - 10) * 0.05));
+    // Reduzir intervalo de spawn de forma mais gradual
+    if (this.gameState.level > 8) { // Começar a redução apenas no nível 8
+      currentSpawnInterval *= (1 - Math.min(0.5, (this.gameState.level - 8) * 0.03)); // Redução mais suave
     }
     
     if (this.enemySpawnTimer >= currentSpawnInterval) {
@@ -1582,10 +1432,21 @@ export class Game {
       this.gameState.stats.enemiesSpawned += this.gameState.multiSpawn || 1;
       this.enemySpawnTimer = 0;
       
-      // Variação no intervalo baseada no nível - mais caótico em níveis altos
-      const baseVariation = this.gameState.level > 15 ? 200 : 600;
-      const variation = Math.max(100, baseVariation - (this.gameState.level * 20));
-      this.enemySpawnInterval = Math.max(300, 800 - (this.gameState.level * 30) + Math.floor(Math.random() * variation));
+      // Variação no intervalo mais generosa nos primeiros níveis
+      let baseInterval = 1200; // Intervalo base maior
+      let levelReduction = 0;
+      
+      if (this.gameState.level <= 5) {
+        levelReduction = this.gameState.level * 20; // Redução muito suave
+      } else if (this.gameState.level <= 10) {
+        levelReduction = 100 + (this.gameState.level - 5) * 40; // Redução moderada
+      } else {
+        levelReduction = 300 + (this.gameState.level - 10) * 30; // Redução mais agressiva
+      }
+      
+      const baseVariation = this.gameState.level > 15 ? 300 : 800;
+      const variation = Math.max(200, baseVariation - (this.gameState.level * 15));
+      this.enemySpawnInterval = Math.max(400, baseInterval - levelReduction + Math.floor(Math.random() * variation));
     }
 
     // Update subsystems
@@ -1664,9 +1525,19 @@ export class Game {
   }
 
   addEnemy() {
-    // Distância mínima aumentada para níveis avançados
-    const baseMinDistance = this.player.width * 2.5;
-    const levelMultiplier = this.gameState.level > 10 ? 1.8 : 1.0;
+    // Distância mínima mais generosa nos primeiros níveis
+    const baseMinDistance = this.player.width * 4; // Aumentado de 2.5 para 4
+    
+    // Multiplicador que diminui gradualmente com o nível
+    let levelMultiplier = 1.0;
+    if (this.gameState.level <= 5) {
+      levelMultiplier = 2.0; // Muito mais espaço nos primeiros 5 níveis
+    } else if (this.gameState.level <= 10) {
+      levelMultiplier = 1.5; // Espaço médio até nível 10
+    } else {
+      levelMultiplier = 1.2; // Espaço reduzido apenas após nível 10
+    }
+    
     const minDistance = baseMinDistance * levelMultiplier;
     const spawnCount = this.gameState.multiSpawn || 1;
     
@@ -1674,70 +1545,32 @@ export class Game {
     if (this.enemies.length === 0 || 
         this.enemies[this.enemies.length - 1].x < this.width - minDistance) {
       
-      // Sistema de spawn inteligente para evitar combinações impossíveis
-      let spawnedEnemies = [];
-      
-      // Ajustar espaçamento baseado no nível - níveis avançados precisam de mais espaço
-      const levelMultiplier = this.gameState.level > 10 ? 1.5 : 1.0;
-      const advancedLevelMultiplier = this.gameState.level > 15 ? 2.0 : levelMultiplier;
+      // Espaçamento entre inimigos na mesma onda - muito generoso nos primeiros níveis
+      const enemySpacing = this.gameState.level <= 5 ? 
+        this.player.width * 8 : // Muito espaço nos primeiros níveis
+        this.gameState.level <= 10 ? 
+          this.player.width * 6 : // Espaço médio
+          this.player.width * 4; // Espaço normal apenas após nível 10
       
       for (let i = 0; i < spawnCount; i++) {
         const enemy = new EnemyAngler(this);
         
-        // Verificar se há conflito com inimigos já spawnados nesta onda
-        const hasGroundEnemy = spawnedEnemies.some(e => !e.isFlying);
-        const hasFlyingEnemy = spawnedEnemies.some(e => e.isFlying);
+        // Posição base com espaçamento maior
+        enemy.x = this.width + (i * enemySpacing);
         
-        // Se já há um inimigo terrestre e este é voador, aplicar distância segura
-        if (hasGroundEnemy && enemy.isFlying) {
-          enemy.x = this.width + (this.player.width * 6 * advancedLevelMultiplier); // Distância extra segura para níveis avançados
-        }
-        // Se já há um inimigo voador e este é terrestre, aplicar distância segura
-        else if (hasFlyingEnemy && !enemy.isFlying) {
-          enemy.x = this.width + (this.player.width * 6 * advancedLevelMultiplier); // Distância extra segura para níveis avançados
-        }
-        // Posicionamento normal para grupos homogêneos
-        else if (spawnCount > 1) {
-          // Calcular espaçamento seguro baseado no tamanho do player e nível
-          const baseJumpDistance = this.player.width * 1.8; // Espaço base para o player passar pulando
-          const safeJumpDistance = baseJumpDistance * advancedLevelMultiplier;
-          
-          if (enemy.isFlying) {
-            // Inimigos voadores: espaçamento horizontal ainda maior
-            const flyingSpacing = Math.max(safeJumpDistance * 1.8, this.player.width * 4);
-            enemy.x += i * flyingSpacing;
-            // Pequena variação na altura para parecer mais natural
-            const heightVariation = (Math.random() - 0.5) * 40;
-            enemy.y = Math.max(
-              this.config.GROUND_Y * 0.2, 
-              Math.min(this.config.GROUND_Y * 0.5, enemy.y + heightVariation)
-            );
-          } else {
-            // Inimigos terrestres: espaçamento horizontal adequado para pulos
-            const horizontalSpacing = Math.max(safeJumpDistance, this.player.width * 2.5);
-            enemy.x += i * horizontalSpacing;
-            
-            // Formação vertical mais espaçada também
-            const verticalOffset = (i - (spawnCount - 1) / 2) * (enemy.height + 30);
-            enemy.y = Math.max(0, 
-              Math.min(this.config.GROUND_Y - enemy.height, 
-                      enemy.y + verticalOffset)
-            );
-          }
-        }
-        
-        // Tornar inimigos mais rápidos em níveis altos
+        // Tornar inimigos mais rápidos em níveis altos (mas de forma mais suave)
         if (this.gameState.level > 10) {
-          enemy.speedX *= (1 + (this.gameState.level - 10) * 0.05);
+          enemy.speedX *= (1 + (this.gameState.level - 10) * 0.015); // Reduzido de 0.03 para 0.015
         }
         
-        spawnedEnemies.push(enemy);
-      }
-      
-      // Adicionar todos os inimigos spawnados ao jogo
-      spawnedEnemies.forEach(enemy => {
+        // Cap máximo na velocidade para evitar impossibilidade
+        const maxSpeedMultiplier = 2.5; // Máximo 250% da velocidade base
+        if (Math.abs(enemy.speedX) > Math.abs(this.gameState.speed * maxSpeedMultiplier)) {
+          enemy.speedX = -this.gameState.speed * maxSpeedMultiplier;
+        }
+        
         this.enemies.push(enemy);
-      });
+      }
     }
   }
 

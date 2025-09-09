@@ -1,10 +1,6 @@
 
-import { getMobileScaleFactor, isMobile } from './Utils.js';
-
 export class Particle {
   constructor(x, y, type = 'score', config = {}) {
-    const mobileScale = getMobileScaleFactor();
-    
     // Posição inicial
     this.initialX = x;
     this.initialY = y;
@@ -17,7 +13,7 @@ export class Particle {
     Object.assign(this.config, config); // Override com configurações customizadas
     
     // Propriedades físicas
-    this.radius = this.config.radius * mobileScale;
+    this.radius = this.config.radius;
     this.maxLife = this.config.life;
     this.life = this.maxLife;
     this.alpha = 1;
@@ -27,11 +23,11 @@ export class Particle {
     // Velocidade inicial com variação baseada no tipo
     const angle = this.config.angle + (Math.random() - 0.5) * this.config.angleVariation;
     const speed = this.config.speed + (Math.random() - 0.5) * this.config.speedVariation;
-    this.vx = Math.cos(angle) * speed * mobileScale;
-    this.vy = Math.sin(angle) * speed * mobileScale;
+    this.vx = Math.cos(angle) * speed;
+    this.vy = Math.sin(angle) * speed;
     
     // Física
-    this.gravity = this.config.gravity * mobileScale;
+    this.gravity = this.config.gravity;
     this.friction = this.config.friction;
     this.bounce = this.config.bounce;
     

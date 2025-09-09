@@ -2,7 +2,7 @@
 
 [![Version](https://img.shields.io/badge/Version-4.0-blue)](https://github.com/gbrlstr/pudge-runner)
 [![HTML5](https://img.shields.io/badge/HTML5-Canvas-orange)](https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API)
-[![Mobile](https://img.shields.io/badge/Mobile-Optimized-green)](docs/MOBILE.md)
+[![Web Game](https://img.shields.io/badge/Platform-Web-green)](https://pudge-runner.vercel.app)
 [![License](https://img.shields.io/badge/License-MIT-yellow)](LICENSE)
 [![Open Source](https://img.shields.io/badge/Open%20Source-❤️-red)](https://github.com/gbrlstr/pudge-runner)
 
@@ -29,23 +29,14 @@ An endless runner game inspired by Pudge character from DOTA 2. Dodge obstacles 
 - **Particle Effects** - Jump trails, collision effects, and visual feedback
 - **Smooth Animations** - Fluid character and obstacle movements
 - **Dynamic Parallax Background** - Multi-layer depth system
-- **Responsive UI** - Adaptive interface for all screen sizes and orientations
+- **Desktop UI** - Optimized interface for web browsers
 - **Glass-morphism Effects** - Modern translucent design elements
 
-### 📱 Mobile & Cross-Platform
-
-- **Dedicated Mobile CSS** - Optimized stylesheet for mobile devices
-- **Responsive Canvas** - Dynamic sizing without forced rotation
-- **Smart Scaling** - Automatic player and enemy size adjustments
-- **Touch Controls** - Single tap (jump) and multi-touch gestures
-- **Orientation Support** - Full portrait and landscape compatibility
-- **Performance Optimized** - Reduced elements and particles for smooth mobile FPS
-
-### 🛠️ Technical Architecture
+### ️ Technical Architecture
 
 - **Modular ES6 Architecture** - Clean, maintainable object-oriented code
 - **Robust Asset Management** - Fallback system for failed sprite loads
-- **Multiple Input Support** - Keyboard and touch controls
+- **Keyboard Controls** - Optimized desktop input handling
 - **Auto-pause System** - Automatic pause when tab loses focus
 - **Error Handling** - Comprehensive error recovery and debugging
 
@@ -67,21 +58,6 @@ Open `index.html` directly in your browser for quick testing (some features may 
 - **SPACE** - Jump
 - **P** - Pause/Unpause
 - **R** - Restart (when game over)
-- **M** - Toggle mobile panels
-
-### Mobile Controls
-
-- **Single Tap** - Jump
-- **Two Fingers** - Pause/Unpause  
-- **📱 Button** - Show/hide UI panels
-- **🔊 Button** - Toggle sound on/off
-
-### 📱 **Mobile Panel System Usage**
-
-1. **On Mobile**: Panels are automatically hidden to maximize gameplay area
-2. **To show panels**: Tap the 📱 button (top left corner) or press 'M'
-3. **To hide panels**: Tap the 📱 button again or press 'M'
-4. **Preference saved**: Your chosen state is remembered for future sessions
 
 ### Objective
 
@@ -158,8 +134,7 @@ pudge-runner/
 ├── LICENSE                    # MIT License
 ├── CONTRIBUTING.md            # Contribution guidelines
 ├── assets/                    # Game assets
-│   ├── style.css             # Desktop CSS
-│   ├── style.mobile.css      # Mobile-optimized CSS
+│   ├── style.css             # Main CSS stylesheet
 │   ├── logo.png              # Game icon
 │   ├── imgs/                 # Sprites and images
 │   │   ├── pudg.gif         # Player sprite
@@ -190,7 +165,6 @@ pudge-runner/
 │   └── firebase-rank.js    # Global ranking system
 └── docs/                   # Documentation
     ├── ARCHITECTURE.md     # Technical architecture
-    ├── MOBILE.md          # Mobile optimization guide
     ├── DEPLOYMENT.md      # Deployment instructions
     ├── API.md             # API documentation
     └── CHANGELOG.md       # Version history
@@ -206,7 +180,7 @@ pudge-runner/
 - ✅ **Enhanced Audio System** - Robust synchronized audio management
 - ✅ **Premium Ranking System** - Global leaderboard with elegant design
 - ✅ **Advanced Final Score** - Professional game over screen with detailed stats
-- ✅ **Responsive Excellence** - High-quality responsive design for all devices
+- ✅ **Desktop Excellence** - High-quality design optimized for web browsers
 
 ### Planned Features 🔮
 
@@ -238,42 +212,30 @@ pudge-runner/
 
 ## 💻 Technologies Used
 
-- **HTML5 Canvas** - Game rendering with mobile/desktop optimizations
+- **HTML5 Canvas** - Game rendering optimized for desktop browsers
 - **JavaScript ES6+ Modules** - Modular architecture with classes and imports/exports
 - **CSS3 Enhanced Design** - Professional design system with custom properties
 - **Google Fonts** - Orbitron & Montserrat for premium typography
 - **LocalStorage** - Local data persistence and user preferences
 - **Firebase** - Real-time global ranking system
-- **ResizeObserver API** - Intelligent layout change detection
-- **Touch Events API** - Optimized mobile touch controls
-- **Canvas 2D Context** - Advanced rendering with dirty rectangles
-- **CSS Grid & Flexbox** - Professional responsive layout
+- **Canvas 2D Context** - Advanced rendering with optimized performance
+- **CSS Grid & Flexbox** - Professional desktop layout
 - **Web Audio API** - Audio system with volume control
 - **Glass-morphism CSS** - Modern transparency and blur effects
 
-## 📱 Device Compatibility
+## 🌐 Browser Compatibility
 
-### Desktop Browsers
+### Supported Browsers
 
 - ✅ Chrome/Chromium 80+
 - ✅ Firefox 75+
 - ✅ Safari 13+
 - ✅ Edge 80+
 
-### Mobile Devices
+### Recommended Minimum Resolution
 
-- ✅ Chrome Mobile (Android)
-- ✅ Safari iOS (iPhone/iPad)
-- ✅ Firefox Mobile
-- ✅ Samsung Internet
-- ✅ Opera Mobile
-
-### Tested Devices
-
-- ✅ iPhone SE, 6, 7, 8, Plus series
-- ✅ Android devices (375px - 480px+)
-- ✅ Tablets (portrait and landscape)
-- ✅ Desktop (1920x1080+)
+- 🖥️ Desktop: 1366x768 or higher
+- 💻 Laptop: 1280x720 or higher
 
 ## 🤝 Contributing
 
@@ -318,7 +280,7 @@ A complete evolution of the original concept, now featuring professional modular
 - 🎨 Redesigned interface with professional styling
 - 🏗️ Complete ES6 modular architecture
 - 🔊 Synchronized and robust audio system
-- 📱 Excellent mobile responsiveness
+- �️ Excellent desktop optimization
 - 🏆 Premium ranking system design
 - ✨ Advanced animations and visual effects
 

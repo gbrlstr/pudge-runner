@@ -1,16 +1,14 @@
 // Inimigo específico (herda de Enemy)
 
 import { Enemy } from './Enemy.js';
-import { getMobileScaleFactor, isMobile } from './Utils.js';
 
 export class EnemyAngler extends Enemy {
   constructor(game) {
     super(game);
-    // Mobile responsive sizing for enemies
-    const mobileScale = getMobileScaleFactor();
-    const baseSize = isMobile() ? 70 : 90;
-    this.width = baseSize * mobileScale;
-    this.height = baseSize * mobileScale;
+    // Desktop sizing for enemies
+    const baseSize = 90;
+    this.width = baseSize;
+    this.height = baseSize;
     
     // Posicionamento baseado no comportamento do inimigo
     this.setInitialPosition();

@@ -1,26 +1,20 @@
 
-import { getMobileScaleFactor, isMobile } from './Utils.js';
-
 export class Player {
   constructor(game) {
     this.game = game;
-    // Cache mobile values to avoid repeated calls
-    this.isMobileDevice = isMobile();
-    this.mobileScale = getMobileScaleFactor();
     
-    const baseSize = this.isMobileDevice ? 100 : 130;
-    this.width = baseSize * this.mobileScale;
-    this.height = baseSize * this.mobileScale;
-    this.x = 30 * this.mobileScale;
-    this.y = 190 * this.mobileScale;
+    this.width = 130;
+    this.height = 130;
+    this.x = 30;
+    this.y = 190;
     this.dy = 0;
     this.speedX = 0;
-    this.maxSpeed = this.isMobileDevice ? 8 * this.mobileScale : 10;
-    this.gravity = this.isMobileDevice ? 0.9 : 1.1;
-    this.jumpPower = this.isMobileDevice ? -14 * this.mobileScale : -16;
+    this.maxSpeed = 10;
+    this.gravity = 1.1;
+    this.jumpPower = -16;
     this.animFrame = 0;
     this.onGround = false;
-    this.groundY = this.game.config.GROUND_Y - (this.isMobileDevice ? 70 * this.mobileScale : 90);
+    this.groundY = this.game.config.GROUND_Y - 90;
     this.flipped = false;
     this.frameRate = 15; // Aumentado de 10 para 15 FPS para animação mais suave
     this.frameDelay = 0;

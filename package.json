@@ -11,8 +11,8 @@
     "pudge",
     "endless-runner",
     "javascript",
-    "mobile",
-    "responsive",
+    "web-game",
+    "desktop",
     "open-source"
   ],
   "author": "Developed for DOTA 2 Community",
@@ -43,8 +43,6 @@
     "Chrome >= 80",
     "Firefox >= 75",
     "Safari >= 13",
-    "Edge >= 80",
-    "iOS >= 13",
-    "Android >= 80"
+    "Edge >= 80"
   ]
 }
