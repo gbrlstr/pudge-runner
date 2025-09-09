@@ -479,13 +479,13 @@ export class Game {
 
   async loadAudioAssets() {
     // Carregar música de fundo
-    this.bgMusic = new Audio("../assets/sounds/background.mp3");
+    this.bgMusic = new Audio("../assets/sounds/music.wav");
     this.bgMusic.loop = true;
-    this.bgMusic.volume = 0.5;
+    this.bgMusic.volume = 0.4;
     
     // Carregar som de kill
     this.killSound = new Audio("../assets/sounds/kill.ogg");
-    this.killSound.volume = 0.7;
+    this.killSound.volume = 0.6;
     
     // Carregar sons via AssetManager para melhor performance
     try {
